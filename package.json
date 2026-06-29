@@ -1,0 +1,50 @@
+{
+  "name": "tracer-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tracer AI modular monolith workspace",
+  "type": "module",
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
+  "engines": {
+    "node": ">=24.0.0",
+    "npm": ">=11.0.0"
+  },
+  "scripts": {
+    "dev": "concurrently -n client,server,worker -c cyan,green,magenta \"npm run dev -w @tracer-ai/client\" \"npm run dev -w @tracer-ai/server\" \"npm run dev:worker -w @tracer-ai/server\"",
+    "dev:client": "npm run dev -w @tracer-ai/client",
+    "dev:server": "npm run dev -w @tracer-ai/server",
+    "build": "npm run build -w @tracer-ai/shared && npm run build -w @tracer-ai/client && npm run build -w @tracer-ai/server",
+    "check:architecture": "node scripts/check-architecture.js",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "npm run test --workspaces --if-present",
+    "check": "npm run check:architecture && npm run lint && npm run format:check && npm run test && npm run build",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{json,md,css,yml,yaml}": [
+      "prettier --write"
+    ],
+    "*.{js,jsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "concurrently": "^10.0.3",
+    "eslint": "^10.6.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.3",
+    "globals": "^17.7.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.8",
+    "prettier": "^3.9.3"
+  }
+}

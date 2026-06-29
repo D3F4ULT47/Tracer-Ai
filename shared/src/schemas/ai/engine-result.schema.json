@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracer.ai/schemas/ai/engine-result.schema.json",
+  "title": "AI engine result envelope",
+  "type": "object",
+  "required": ["engine", "engineVersion", "schemaVersion", "data"],
+  "properties": {
+    "engine": { "type": "string", "minLength": 1 },
+    "engineVersion": { "type": "string", "minLength": 1 },
+    "schemaVersion": { "type": "string", "minLength": 1 },
+    "data": {}
+  },
+  "additionalProperties": false
+}

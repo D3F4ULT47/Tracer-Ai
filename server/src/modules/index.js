@@ -1,0 +1,10 @@
+export { analyticsModule } from './analytics/index.js';
+export { authModule } from './auth/index.js';
+export { dashboardModule } from './dashboard/index.js';
+export { exportsModule } from './exports/index.js';
+export { notificationsModule } from './notifications/index.js';
+export { resourcesModule } from './resources/index.js';
+export { roadmapsModule } from './roadmaps/index.js';
+export { sharingModule } from './sharing/index.js';
+export { uploadsModule } from './uploads/index.js';
+export { usersModule } from './users/index.js';
