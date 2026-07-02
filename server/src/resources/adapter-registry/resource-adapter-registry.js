@@ -4,10 +4,10 @@ export class ResourceAdapterRegistry {
   register(adapter) {
     if (
       !adapter?.name ||
-      typeof adapter.canHandle !== 'function' ||
+      (typeof adapter.canHandle !== 'function' && typeof adapter.search !== 'function') ||
       typeof adapter.normalize !== 'function'
     ) {
-      throw new Error('Resource adapters require name, canHandle, and normalize');
+      throw new Error('Resource adapters require name, normalize, and canHandle or search');
     }
 
     if (this.#adapters.has(adapter.name)) {
@@ -19,7 +19,19 @@ export class ResourceAdapterRegistry {
   }
 
   find(input) {
-    return [...this.#adapters.values()].find((adapter) => adapter.canHandle(input)) ?? null;
+    return (
+      [...this.#adapters.values()].find(
+        (adapter) => typeof adapter.canHandle === 'function' && adapter.canHandle(input),
+      ) ?? null
+    );
+  }
+
+  get(name) {
+    return this.#adapters.get(name) ?? null;
+  }
+
+  searchable() {
+    return [...this.#adapters.values()].filter((adapter) => typeof adapter.search === 'function');
   }
 
   list() {

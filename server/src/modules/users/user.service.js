@@ -35,6 +35,16 @@ export const userService = Object.freeze({
   async getLearningProfile(userId) {
     return requireRecord(LearningProfile, userId, 'Learning profile');
   },
+  async getLearningContextSources(userId) {
+    const [profile, learningProfile] = await Promise.all([
+      requireRecord(Profile, userId, 'Profile'),
+      requireRecord(LearningProfile, userId, 'Learning profile'),
+    ]);
+    return {
+      profile: profile.toObject(),
+      learningProfile: learningProfile.toObject(),
+    };
+  },
   async updateLearningProfile(userId, changes) {
     const profile = await requireRecord(LearningProfile, userId, 'Learning profile');
     Object.assign(profile, changes);

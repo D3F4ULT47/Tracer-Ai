@@ -5,7 +5,12 @@ import { authApi } from '../api/auth-api.js';
 export const authKeys = Object.freeze({ me: ['auth', 'me'] });
 
 export function useCurrentUser() {
-  return useQuery({ queryKey: authKeys.me, queryFn: userApi.me, retry: false });
+  return useQuery({
+    queryKey: authKeys.me,
+    queryFn: ({ signal }) =>
+      userApi.me({ signal: AbortSignal.any([signal, AbortSignal.timeout(8000)]) }),
+    retry: false,
+  });
 }
 
 export function useLogin() {

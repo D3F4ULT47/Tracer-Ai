@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracer.ai/schemas/ai/source-understanding/1.0.0",
+  "title": "Tracer AI Source Understanding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "understandingId",
+    "generatedAt",
+    "mode",
+    "summary",
+    "sourceAttributions",
+    "sourceProcessing",
+    "concepts",
+    "technologies",
+    "skills",
+    "prerequisites",
+    "dependencies",
+    "milestones",
+    "creatorRecommendations",
+    "preservedStructure",
+    "evidence",
+    "assumptions"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0.0" },
+    "understandingId": { "type": "string", "format": "uuid" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "mode": { "enum": ["single", "mixed"] },
+    "summary": { "type": "string", "minLength": 1, "maxLength": 5000 },
+    "sourceAttributions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": {
+        "$ref": "https://tracer.ai/schemas/ai/roadmap-source/1.0.0#/$defs/attribution"
+      }
+    },
+    "sourceProcessing": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": { "$ref": "#/$defs/sourceProcessing" }
+    },
+    "concepts": { "$ref": "#/$defs/insights" },
+    "technologies": { "$ref": "#/$defs/insights" },
+    "skills": { "$ref": "#/$defs/insights" },
+    "prerequisites": { "$ref": "#/$defs/insights" },
+    "dependencies": {
+      "type": "array",
+      "maxItems": 500,
+      "items": { "$ref": "#/$defs/dependency" }
+    },
+    "milestones": { "$ref": "#/$defs/insights" },
+    "creatorRecommendations": { "$ref": "#/$defs/insights" },
+    "preservedStructure": {
+      "type": "array",
+      "maxItems": 500,
+      "items": { "$ref": "#/$defs/structureItem" }
+    },
+    "evidence": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": { "$ref": "#/$defs/evidence" }
+    },
+    "assumptions": {
+      "type": "array",
+      "maxItems": 100,
+      "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+    }
+  },
+  "$defs": {
+    "sourceProcessing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceType", "identifier", "status", "errorCode"],
+      "properties": {
+        "sourceType": {
+          "enum": [
+            "natural_prompt",
+            "resume",
+            "pdf",
+            "github_repository",
+            "youtube_video",
+            "google_document",
+            "ai_report"
+          ]
+        },
+        "identifier": { "type": ["string", "null"], "maxLength": 2000 },
+        "status": { "enum": ["processed", "failed"] },
+        "errorCode": { "type": ["string", "null"], "maxLength": 100 }
+      }
+    },
+    "insights": {
+      "type": "array",
+      "maxItems": 500,
+      "items": { "$ref": "#/$defs/insight" }
+    },
+    "insight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "confidence", "evidenceIds", "reasoning"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "evidenceIds": {
+          "type": "array",
+          "maxItems": 50,
+          "items": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "uniqueItems": true
+        },
+        "reasoning": { "type": "string", "minLength": 1, "maxLength": 1000 }
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "type", "confidence", "evidenceIds"],
+      "properties": {
+        "from": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "to": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "type": { "enum": ["prerequisite", "sequence", "component", "recommended"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "evidenceIds": {
+          "type": "array",
+          "maxItems": 50,
+          "items": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "structureItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceId", "order", "title", "description"],
+      "properties": {
+        "sourceId": { "type": "string", "format": "uuid" },
+        "order": { "type": "integer", "minimum": 1 },
+        "title": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "description": { "type": "string", "minLength": 1, "maxLength": 2000 }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidenceId", "sourceId", "locator", "excerpt"],
+      "properties": {
+        "evidenceId": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "sourceId": { "type": "string", "format": "uuid" },
+        "locator": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "excerpt": { "type": "string", "minLength": 1, "maxLength": 1000 }
+      }
+    }
+  }
+}

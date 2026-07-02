@@ -2,10 +2,13 @@ import { env } from '../../config/env.js';
 
 const reservedFlags = Object.freeze({
   ADVANCED_ANALYTICS: 'advanced-analytics',
+  AI_ROADMAP_GENERATION: 'ai-roadmap-generation',
+  AI_LEARNER_ASSESSMENT: 'ai-learner-assessment',
   COLLABORATION: 'collaboration',
   FLASHCARDS: 'flashcards',
   MENTOR: 'mentor',
   OCR: 'ocr',
+  RESUME_UPLOAD: 'resume-upload',
   VOICE: 'voice',
 });
 

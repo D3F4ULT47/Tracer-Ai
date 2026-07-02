@@ -1,5 +1,8 @@
 export { analyticsModule } from './analytics/index.js';
+export { activityModule } from './activity/index.js';
+export { aiModule } from './ai/index.js';
 export { authModule } from './auth/index.js';
+export { communityModule } from './community/index.js';
 export { dashboardModule } from './dashboard/index.js';
 export { exportsModule } from './exports/index.js';
 export { notificationsModule } from './notifications/index.js';

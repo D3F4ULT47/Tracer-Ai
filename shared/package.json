@@ -6,7 +6,9 @@
   "exports": {
     ".": "./src/index.js",
     "./contracts": "./src/contracts/index.js",
-    "./constants": "./src/constants/index.js"
+    "./constants": "./src/constants/index.js",
+    "./schemas/ai": "./src/schemas/ai/index.js",
+    "./schemas/resources": "./src/schemas/resources/index.js"
   },
   "scripts": {
     "build": "node --check src/index.js",

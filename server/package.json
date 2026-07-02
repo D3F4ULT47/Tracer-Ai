@@ -9,6 +9,9 @@
     "start": "node src/server.js",
     "start:worker": "node src/workers.js",
     "migrate:sprint-1": "node ../scripts/migrations/001-create-auth-and-user-indexes.js",
+    "migrate:sprint-3": "node ../scripts/migrations/002-create-resource-indexes.js",
+    "migrate:mvp-completion": "node ../scripts/migrations/003-create-mvp-completion-indexes.js",
+    "verify:auth-runtime": "node ../scripts/verify-auth-runtime.js",
     "build": "node --check src/server.js",
     "test": "node --test"
   },
@@ -34,6 +37,7 @@
     "openid-client": "^6.8.4",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
+    "pdfjs-dist": "^6.1.200",
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",
     "resend": "^6.16.0",

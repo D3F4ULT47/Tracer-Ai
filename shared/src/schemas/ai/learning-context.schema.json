@@ -1,0 +1,371 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracer.ai/schemas/ai/learning-context/1.0.0",
+  "title": "Tracer AI Learning Context",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "contextVersion",
+    "generatedAt",
+    "generatedFrom",
+    "clarificationState",
+    "mode",
+    "primaryGoal",
+    "goalType",
+    "careerGoal",
+    "projectGoal",
+    "currentProficiency",
+    "knownSkills",
+    "missingSkills",
+    "technologyStack",
+    "learningStyle",
+    "weeklyHours",
+    "preferredLanguage",
+    "preferredResourceLanguage",
+    "preferredPlatforms",
+    "preferredCreators",
+    "budget",
+    "targetDeadline",
+    "preferredRoadmapStyle",
+    "difficultyPreference",
+    "pace",
+    "existingExperience",
+    "education",
+    "careerDirection",
+    "constraints",
+    "confidence",
+    "evidence",
+    "assumptions",
+    "clarificationsRequired"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string", "enum": ["1.0.0"] },
+    "contextVersion": { "type": "integer", "minimum": 1 },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "generatedFrom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profileVersion",
+        "learningProfileVersion",
+        "resumeVersion",
+        "assessmentVersion",
+        "clarificationVersion"
+      ],
+      "properties": {
+        "profileVersion": { "type": ["integer", "null"], "minimum": 0 },
+        "learningProfileVersion": { "type": ["integer", "null"], "minimum": 0 },
+        "resumeVersion": { "type": ["integer", "null"], "minimum": 1 },
+        "assessmentVersion": { "type": "string", "minLength": 1 },
+        "clarificationVersion": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "clarificationState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["questionAsked", "questionId", "answeredAt"],
+      "properties": {
+        "questionAsked": { "type": "boolean" },
+        "questionId": { "type": ["string", "null"] },
+        "answeredAt": { "type": ["string", "null"], "format": "date-time" }
+      }
+    },
+    "mode": { "$ref": "#/$defs/modeField" },
+    "primaryGoal": { "$ref": "#/$defs/stringField" },
+    "goalType": { "$ref": "#/$defs/goalTypeField" },
+    "careerGoal": { "$ref": "#/$defs/stringField" },
+    "projectGoal": { "$ref": "#/$defs/stringField" },
+    "currentProficiency": { "$ref": "#/$defs/proficiencyField" },
+    "knownSkills": { "$ref": "#/$defs/skillsField" },
+    "missingSkills": { "$ref": "#/$defs/skillsField" },
+    "technologyStack": { "$ref": "#/$defs/skillsField" },
+    "learningStyle": { "$ref": "#/$defs/stringField" },
+    "weeklyHours": { "$ref": "#/$defs/numberField" },
+    "preferredLanguage": { "$ref": "#/$defs/stringField" },
+    "preferredResourceLanguage": { "$ref": "#/$defs/stringField" },
+    "preferredPlatforms": { "$ref": "#/$defs/stringsField" },
+    "preferredCreators": { "$ref": "#/$defs/stringsField" },
+    "budget": { "$ref": "#/$defs/numberField" },
+    "targetDeadline": { "$ref": "#/$defs/stringField" },
+    "preferredRoadmapStyle": { "$ref": "#/$defs/stringField" },
+    "difficultyPreference": { "$ref": "#/$defs/stringField" },
+    "pace": { "$ref": "#/$defs/paceField" },
+    "existingExperience": { "$ref": "#/$defs/stringsField" },
+    "education": { "$ref": "#/$defs/stringsField" },
+    "careerDirection": { "$ref": "#/$defs/stringField" },
+    "constraints": { "$ref": "#/$defs/stringsField" },
+    "confidence": { "$ref": "#/$defs/numberField" },
+    "evidence": { "$ref": "#/$defs/evidenceField" },
+    "assumptions": { "$ref": "#/$defs/assumptionsField" },
+    "clarificationsRequired": { "$ref": "#/$defs/clarificationsField" }
+  },
+  "$defs": {
+    "source": {
+      "type": "string",
+      "enum": [
+        "explicit_user",
+        "user_profile",
+        "questionnaire",
+        "learning_profile",
+        "resume_analysis",
+        "ai_assessment",
+        "ai_inference",
+        "system_derived",
+        "system_default"
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "excerpt"],
+      "properties": {
+        "source": { "$ref": "#/$defs/source" },
+        "excerpt": { "type": "string", "minLength": 1, "maxLength": 500 }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "value", "confidence", "evidence", "reasoning", "selected"],
+      "properties": {
+        "source": { "$ref": "#/$defs/source" },
+        "value": {},
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "evidence": {
+          "type": "array",
+          "maxItems": 100,
+          "items": { "$ref": "#/$defs/evidence" }
+        },
+        "reasoning": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "selected": { "type": "boolean" }
+      }
+    },
+    "conflict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selectedSource",
+        "selectedValue",
+        "conflictingSource",
+        "conflictingValue",
+        "reason"
+      ],
+      "properties": {
+        "selectedSource": { "$ref": "#/$defs/source" },
+        "selectedValue": {},
+        "conflictingSource": { "$ref": "#/$defs/source" },
+        "conflictingValue": {},
+        "reason": { "type": "string", "minLength": 1, "maxLength": 500 }
+      }
+    },
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "status", "confidence", "evidence", "provenance", "conflicts"],
+      "properties": {
+        "value": {},
+        "status": { "type": "string", "enum": ["resolved", "unresolved", "conflicted"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "evidence": {
+          "type": "array",
+          "maxItems": 100,
+          "items": { "$ref": "#/$defs/evidence" }
+        },
+        "provenance": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": { "$ref": "#/$defs/provenance" }
+        },
+        "conflicts": {
+          "type": "array",
+          "maxItems": 20,
+          "items": { "$ref": "#/$defs/conflict" }
+        }
+      }
+    },
+    "stringField": {
+      "allOf": [
+        { "$ref": "#/$defs/field" },
+        { "type": "object", "properties": { "value": { "type": ["string", "null"] } } }
+      ]
+    },
+    "numberField": {
+      "allOf": [
+        { "$ref": "#/$defs/field" },
+        { "type": "object", "properties": { "value": { "type": ["number", "null"] } } }
+      ]
+    },
+    "goalTypeField": {
+      "allOf": [
+        { "$ref": "#/$defs/field" },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": ["string", "null"],
+              "enum": [
+                "career_goal",
+                "learning_goal",
+                "project",
+                "certification",
+                "interview",
+                "other",
+                null
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "proficiencyField": {
+      "allOf": [
+        { "$ref": "#/$defs/field" },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": ["string", "null"],
+              "enum": ["beginner", "intermediate", "advanced", "expert", null]
+            }
+          }
+        }
+      ]
+    },
+    "paceField": {
+      "allOf": [
+        { "$ref": "#/$defs/field" },
+        {
+          "type": "object",
+          "properties": {
+            "value": { "type": ["string", "null"], "enum": ["slow", "balanced", "fast", null] }
+          }
+        }
+      ]
+    },
+    "modeField": {
+      "allOf": [
+        { "$ref": "#/$defs/field" },
+        {
+          "type": "object",
+          "properties": {
+            "value": { "type": ["string", "null"], "enum": ["quick", "personalized", null] }
+          }
+        }
+      ]
+    },
+    "stringsField": {
+      "allOf": [
+        { "$ref": "#/$defs/field" },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": ["array", "null"],
+              "maxItems": 200,
+              "items": { "type": "string" }
+            }
+          }
+        }
+      ]
+    },
+    "skill": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "category", "confidence", "evidence"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "category": { "type": ["string", "null"], "maxLength": 100 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "evidence": {
+          "type": "array",
+          "maxItems": 20,
+          "items": { "$ref": "#/$defs/evidence" }
+        }
+      }
+    },
+    "skillsField": {
+      "allOf": [
+        { "$ref": "#/$defs/field" },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": ["array", "null"],
+              "maxItems": 200,
+              "items": { "$ref": "#/$defs/skill" }
+            }
+          }
+        }
+      ]
+    },
+    "evidenceField": {
+      "allOf": [
+        { "$ref": "#/$defs/field" },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": ["array", "null"],
+              "maxItems": 500,
+              "items": { "$ref": "#/$defs/evidence" }
+            }
+          }
+        }
+      ]
+    },
+    "assumption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field", "value", "source", "confidence", "reasoning"],
+      "properties": {
+        "field": { "type": "string", "minLength": 1 },
+        "value": {},
+        "source": { "$ref": "#/$defs/source" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "reasoning": { "type": "string", "minLength": 1, "maxLength": 1000 }
+      }
+    },
+    "assumptionsField": {
+      "allOf": [
+        { "$ref": "#/$defs/field" },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": ["array", "null"],
+              "maxItems": 100,
+              "items": { "$ref": "#/$defs/assumption" }
+            }
+          }
+        }
+      ]
+    },
+    "clarification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field", "reason", "priority"],
+      "properties": {
+        "field": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "priority": { "type": "string", "enum": ["high", "medium", "low"] }
+      }
+    },
+    "clarificationsField": {
+      "allOf": [
+        { "$ref": "#/$defs/field" },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": ["array", "null"],
+              "maxItems": 50,
+              "items": { "$ref": "#/$defs/clarification" }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

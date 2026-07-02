@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracer.ai/schemas/ai/clarification/2.0.0",
+  "title": "Tracer AI Clarification Decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "status",
+    "confidence",
+    "clarificationRequired",
+    "selectedQuestion",
+    "reason",
+    "affectedFields",
+    "expectedConfidenceGain"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string", "enum": ["2.0.0"] },
+    "status": { "type": "string", "enum": ["READY", "CLARIFICATION_REQUIRED"] },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "clarificationRequired": { "type": "boolean" },
+    "selectedQuestion": {
+      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/question" }]
+    },
+    "reason": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "affectedFields": {
+      "type": "array",
+      "maxItems": 10,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "expectedConfidenceGain": { "type": "number", "minimum": 0, "maximum": 1 }
+  },
+  "$defs": {
+    "option": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "value"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "value": {
+          "oneOf": [{ "type": "string" }, { "type": "number" }, { "type": "boolean" }]
+        }
+      }
+    },
+    "question": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "question", "type", "options", "reason", "affectedFields", "targetField"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "question": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "type": {
+          "type": "string",
+          "enum": ["multiple_choice", "free_text", "dropdown", "boolean", "date", "number"]
+        },
+        "options": {
+          "type": "array",
+          "maxItems": 10,
+          "items": { "$ref": "#/$defs/option" }
+        },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "affectedFields": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "targetField": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

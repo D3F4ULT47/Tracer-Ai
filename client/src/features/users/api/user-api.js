@@ -2,7 +2,7 @@ import { USER_ENDPOINTS } from '@tracer-ai/shared/contracts';
 import { contractRequest } from '../../../api/contract-client.js';
 
 export const userApi = Object.freeze({
-  me: () => contractRequest(USER_ENDPOINTS.me),
+  me: (options) => contractRequest(USER_ENDPOINTS.me, options),
   profile: () => contractRequest(USER_ENDPOINTS.profile),
   updateProfile: (body) => contractRequest(USER_ENDPOINTS.updateProfile, { body }),
   learningProfile: () => contractRequest(USER_ENDPOINTS.learningProfile),

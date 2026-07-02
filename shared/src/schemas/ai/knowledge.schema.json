@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracer.ai/schemas/ai/knowledge/1.0.0",
+  "title": "Tracer AI Knowledge Assessment",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["strengths", "gaps", "prerequisites", "confidence"],
+  "properties": {
+    "strengths": { "type": "array", "items": { "type": "string" }, "maxItems": 100 },
+    "gaps": { "type": "array", "items": { "type": "string" }, "maxItems": 100 },
+    "prerequisites": { "type": "array", "items": { "type": "string" }, "maxItems": 100 },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+  }
+}

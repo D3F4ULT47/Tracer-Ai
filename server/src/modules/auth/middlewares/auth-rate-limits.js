@@ -1,4 +1,5 @@
 import { rateLimit } from 'express-rate-limit';
+import { env } from '../../../config/env.js';
 import { redis } from '../../../infrastructure/redis/redis.js';
 
 class RedisRateLimitStore {
@@ -36,7 +37,7 @@ function createLimit(name, windowMs, limit) {
     limit,
     standardHeaders: 'draft-8',
     legacyHeaders: false,
-    store: new RedisRateLimitStore(`rate-limit:auth:${name}`),
+    ...(env.REDIS_ENABLED ? { store: new RedisRateLimitStore(`rate-limit:auth:${name}`) } : {}),
     message: {
       success: false,
       message: 'Too many authentication requests. Try again later.',

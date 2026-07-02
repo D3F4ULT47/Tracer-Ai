@@ -1,7 +1,8 @@
 import { lazy, Suspense } from 'react';
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppLayout } from '../layouts/AppLayout.jsx';
 import { PublicLayout } from '../layouts/PublicLayout.jsx';
+import { AdaptiveHomeLayout } from './AdaptiveHomeLayout.jsx';
 import { ProtectedRoute } from './ProtectedRoute.jsx';
 import { PublicOnlyRoute } from './PublicOnlyRoute.jsx';
 
@@ -13,6 +14,12 @@ const pages = {
   ResetPassword: lazyPage(() => import('../pages/ResetPasswordPage.jsx'), 'ResetPasswordPage'),
   OAuthCallback: lazyPage(() => import('../pages/OAuthCallbackPage.jsx'), 'OAuthCallbackPage'),
   Profile: lazyPage(() => import('../pages/ProfilePage.jsx'), 'ProfilePage'),
+  MyRoadmaps: lazyPage(() => import('../pages/MyRoadmapsPage.jsx'), 'MyRoadmapsPage'),
+  RoadmapWorkspace: lazyPage(
+    () => import('../pages/RoadmapWorkspacePage.jsx'),
+    'RoadmapWorkspacePage',
+  ),
+  RoadmapPreview: lazyPage(() => import('../pages/RoadmapPreviewPage.jsx'), 'RoadmapPreviewPage'),
   Placeholder: lazyPage(() => import('../pages/PlaceholderPage.jsx'), 'PlaceholderPage'),
   NotFound: lazyPage(() => import('../pages/NotFoundPage.jsx'), 'NotFoundPage'),
 };
@@ -27,9 +34,15 @@ function render(element) {
 
 export const router = createBrowserRouter([
   {
-    element: <PublicLayout />,
+    element: <AdaptiveHomeLayout />,
     children: [
       { path: '/', element: render(<pages.Home />) },
+      { path: '/roadmaps/preview', element: render(<pages.RoadmapPreview />) },
+    ],
+  },
+  {
+    element: <PublicLayout />,
+    children: [
       {
         element: <PublicOnlyRoute />,
         children: [
@@ -56,24 +69,15 @@ export const router = createBrowserRouter([
         children: [
           {
             path: '/dashboard',
-            element: render(
-              <pages.Placeholder
-                title="Dashboard"
-                description="Your learning activity will appear here."
-              />,
-            ),
+            element: <Navigate to="/roadmaps" replace />,
           },
           {
             path: '/roadmaps',
-            element: render(
-              <pages.Placeholder title="My Roadmaps" description="Roadmaps begin in Sprint 2." />,
-            ),
+            element: render(<pages.MyRoadmaps />),
           },
           {
             path: '/roadmaps/:id',
-            element: render(
-              <pages.Placeholder title="Roadmap" description="Roadmaps begin in Sprint 2." />,
-            ),
+            element: render(<pages.RoadmapWorkspace />),
           },
           {
             path: '/resources',

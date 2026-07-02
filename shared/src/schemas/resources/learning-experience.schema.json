@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracer.ai/schemas/resources/learning-experience/1.0.0",
+  "title": "Task Learning Experience",
+  "type": "object",
+  "required": [
+    "taskKey",
+    "learningObjective",
+    "estimatedCompletionMinutes",
+    "completionCriteria",
+    "resourceLinks",
+    "checkpoint",
+    "miniProject",
+    "assignmentVersion"
+  ],
+  "properties": {
+    "taskKey": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+    "learningObjective": { "type": "string", "minLength": 1, "maxLength": 1000 },
+    "estimatedCompletionMinutes": { "type": "integer", "minimum": 5, "maximum": 100000 },
+    "completionCriteria": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+    },
+    "resourceLinks": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 6,
+      "items": { "$ref": "#/$defs/resourceLink" }
+    },
+    "checkpoint": { "$ref": "#/$defs/checkpoint" },
+    "miniProject": {
+      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/miniProject" }]
+    },
+    "assignmentVersion": { "type": "string", "const": "1.0.0" }
+  },
+  "$defs": {
+    "resourceLink": {
+      "type": "object",
+      "required": ["resourceId", "purpose", "sourceRank", "rankingVersion"],
+      "properties": {
+        "resourceId": { "type": "string", "format": "uuid" },
+        "purpose": {
+          "enum": ["primary", "alternative", "practice", "reference", "project"]
+        },
+        "sourceRank": { "type": "integer", "minimum": 1 },
+        "rankingVersion": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "checkpoint": {
+      "type": "object",
+      "required": ["type", "prompt"],
+      "properties": {
+        "type": {
+          "enum": ["knowledge_check", "mini_deliverable", "reflection_prompt", "project_milestone"]
+        },
+        "prompt": { "type": "string", "minLength": 1, "maxLength": 500 }
+      },
+      "additionalProperties": false
+    },
+    "miniProject": {
+      "type": "object",
+      "required": ["title", "deliverable"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "deliverable": { "type": "string", "minLength": 1, "maxLength": 500 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

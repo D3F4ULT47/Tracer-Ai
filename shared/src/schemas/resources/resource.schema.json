@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracer.ai/schemas/resources/resource/1.0.0",
+  "title": "Reusable Resource",
+  "type": "object",
+  "allOf": [
+    { "$ref": "https://tracer.ai/schemas/resources/resource-base/1.0.0" },
+    {
+      "type": "object",
+      "required": [
+        "resourceId",
+        "canonicalUrlHash",
+        "authorityScore",
+        "freshnessScore",
+        "popularityScore",
+        "completenessScore",
+        "providerConfidenceScore",
+        "qualityScore",
+        "qualityScoringVersion",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "resourceId": { "type": "string", "format": "uuid" },
+        "canonicalUrlHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "authorityScore": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+        "freshnessScore": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+        "popularityScore": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+        "completenessScore": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+        "providerConfidenceScore": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 100
+        },
+        "qualityScore": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+        "qualityScoringVersion": { "type": ["string", "null"], "maxLength": 50 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  ],
+  "unevaluatedProperties": false
+}

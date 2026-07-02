@@ -10,6 +10,10 @@ import { logger } from './infrastructure/logging/logger.js';
 import { errorHandler, notFoundHandler } from './middlewares/error-handler.js';
 import { requestContext } from './middlewares/request-context.js';
 import { authRouter } from './modules/auth/index.js';
+import { activityRouter } from './modules/activity/index.js';
+import { aiRouter } from './modules/ai/index.js';
+import { communityRouter } from './modules/community/index.js';
+import { roadmapRouter } from './modules/roadmaps/index.js';
 import { userRouter } from './modules/users/index.js';
 import { healthRouter } from './shared/health.routes.js';
 
@@ -42,7 +46,11 @@ export function createApp() {
 
   app.use(`${API_PREFIX}/health`, healthRouter);
   app.use(API_PREFIX, authRouter);
+  app.use(API_PREFIX, activityRouter);
+  app.use(API_PREFIX, communityRouter);
   app.use(API_PREFIX, userRouter);
+  app.use(API_PREFIX, aiRouter);
+  app.use(API_PREFIX, roadmapRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

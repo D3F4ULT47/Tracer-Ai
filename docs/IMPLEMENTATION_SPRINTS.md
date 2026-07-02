@@ -1,5 +1,7 @@
 # Tracer AI Implementation Sprint Plan
 
+> **Superseded ordering:** The MVP ordering below is retained for historical context. The active order and Sprint 2 scope are defined by [ADR-0003](./adr/0003-sprint-2-mvp-ai-amendments.md) and [the approved Sprint 2 plan](./SPRINT_2_IMPLEMENTATION_PLAN.md).
+
 - **Status:** APPROVED PLANNING BASELINE
 - **Architecture:** Frozen by `docs/ARCHITECTURE_FREEZE.md`
 - **Decision authority:** ADR-0001

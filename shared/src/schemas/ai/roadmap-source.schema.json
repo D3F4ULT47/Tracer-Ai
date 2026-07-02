@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracer.ai/schemas/ai/roadmap-source/1.0.0",
+  "title": "Tracer AI Canonical Roadmap Source",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "sourceId",
+    "type",
+    "content",
+    "contentHash",
+    "processingStatus",
+    "attribution",
+    "structure"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0.0" },
+    "sourceId": { "type": "string", "format": "uuid" },
+    "type": {
+      "enum": [
+        "natural_prompt",
+        "resume",
+        "pdf",
+        "github_repository",
+        "youtube_video",
+        "google_document",
+        "ai_report"
+      ]
+    },
+    "content": { "type": "string", "minLength": 1, "maxLength": 300000 },
+    "contentHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "processingStatus": { "type": "string", "const": "processed" },
+    "attribution": { "$ref": "#/$defs/attribution" },
+    "structure": { "$ref": "#/$defs/structure" }
+  },
+  "$defs": {
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": { "enum": ["page", "section", "timestamp", "path", "branch"] },
+        "value": { "type": "string", "minLength": 1, "maxLength": 500 }
+      }
+    },
+    "attribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceId",
+        "sourceType",
+        "identifier",
+        "title",
+        "url",
+        "creator",
+        "capturedAt",
+        "relevantLocations"
+      ],
+      "properties": {
+        "sourceId": { "type": "string", "format": "uuid" },
+        "sourceType": {
+          "enum": [
+            "natural_prompt",
+            "resume",
+            "pdf",
+            "github_repository",
+            "youtube_video",
+            "google_document",
+            "ai_report"
+          ]
+        },
+        "identifier": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "title": { "type": ["string", "null"], "maxLength": 500 },
+        "url": { "type": ["string", "null"], "format": "uri" },
+        "creator": { "type": ["string", "null"], "maxLength": 300 },
+        "capturedAt": { "type": "string", "format": "date-time" },
+        "relevantLocations": {
+          "type": "array",
+          "maxItems": 200,
+          "items": { "$ref": "#/$defs/location" }
+        }
+      }
+    },
+    "structure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "headings",
+        "sections",
+        "paths",
+        "languages",
+        "dependencies",
+        "transcriptAvailable"
+      ],
+      "properties": {
+        "headings": {
+          "type": "array",
+          "maxItems": 200,
+          "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+        },
+        "sections": {
+          "type": "array",
+          "maxItems": 200,
+          "items": { "type": "string", "minLength": 1, "maxLength": 5000 }
+        },
+        "paths": {
+          "type": "array",
+          "maxItems": 2000,
+          "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+        },
+        "languages": {
+          "type": "array",
+          "maxItems": 100,
+          "items": { "type": "string", "minLength": 1, "maxLength": 100 }
+        },
+        "dependencies": {
+          "type": "array",
+          "maxItems": 500,
+          "items": { "type": "string", "minLength": 1, "maxLength": 300 }
+        },
+        "transcriptAvailable": { "type": "boolean" }
+      }
+    }
+  }
+}

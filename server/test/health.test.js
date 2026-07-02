@@ -14,5 +14,5 @@ test('readiness snapshot reports unavailable dependencies', () => {
 
   assert.equal(snapshot.status, 'not_ready');
   assert.equal(snapshot.dependencies.mongo.status, 'not_ready');
-  assert.equal(snapshot.dependencies.redis.status, 'not_ready');
+  assert.equal(snapshot.dependencies.redis.status, 'disabled');
 });

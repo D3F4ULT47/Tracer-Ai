@@ -16,6 +16,7 @@
     "@tanstack/react-query": "^5.101.2",
     "@tracer-ai/shared": "*",
     "framer-motion": "^12.42.0",
+    "lucide-react": "^1.22.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.18.0",

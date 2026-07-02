@@ -1,7 +1,7 @@
 import { createHmac, randomBytes } from 'node:crypto';
 import { env } from '../../../config/env.js';
 import { AppError } from '../../../shared/app-error.js';
-import { cookieNames } from '../auth.cookies.js';
+import { authCookieOptions, cookieNames } from '../auth.cookies.js';
 import { tokenService } from '../token.service.js';
 
 function sign(value) {
@@ -14,9 +14,7 @@ export function issueCsrfToken(response) {
   const token = `${nonce}.${sign(nonce)}`;
   response.cookie(cookieNames.csrf, token, {
     httpOnly: false,
-    secure: env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
+    ...authCookieOptions,
   });
   return token;
 }

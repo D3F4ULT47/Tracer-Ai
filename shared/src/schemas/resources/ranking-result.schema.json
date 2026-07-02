@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracer.ai/schemas/resources/ranking-result/1.0.0",
+  "title": "Resource Ranking Result",
+  "type": "object",
+  "required": ["candidates", "rankingVersion", "generatedAt"],
+  "properties": {
+    "candidates": {
+      "type": "array",
+      "items": { "$ref": "https://tracer.ai/schemas/resources/ranked-candidate/1.0.0" }
+    },
+    "rankingVersion": { "type": "string", "const": "1.0.0" },
+    "generatedAt": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": false
+}

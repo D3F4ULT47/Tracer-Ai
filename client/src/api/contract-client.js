@@ -7,7 +7,7 @@ export function setCsrfToken(value) {
   csrfToken = value;
 }
 
-export async function contractRequest(contract, { body, params, headers, ...options } = {}) {
+export async function contractRequest(contract, { body, params, query, headers, ...options } = {}) {
   if (contract.csrf && !csrfToken) {
     const result = await apiRequest(AUTH_ENDPOINTS.csrf.path, {
       method: AUTH_ENDPOINTS.csrf.method,
@@ -16,9 +16,13 @@ export async function contractRequest(contract, { body, params, headers, ...opti
   }
   const requestHeaders = new Headers(headers);
   if (contract.csrf && csrfToken) requestHeaders.set('x-csrf-token', csrfToken);
-  return apiRequest(buildContractPath(contract.path, params), {
+  const path = buildContractPath(contract.path, params);
+  const search = new URLSearchParams(
+    Object.entries(query ?? {}).filter(([, value]) => value !== undefined && value !== null),
+  );
+  return apiRequest(`${path}${search.size ? `?${search}` : ''}`, {
     method: contract.method,
-    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+    ...(body === undefined ? {} : { body: body instanceof FormData ? body : JSON.stringify(body) }),
     headers: requestHeaders,
     ...options,
   });

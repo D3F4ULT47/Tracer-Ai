@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracer.ai/schemas/resources/resource-candidate/1.0.0",
+  "title": "Resource Discovery Candidate",
+  "type": "object",
+  "allOf": [{ "$ref": "https://tracer.ai/schemas/resources/resource-base/1.0.0" }],
+  "unevaluatedProperties": false
+}

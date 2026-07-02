@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracer.ai/schemas/resources/ranked-candidate/1.0.0",
+  "title": "Ranked Resource Candidate",
+  "type": "object",
+  "required": ["rank", "resource", "scores", "overallScore", "reasoningMetadata", "rankingVersion"],
+  "properties": {
+    "rank": { "type": "integer", "minimum": 1 },
+    "resource": { "$ref": "https://tracer.ai/schemas/resources/resource/1.0.0" },
+    "scores": {
+      "type": "object",
+      "required": [
+        "authorityScore",
+        "freshnessScore",
+        "popularityScore",
+        "difficultyMatch",
+        "learningStyleMatch",
+        "preferredPlatformMatch",
+        "languageMatch",
+        "estimatedTimeMatch",
+        "completenessScore",
+        "providerConfidenceScore",
+        "goalMatch",
+        "budgetMatch",
+        "qualityScore"
+      ],
+      "properties": {
+        "authorityScore": { "$ref": "#/$defs/score" },
+        "freshnessScore": { "$ref": "#/$defs/score" },
+        "popularityScore": { "$ref": "#/$defs/score" },
+        "difficultyMatch": { "$ref": "#/$defs/score" },
+        "learningStyleMatch": { "$ref": "#/$defs/score" },
+        "preferredPlatformMatch": { "$ref": "#/$defs/score" },
+        "languageMatch": { "$ref": "#/$defs/score" },
+        "estimatedTimeMatch": { "$ref": "#/$defs/score" },
+        "completenessScore": { "$ref": "#/$defs/score" },
+        "providerConfidenceScore": { "$ref": "#/$defs/score" },
+        "goalMatch": { "$ref": "#/$defs/score" },
+        "budgetMatch": { "$ref": "#/$defs/score" },
+        "qualityScore": { "$ref": "#/$defs/score" }
+      },
+      "additionalProperties": false
+    },
+    "overallScore": { "$ref": "#/$defs/score" },
+    "reasoningMetadata": {
+      "type": "object",
+      "required": ["factors", "degradedSignals"],
+      "properties": {
+        "factors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["signal", "score", "weight", "source"],
+            "properties": {
+              "signal": { "type": "string", "minLength": 1 },
+              "score": { "$ref": "#/$defs/score" },
+              "weight": { "type": "number", "minimum": 0, "maximum": 1 },
+              "source": { "enum": ["resource", "learning_context", "task", "system_default"] }
+            },
+            "additionalProperties": false
+          }
+        },
+        "degradedSignals": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "rankingVersion": { "type": "string", "const": "1.0.0" }
+  },
+  "$defs": {
+    "score": { "type": "number", "minimum": 0, "maximum": 100 }
+  },
+  "additionalProperties": false
+}

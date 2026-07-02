@@ -11,10 +11,16 @@ const app = createApp();
 const server = createServer(app);
 let isShuttingDown = false;
 
-server.listen(env.PORT, () => {
-  logger.info({ port: env.PORT }, 'Tracer AI API is listening');
-  void initializeInfrastructure();
-});
+try {
+  await initializeInfrastructure();
+  server.listen(env.PORT, () => {
+    logger.info({ port: env.PORT }, 'Tracer AI API is listening');
+  });
+} catch (error) {
+  logger.fatal({ err: error }, 'Tracer AI API startup validation failed');
+  await shutdownInfrastructure();
+  process.exitCode = 1;
+}
 
 async function shutdown(signal) {
   if (isShuttingDown) return;

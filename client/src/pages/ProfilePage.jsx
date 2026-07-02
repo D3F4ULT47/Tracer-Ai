@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Avatar } from '../components/Avatar/index.js';
 import { Badge } from '../components/Badge/index.js';
 import { Button } from '../components/Button/index.js';
@@ -9,7 +10,7 @@ import { Loader } from '../components/Loader/index.js';
 import { Select } from '../components/Select/index.js';
 import { Toast } from '../components/Toast/index.js';
 import { authApi } from '../features/auth/api/auth-api.js';
-import { useCurrentUser } from '../features/auth/hooks/use-auth.js';
+import { useCurrentUser, useLogout } from '../features/auth/hooks/use-auth.js';
 import { userApi } from '../features/users/api/user-api.js';
 import {
   useLearningProfile,
@@ -18,25 +19,41 @@ import {
 import { useProfile, useUpdateProfile } from '../features/users/hooks/use-profile.js';
 
 const tabs = [
-  'General',
+  'Personal Information',
+  'Learning Profile',
   'Resume',
-  'Skills',
-  'Learning Preferences',
-  'Connected Accounts',
-  'Privacy',
   'Security',
-  'Sessions',
+  'Connected Accounts',
+  'Preferences',
 ];
 
 function QueryState({ query, empty, children }) {
   if (query.isPending) return <Loader />;
-  if (query.isError) return <Toast tone="error">{query.error.message}</Toast>;
+  if (query.isError) {
+    const provisioning = query.error?.code === 'PROFILE_PROVISIONING';
+    return (
+      <div className="query-error-state" role="alert">
+        <Toast tone={provisioning ? 'info' : 'error'}>
+          {provisioning
+            ? 'Your profile setup is finishing. This page will be ready shortly.'
+            : query.error.message}
+        </Toast>
+        <Button variant="secondary" onClick={() => query.refetch()} disabled={query.isFetching}>
+          {query.isFetching ? 'Checking…' : 'Try again'}
+        </Button>
+      </div>
+    );
+  }
   if (empty) return <div className="empty-state">Nothing here yet.</div>;
   return children;
 }
 
 export function ProfilePage() {
-  const [activeTab, setActiveTab] = useState('General');
+  const [searchParams] = useSearchParams();
+  const requestedTab = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(
+    tabs.includes(requestedTab) ? requestedTab : 'Personal Information',
+  );
   const currentUser = useCurrentUser();
   return (
     <section className="profile-page">
@@ -70,14 +87,27 @@ export function ProfilePage() {
 }
 
 function ProfileTab({ tab, currentUser }) {
-  if (tab === 'General') return <GeneralTab />;
+  if (tab === 'Personal Information') {
+    return (
+      <div className="profile-section-stack">
+        <GeneralTab />
+        <SkillsTab />
+      </div>
+    );
+  }
+  if (tab === 'Learning Profile') return <LearningProfileTab />;
   if (tab === 'Resume') return <ResumeTab />;
-  if (tab === 'Skills') return <SkillsTab />;
-  if (tab === 'Learning Preferences') return <LearningPreferencesTab />;
+  if (tab === 'Security') {
+    return (
+      <div className="profile-section-stack">
+        <SecurityTab />
+        <SessionsTab />
+        <PrivacyTab />
+      </div>
+    );
+  }
   if (tab === 'Connected Accounts') return <ConnectedAccountsTab currentUser={currentUser} />;
-  if (tab === 'Privacy') return <PrivacyTab />;
-  if (tab === 'Security') return <SecurityTab />;
-  return <SessionsTab />;
+  return <LearningPreferencesTab />;
 }
 
 function GeneralTab() {
@@ -89,7 +119,7 @@ function GeneralTab() {
   }
   return (
     <div>
-      <h2>General</h2>
+      <h2>Personal Information</h2>
       <QueryState query={query}>
         {query.data ? (
           <form className="form-stack" onSubmit={submit}>
@@ -173,40 +203,71 @@ function LearningPreferencesTab() {
   const profile = query.data?.data?.learningProfile;
   return (
     <div>
-      <h2>Learning Preferences</h2>
+      <h2>Preferences</h2>
+      <QueryState query={query}>
+        {profile ? (
+          <form className="form-stack" onSubmit={submit}>
+            <Input
+              id="preferred-language"
+              name="preferredLanguage"
+              label="Preferred language"
+              defaultValue={profile.preferredLanguage ?? ''}
+            />
+            <Select
+              id="learning-pace"
+              name="learningPace"
+              label="Learning pace"
+              defaultValue={profile.learningPace}
+            >
+              <option value="slow">Slow</option>
+              <option value="balanced">Balanced</option>
+              <option value="fast">Fast</option>
+            </Select>
+            <Input
+              id="weekly-hours"
+              name="weeklyHours"
+              type="number"
+              min="1"
+              max="168"
+              label="Weekly hours"
+              defaultValue={profile.weeklyHours ?? 5}
+            />
+            {update.isError ? <Toast tone="error">{update.error.message}</Toast> : null}
+            {update.isSuccess ? <Toast>Learning preferences saved.</Toast> : null}
+            <Button variant="primary">Save preferences</Button>
+          </form>
+        ) : null}
+      </QueryState>
+    </div>
+  );
+}
+
+function LearningProfileTab() {
+  const query = useLearningProfile();
+  const profile = query.data?.data?.learningProfile;
+  return (
+    <div>
+      <h2>Learning Profile</h2>
+      <p className="muted">
+        Tracer AI uses these transparent assumptions to personalize future roadmaps.
+      </p>
       <QueryState query={query}>
         {profile ? (
           <>
-            <form className="form-stack" onSubmit={submit}>
-              <Input
-                id="preferred-language"
-                name="preferredLanguage"
-                label="Preferred language"
-                defaultValue={profile.preferredLanguage ?? ''}
-              />
-              <Select
-                id="learning-pace"
-                name="learningPace"
-                label="Learning pace"
-                defaultValue={profile.learningPace}
-              >
-                <option value="slow">Slow</option>
-                <option value="balanced">Balanced</option>
-                <option value="fast">Fast</option>
-              </Select>
-              <Input
-                id="weekly-hours"
-                name="weeklyHours"
-                type="number"
-                min="1"
-                max="168"
-                label="Weekly hours"
-                defaultValue={profile.weeklyHours ?? 5}
-              />
-              {update.isError ? <Toast tone="error">{update.error.message}</Toast> : null}
-              {update.isSuccess ? <Toast>Learning preferences saved.</Toast> : null}
-              <Button variant="primary">Save preferences</Button>
-            </form>
+            <div className="learning-profile-summary">
+              <div>
+                <small>Preferred language</small>
+                <strong>{profile.preferredLanguage || 'Not set'}</strong>
+              </div>
+              <div>
+                <small>Learning pace</small>
+                <strong>{profile.learningPace || 'Not set'}</strong>
+              </div>
+              <div>
+                <small>Weekly commitment</small>
+                <strong>{profile.weeklyHours ? `${profile.weeklyHours} hours` : 'Not set'}</strong>
+              </div>
+            </div>
             <h3>AI assumptions</h3>
             {profile.inferences.length === 0 ? (
               <div className="empty-state">No AI assumptions yet.</div>
@@ -265,6 +326,7 @@ function PrivacyTab() {
 }
 
 function SecurityTab() {
+  const logout = useLogout();
   return (
     <div>
       <h2>Security</h2>
@@ -273,6 +335,12 @@ function SecurityTab() {
         authentication module.
       </p>
       <Badge tone="success">HTTP-only sessions enabled</Badge>
+      {logout.isError ? <Toast tone="error">{logout.error.message}</Toast> : null}
+      <div className="security-actions">
+        <Button onClick={() => logout.mutate()} disabled={logout.isPending}>
+          {logout.isPending ? 'Signing out…' : 'Sign out'}
+        </Button>
+      </div>
     </div>
   );
 }

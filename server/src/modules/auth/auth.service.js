@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { env } from '../../config/env.js';
 import { emailService } from '../../infrastructure/email/email.service.js';
 import { appendOutboxEvent } from '../../infrastructure/events/outbox.service.js';
 import { recordSecurityAudit } from '../../infrastructure/events/security-audit.service.js';
@@ -60,15 +61,23 @@ export const authService = Object.freeze({
           });
         }
         [user] = await User.create(
-          [{ email: normalizedEmail, passwordHash: await passwordService.hash(password) }],
+          [
+            {
+              email: normalizedEmail,
+              passwordHash: await passwordService.hash(password),
+              ...(env.DEV_AUTO_VERIFY_EMAIL ? { emailVerifiedAt: new Date() } : {}),
+            },
+          ],
           { session: transaction },
         );
-        verificationToken = await issueAccountToken(
-          user._id,
-          'email_verification',
-          VERIFY_TTL_MS,
-          transaction,
-        );
+        if (!env.DEV_AUTO_VERIFY_EMAIL) {
+          verificationToken = await issueAccountToken(
+            user._id,
+            'email_verification',
+            VERIFY_TTL_MS,
+            transaction,
+          );
+        }
         await appendOutboxEvent(
           {
             name: 'user.created',
@@ -91,10 +100,15 @@ export const authService = Object.freeze({
     } finally {
       await transaction.endSession();
     }
-    try {
-      await emailService.sendVerification({ email: normalizedEmail, token: verificationToken });
-    } catch (error) {
-      logger.error({ err: error, userId: String(user._id) }, 'Verification email delivery failed');
+    if (verificationToken) {
+      try {
+        await emailService.sendVerification({ email: normalizedEmail, token: verificationToken });
+      } catch (error) {
+        logger.error(
+          { err: error, userId: String(user._id) },
+          'Verification email delivery failed',
+        );
+      }
     }
     await recordSecurityAudit({
       actorId: user._id,
@@ -112,6 +126,12 @@ export const authService = Object.freeze({
     }
     if (user.status !== 'active') {
       throw new AppError('Account is unavailable', { status: 403, code: 'ACCOUNT_UNAVAILABLE' });
+    }
+    if (!user.emailVerifiedAt) {
+      throw new AppError('Verify your email before signing in', {
+        status: 403,
+        code: 'EMAIL_NOT_VERIFIED',
+      });
     }
     const tokens = await createSession(user, context);
     await recordSecurityAudit({

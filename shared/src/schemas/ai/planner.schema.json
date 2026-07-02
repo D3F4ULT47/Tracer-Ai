@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracer.ai/schemas/ai/planner/1.0.0",
+  "title": "Tracer AI Roadmap Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["goal", "estimatedWeeks", "weeklyCommitmentHours", "assumptions", "phases"],
+  "properties": {
+    "goal": { "type": "string" },
+    "estimatedWeeks": { "type": "integer", "minimum": 1, "maximum": 520 },
+    "weeklyCommitmentHours": { "type": "number", "minimum": 1, "maximum": 168 },
+    "assumptions": { "type": "array", "items": { "type": "string" }, "maxItems": 20 },
+    "phases": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 30,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "objective", "estimatedWeeks", "dependencies"],
+        "properties": {
+          "title": { "type": "string" },
+          "objective": { "type": "string" },
+          "estimatedWeeks": { "type": "integer", "minimum": 1, "maximum": 52 },
+          "dependencies": { "type": "array", "items": { "type": "string" }, "maxItems": 20 }
+        }
+      }
+    }
+  }
+}

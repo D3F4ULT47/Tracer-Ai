@@ -20,7 +20,14 @@ export const authController = Object.freeze({
   async register(request, response) {
     const user = await authService.register(request.body, context(request));
     response.status(201);
-    success(response, request, 'Account created. Check your email to verify it.', { user });
+    success(
+      response,
+      request,
+      env.DEV_AUTO_VERIFY_EMAIL
+        ? 'Account created and verified for local development.'
+        : 'Account created. Check your email to verify it.',
+      { user },
+    );
   },
   async login(request, response) {
     const result = await authService.login(request.body, context(request));

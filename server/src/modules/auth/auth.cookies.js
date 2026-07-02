@@ -6,22 +6,27 @@ export const cookieNames = Object.freeze({
   csrf: 'tracer_csrf',
 });
 
-const base = Object.freeze({ secure: env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
+export const authCookieOptions = Object.freeze({
+  secure: env.COOKIE_SECURE,
+  sameSite: env.COOKIE_SAME_SITE,
+  path: '/',
+  ...(env.COOKIE_DOMAIN ? { domain: env.COOKIE_DOMAIN } : {}),
+});
 
 export function setAuthCookies(response, { accessToken, refreshToken }) {
   response.cookie(cookieNames.access, accessToken, {
-    ...base,
+    ...authCookieOptions,
     httpOnly: true,
     maxAge: 15 * 60 * 1000,
   });
   response.cookie(cookieNames.refresh, refreshToken, {
-    ...base,
+    ...authCookieOptions,
     httpOnly: true,
     maxAge: 30 * 24 * 60 * 60 * 1000,
   });
 }
 
 export function clearAuthCookies(response) {
-  response.clearCookie(cookieNames.access, { ...base, httpOnly: true });
-  response.clearCookie(cookieNames.refresh, { ...base, httpOnly: true });
+  response.clearCookie(cookieNames.access, { ...authCookieOptions, httpOnly: true });
+  response.clearCookie(cookieNames.refresh, { ...authCookieOptions, httpOnly: true });
 }

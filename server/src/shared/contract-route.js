@@ -12,7 +12,8 @@ export function registerContractRoute(router, contract, ...handlers) {
   };
 
   const validate = (request, response, next) => {
-    for (const [location, validator] of Object.entries(validators)) {
+    for (const location of ['body', 'params']) {
+      const validator = validators[location];
       if (validator && !validator(request[location])) {
         response.status(400).json({
           success: false,

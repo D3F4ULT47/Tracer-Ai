@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracer.ai/schemas/resources/resource-base/1.0.0",
+  "type": "object",
+  "required": [
+    "provider",
+    "providerResourceId",
+    "type",
+    "canonicalUrl",
+    "title",
+    "description",
+    "author",
+    "language",
+    "estimatedDurationMinutes",
+    "difficulty",
+    "tags",
+    "thumbnailUrl",
+    "popularity",
+    "retrievedAt",
+    "providerMetadata",
+    "metadataVersion",
+    "availabilityStatus",
+    "accessType"
+  ],
+  "properties": {
+    "provider": { "enum": ["youtube", "github", "official_docs"] },
+    "providerResourceId": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "type": {
+      "enum": [
+        "video",
+        "playlist",
+        "repository",
+        "documentation",
+        "course",
+        "project",
+        "reference",
+        "article"
+      ]
+    },
+    "canonicalUrl": { "type": "string", "format": "uri", "maxLength": 2048 },
+    "title": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "description": { "type": ["string", "null"], "maxLength": 5000 },
+    "author": { "type": ["string", "null"], "maxLength": 300 },
+    "language": { "type": ["string", "null"], "maxLength": 50 },
+    "estimatedDurationMinutes": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "difficulty": {
+      "type": ["string", "null"],
+      "enum": ["beginner", "intermediate", "advanced", "expert", null]
+    },
+    "tags": {
+      "type": "array",
+      "maxItems": 50,
+      "items": { "type": "string", "minLength": 1, "maxLength": 100 },
+      "uniqueItems": true
+    },
+    "thumbnailUrl": { "type": ["string", "null"], "format": "uri", "maxLength": 2048 },
+    "popularity": {
+      "type": "object",
+      "required": ["views", "likes", "stars", "forks", "rating", "ratingCount"],
+      "properties": {
+        "views": { "type": ["integer", "null"], "minimum": 0 },
+        "likes": { "type": ["integer", "null"], "minimum": 0 },
+        "stars": { "type": ["integer", "null"], "minimum": 0 },
+        "forks": { "type": ["integer", "null"], "minimum": 0 },
+        "rating": { "type": ["number", "null"], "minimum": 0, "maximum": 5 },
+        "ratingCount": { "type": ["integer", "null"], "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "retrievedAt": { "type": "string", "format": "date-time" },
+    "providerMetadata": { "type": "object" },
+    "metadataVersion": { "type": "string", "const": "1.0.0" },
+    "availabilityStatus": { "enum": ["available", "unavailable", "unknown"] },
+    "accessType": { "enum": ["free", "paid", "mixed", "unknown"] }
+  }
+}

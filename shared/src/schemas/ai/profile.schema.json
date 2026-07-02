@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracer.ai/schemas/ai/profile/1.0.0",
+  "title": "Tracer AI Proficiency Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["currentLevel", "confidence", "evidence", "existingSkills", "missingSkills"],
+  "properties": {
+    "currentLevel": { "type": "string", "enum": ["beginner", "intermediate", "advanced"] },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "evidence": { "type": "array", "items": { "type": "string" }, "maxItems": 10 },
+    "existingSkills": { "type": "array", "items": { "type": "string" }, "maxItems": 100 },
+    "missingSkills": { "type": "array", "items": { "type": "string" }, "maxItems": 100 }
+  }
+}

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ArrowRight, KeyRound } from 'lucide-react';
 import { Button } from '../components/Button/index.js';
 import { Card } from '../components/Card/index.js';
 import { Input } from '../components/Input/index.js';
@@ -7,6 +8,7 @@ import { Loader } from '../components/Loader/index.js';
 import { Modal } from '../components/Modal/index.js';
 import { Toast } from '../components/Toast/index.js';
 import { authApi } from '../features/auth/api/auth-api.js';
+import { consumeAuthReturn, rememberAuthReturn } from '../features/auth/auth-return.js';
 import { useLogin } from '../features/auth/hooks/use-auth.js';
 import { clientEnv } from '../config/env.js';
 
@@ -17,11 +19,15 @@ export function LoginPage() {
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotState, setForgotState] = useState({ status: 'idle', message: '' });
 
+  useEffect(() => {
+    if (location.state?.from) rememberAuthReturn(location.state.from);
+  }, [location.state]);
+
   async function submit(event) {
     event.preventDefault();
     const body = Object.fromEntries(new FormData(event.currentTarget));
     await login.mutateAsync(body);
-    navigate(location.state?.from?.pathname ?? '/dashboard', { replace: true });
+    navigate(consumeAuthReturn('/'), { replace: true });
   }
 
   async function forgot(event) {
@@ -39,7 +45,14 @@ export function LoginPage() {
   return (
     <section className="auth-page">
       <Card className="auth-card">
-        <h1>Welcome back</h1>
+        <div className="auth-header">
+          <p className="eyebrow">Authentication</p>
+          <h1>Welcome back</h1>
+          <p className="auth-subtitle">
+            Sign in to continue managing your learning roadmaps, profile settings, and connected
+            accounts.
+          </p>
+        </div>
         {login.isError ? <Toast tone="error">{login.error.message}</Toast> : null}
         {login.isSuccess ? <Toast>Signed in successfully.</Toast> : null}
         <form onSubmit={submit} className="form-stack">
@@ -64,15 +77,18 @@ export function LoginPage() {
             {login.isPending ? 'Signing in…' : 'Sign in'}
           </Button>
         </form>
-        <Button type="button" variant="link" onClick={() => setForgotOpen(true)}>
-          Forgot password?
-        </Button>
+        <div className="auth-actions-row">
+          <Button type="button" variant="link" onClick={() => setForgotOpen(true)}>
+            Forgot password?
+          </Button>
+        </div>
         {clientEnv.VITE_GOOGLE_OAUTH_ENABLED ? (
           <a className="ui-button ui-button--oauth" href={authApi.oauthUrl('google')}>
+            <ArrowRight size={16} />
             Continue with Google
           </a>
         ) : null}
-        <p>
+        <p className="auth-card-footer">
           New to Tracer AI? <Link to="/signup">Create an account</Link>
         </p>
       </Card>
@@ -82,8 +98,14 @@ export function LoginPage() {
         {forgotState.status === 'success' ? <Toast>{forgotState.message}</Toast> : null}
         {forgotState.status !== 'success' ? (
           <form onSubmit={forgot} className="form-stack">
+            <p className="muted">
+              Enter the email linked to your account and we&apos;ll send a secure reset link.
+            </p>
             <Input id="forgot-email" name="email" type="email" label="Email" required />
-            <Button variant="primary">Send reset link</Button>
+            <Button variant="primary">
+              <KeyRound size={16} />
+              Send reset link
+            </Button>
           </form>
         ) : null}
       </Modal>

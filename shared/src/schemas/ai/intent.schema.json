@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracer.ai/schemas/ai/intent/1.0.0",
+  "title": "Tracer AI Intent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "primaryIntent",
+    "secondaryIntent",
+    "confidence",
+    "evidence",
+    "requiresClarification",
+    "clarificationReason"
+  ],
+  "properties": {
+    "primaryIntent": {
+      "type": "string",
+      "enum": ["career_goal", "skill_goal", "project_description", "resume"]
+    },
+    "secondaryIntent": { "type": ["string", "null"] },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "evidence": { "type": "array", "items": { "type": "string" }, "maxItems": 5 },
+    "requiresClarification": { "type": "boolean" },
+    "clarificationReason": { "type": ["string", "null"] }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tracer.ai/schemas/ai/roadmap-generation/1.0.0",
+  "title": "Tracer AI One-pass Roadmap Planning Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "roadmap", "dependencyGraph"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0.0" },
+    "roadmap": { "$ref": "https://tracer.ai/schemas/ai/roadmap/2.0.0" },
+    "dependencyGraph": { "$ref": "https://tracer.ai/schemas/ai/dependency-graph/2.0.0" }
+  }
+}
