@@ -16,7 +16,7 @@ const apiBaseUrl = 'http://localhost:4000/api/v1';
 const email = `runtime-check-${Date.now()}@example.com`;
 const password = `${randomBytes(18).toString('base64url')}Aa1!`;
 const cookies = new Map();
-const verifyCloudinary = process.env.CLOUDINARY_LIVE_TEST === 'true';
+const verifyCloudinary = process.env.ENABLE_LIVE_TESTS === 'true';
 let userId;
 
 function createPdf(text) {

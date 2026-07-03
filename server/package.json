@@ -13,7 +13,8 @@
     "migrate:mvp-completion": "node ../scripts/migrations/003-create-mvp-completion-indexes.js",
     "verify:auth-runtime": "node ../scripts/verify-auth-runtime.js",
     "build": "node --check src/server.js",
-    "test": "node --test"
+    "test": "node --test test/*.test.js",
+    "test:live": "node --test test/*.integration.test.js"
   },
   "dependencies": {
     "@tracer-ai/shared": "*",
