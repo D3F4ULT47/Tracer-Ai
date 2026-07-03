@@ -9,4 +9,4 @@ coverage/
 .vite/
 .cache/
 evaluation/results/
-uploads/
+/uploads/
