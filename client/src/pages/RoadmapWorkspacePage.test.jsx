@@ -182,7 +182,7 @@ it('renders and expands the complete roadmap hierarchy', async () => {
     </MemoryRouter>,
   );
   const user = userEvent.setup();
-  expect(screen.getByDisplayValue('Foundations')).toBeInTheDocument();
+  expect(screen.getByRole('textbox', { name: 'Phase title' })).toHaveValue('Foundations');
   expect(screen.getByText('Progress Made')).toBeInTheDocument();
   expect(screen.getByText('0 / 1 Tasks')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Expand roadmap overview' })).toBeInTheDocument();
