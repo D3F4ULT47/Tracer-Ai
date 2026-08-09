@@ -17,6 +17,7 @@
     "dev": "concurrently -n client,server,worker -c cyan,green,magenta \"npm run dev -w @tracer-ai/client\" \"npm run dev -w @tracer-ai/server\" \"npm run dev:worker -w @tracer-ai/server\"",
     "dev:client": "npm run dev -w @tracer-ai/client",
     "dev:server": "npm run dev -w @tracer-ai/server",
+    "start:production": "npm run migrate:sprint-1 -w @tracer-ai/server && npm run migrate:sprint-3 -w @tracer-ai/server && npm run migrate:mvp-completion -w @tracer-ai/server && npm run start -w @tracer-ai/server",
     "build": "npm run build -w @tracer-ai/shared && npm run build -w @tracer-ai/client && npm run build -w @tracer-ai/server",
     "check:architecture": "node scripts/check-architecture.js",
     "lint": "eslint .",

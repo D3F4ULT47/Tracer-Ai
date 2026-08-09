@@ -121,7 +121,6 @@ const environmentSchema = z
     for (const key of [
       'CLIENT_ORIGIN',
       'MONGODB_URI',
-      'REDIS_URL',
       'APP_URL',
       'JWT_PRIVATE_KEY_BASE64',
       'JWT_PUBLIC_KEY_BASE64',
@@ -137,6 +136,14 @@ const environmentSchema = z
           message: `${key} is required in production`,
         });
       }
+    }
+
+    if (value.REDIS_ENABLED && !value.REDIS_URL) {
+      context.addIssue({
+        code: 'custom',
+        path: ['REDIS_URL'],
+        message: 'REDIS_URL is required when REDIS_ENABLED is true',
+      });
     }
   })
   .transform((value) => ({
