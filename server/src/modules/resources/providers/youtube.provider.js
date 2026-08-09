@@ -22,6 +22,16 @@ function thumbnail(snippet) {
   );
 }
 
+function videoType(title, duration) {
+  if (
+    duration >= 90 &&
+    /\b(?:course|bootcamp|full tutorial|complete tutorial|masterclass)\b/i.test(title ?? '')
+  ) {
+    return 'course';
+  }
+  return 'video';
+}
+
 export function createYouTubeProvider({ apiKey, fetcher = fetch, timeoutMs = 8_000 } = {}) {
   return Object.freeze({
     name: provider,
@@ -47,11 +57,12 @@ export function createYouTubeProvider({ apiKey, fetcher = fetch, timeoutMs = 8_0
         fetcher,
       });
       const videoIds = (search.items ?? []).map((item) => item.id?.videoId).filter(Boolean);
+      const playlistIds = (search.items ?? []).map((item) => item.id?.playlistId).filter(Boolean);
       let detailsById = new Map();
       if (videoIds.length > 0) {
         const detailsUrl = new URL('https://www.googleapis.com/youtube/v3/videos');
         detailsUrl.search = new URLSearchParams({
-          part: 'contentDetails,statistics',
+          part: 'snippet,contentDetails,statistics',
           id: videoIds.join(','),
           key: apiKey,
         });
@@ -64,16 +75,33 @@ export function createYouTubeProvider({ apiKey, fetcher = fetch, timeoutMs = 8_0
         });
         detailsById = new Map((details.items ?? []).map((item) => [item.id, item]));
       }
+      if (playlistIds.length > 0) {
+        const detailsUrl = new URL('https://www.googleapis.com/youtube/v3/playlists');
+        detailsUrl.search = new URLSearchParams({
+          part: 'snippet,contentDetails',
+          id: playlistIds.join(','),
+          key: apiKey,
+        });
+        const details = await requestProviderJson({
+          provider,
+          url: detailsUrl,
+          signal,
+          timeoutMs,
+          fetcher,
+        });
+        for (const item of details.items ?? []) detailsById.set(item.id, item);
+      }
       return (search.items ?? []).map((item) => ({
         item,
-        details: detailsById.get(item.id?.videoId) ?? null,
+        details: detailsById.get(item.id?.videoId ?? item.id?.playlistId) ?? null,
       }));
     },
     normalize({ item, details }, context) {
       const videoId = item.id?.videoId;
       const playlistId = item.id?.playlistId;
       const providerResourceId = videoId ?? playlistId;
-      const type = videoId ? 'video' : 'playlist';
+      const estimatedDurationMinutes = durationMinutes(details?.contentDetails?.duration);
+      const type = videoId ? videoType(item.snippet?.title, estimatedDurationMinutes) : 'playlist';
       return resourceCandidate({
         provider,
         providerResourceId,
@@ -84,10 +112,14 @@ export function createYouTubeProvider({ apiKey, fetcher = fetch, timeoutMs = 8_0
         title: item.snippet?.title,
         description: item.snippet?.description || null,
         author: item.snippet?.channelTitle || null,
-        language: context.preferredLanguage,
-        estimatedDurationMinutes: durationMinutes(details?.contentDetails?.duration),
+        language:
+          details?.snippet?.defaultAudioLanguage ??
+          details?.snippet?.defaultLanguage ??
+          item.snippet?.defaultLanguage ??
+          null,
+        estimatedDurationMinutes,
         difficulty: context.task.difficulty,
-        tags: [context.task.title, type],
+        tags: [type],
         thumbnailUrl: thumbnail(item.snippet),
         popularity: {
           views: integer(details?.statistics?.viewCount),
@@ -97,6 +129,7 @@ export function createYouTubeProvider({ apiKey, fetcher = fetch, timeoutMs = 8_0
           channelId: item.snippet?.channelId ?? null,
           publishedAt: item.snippet?.publishedAt ?? null,
           liveBroadcastContent: item.snippet?.liveBroadcastContent ?? null,
+          playlistItemCount: integer(details?.contentDetails?.itemCount),
         },
       });
     },

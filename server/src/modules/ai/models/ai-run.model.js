@@ -19,7 +19,6 @@ const aiRunSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       default: null,
       index: true,
-      immutable: true,
     },
     requestId: { type: String, required: true, immutable: true },
     operation: {

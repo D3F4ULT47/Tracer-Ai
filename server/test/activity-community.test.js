@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createActivityEvent } from '../src/modules/activity/activity-event.js';
+import { activityRepository } from '../src/modules/activity/activity.repository.js';
 import { createActivityService } from '../src/modules/activity/activity.service.js';
+import { RoadmapActivity } from '../src/modules/activity/models/roadmap-activity.model.js';
 import { createCommunityService } from '../src/modules/community/community.service.js';
 import { createCommunityRepository } from '../src/modules/community/community.repository.js';
 
@@ -70,6 +72,51 @@ test('recent activity is newest-first, limited, and cursor-ready', async () => {
   assert.equal(result.activities.length, 1);
   assert.equal(result.activities[0].activityType, 'TASK_COMPLETED');
   assert.ok(result.nextCursor);
+});
+
+test('activity repository keeps deleted roadmap activity out of the recent feed', async () => {
+  const originalAggregate = RoadmapActivity.aggregate;
+  let pipeline;
+  RoadmapActivity.aggregate = async (input) => {
+    pipeline = input;
+    return [];
+  };
+
+  try {
+    await activityRepository.list({ userId, limit: 10 });
+  } finally {
+    RoadmapActivity.aggregate = originalAggregate;
+  }
+
+  assert.ok(pipeline.some((stage) => stage.$lookup?.from === 'roadmaps'));
+  assert.ok(pipeline.some((stage) => stage.$unwind === '$roadmap'));
+  assert.ok(pipeline.some((stage) => stage.$match?.['roadmap.deletedAt'] === null));
+});
+
+test('activity repository deletes user activity associated with a deleted roadmap', async () => {
+  const originalDeleteMany = RoadmapActivity.deleteMany;
+  let filter;
+  let options;
+  RoadmapActivity.deleteMany = async (receivedFilter, receivedOptions) => {
+    filter = receivedFilter;
+    options = receivedOptions;
+    return { deletedCount: 2 };
+  };
+
+  try {
+    await activityRepository.deleteForRoadmap({
+      userId,
+      roadmapId,
+      session: 'session-placeholder',
+    });
+  } finally {
+    RoadmapActivity.deleteMany = originalDeleteMany;
+  }
+
+  assert.equal(filter.roadmapId, roadmapId);
+  assert.equal(String(filter.$or[0].userId), userId);
+  assert.equal(String(filter.$or[1].ownerId), userId);
+  assert.equal(options.session, 'session-placeholder');
 });
 
 test('activity rejects malformed cursors before repository access', async () => {

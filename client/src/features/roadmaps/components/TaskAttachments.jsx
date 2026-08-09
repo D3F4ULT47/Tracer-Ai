@@ -46,9 +46,11 @@ export function TaskAttachments({ task, onChange }) {
 
   return (
     <section className="task-attachments" aria-label={`Attachments for ${task.title}`}>
-      <strong>Attachments</strong>
+      <strong>Learning resources</strong>
       {attachments.length === 0 ? (
-        <p className="task-attachments-empty">No supporting sources attached.</p>
+        <p className="task-attachments-empty">
+          {task.resourceStatus?.message ?? 'No suitable learning resource found.'}
+        </p>
       ) : (
         <div className="task-attachment-list">
           {attachments.map((attachment) => (

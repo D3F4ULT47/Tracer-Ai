@@ -6,7 +6,7 @@ import { AiRun } from '../src/modules/ai/models/ai-run.model.js';
 import { AiUsageRecord } from '../src/modules/ai/models/ai-usage-record.model.js';
 import { loadPrompt } from '../src/modules/ai/prompt.repository.js';
 import { AiProviderRegistry } from '../src/modules/ai/providers/ai-provider.registry.js';
-import { createOpenAiProvider } from '../src/modules/ai/providers/openai.provider.js';
+import { createOpenAiCompatibleProvider } from '../src/modules/ai/providers/openai-compatible.provider.js';
 import { validateAiOutput } from '../src/modules/ai/json.validator.js';
 import { Roadmap } from '../src/modules/roadmaps/models/roadmap.model.js';
 import { RoadmapActivity } from '../src/modules/roadmaps/models/roadmap-activity.model.js';
@@ -62,16 +62,19 @@ test('versioned prompts load with stable SHA-256 provenance', async () => {
 
 test('AI provider registry supports replaceable providers', () => {
   const registry = new AiProviderRegistry();
-  registry.register({ name: 'example', async generateStructured() {} });
+  registry.register({ name: 'example', async healthCheck() {}, async generateStructured() {} });
 
   assert.deepEqual(registry.list(), ['example']);
   assert.equal(registry.get('example').name, 'example');
-  assert.throws(() => registry.register({ name: 'example', async generateStructured() {} }));
+  assert.throws(() =>
+    registry.register({ name: 'example', async healthCheck() {}, async generateStructured() {} }),
+  );
 });
 
-test('OpenAI adapter maps structured output without leaking provider objects', async () => {
+test('OpenAI-compatible adapter maps structured output without leaking provider objects', async () => {
   let request;
-  const provider = createOpenAiProvider({
+  const provider = createOpenAiCompatibleProvider({
+    providerName: 'aicredits',
     client: {
       responses: {
         async create(parameters) {
@@ -98,7 +101,17 @@ test('OpenAI adapter maps structured output without leaking provider objects', a
     model: 'configured-model',
     instructions: 'Classify the request.',
     input: 'I want to become a product manager.',
-    schema: aiSchemas.intent,
+    schema: {
+      ...aiSchemas.intent,
+      properties: {
+        ...aiSchemas.intent.properties,
+        evidence: {
+          ...aiSchemas.intent.properties.evidence,
+          items: { type: 'string', format: 'uri' },
+          uniqueItems: true,
+        },
+      },
+    },
     schemaName: 'intent',
   });
 
@@ -106,7 +119,10 @@ test('OpenAI adapter maps structured output without leaking provider objects', a
   assert.equal(request.text.format.type, 'json_schema');
   assert.equal(request.text.format.strict, true);
   assert.equal('$schema' in request.text.format.schema, false);
+  assert.equal(JSON.stringify(request.text.format.schema).includes('uniqueItems'), false);
+  assert.equal(JSON.stringify(request.text.format.schema).includes('format'), false);
   assert.deepEqual(result.data, validIntent);
+  assert.equal(result.provider, 'aicredits');
   assert.deepEqual(result.usage, {
     inputTokens: 12,
     cachedInputTokens: 3,
@@ -114,6 +130,117 @@ test('OpenAI adapter maps structured output without leaking provider objects', a
     reasoningTokens: 2,
     totalTokens: 20,
   });
+});
+
+test('OpenAI-compatible provider verifies gateway health and configured models', async () => {
+  const requests = [];
+  const provider = createOpenAiCompatibleProvider({
+    providerName: 'aicredits',
+    apiKey: 'test-key',
+    baseURL: 'https://api.aicredits.in/v1',
+    client: { responses: { async create() {} } },
+    async fetchImpl(url, options) {
+      requests.push({ url, authorization: options.headers.authorization });
+      if (url.endsWith('/health')) {
+        return {
+          ok: true,
+          async json() {
+            return { status: 'ok' };
+          },
+        };
+      }
+      return {
+        ok: true,
+        async json() {
+          return [{ id: 'openai/gpt-5.5' }];
+        },
+      };
+    },
+  });
+
+  const result = await provider.healthCheck({ models: ['openai/gpt-5.5'] });
+
+  assert.deepEqual(
+    requests.map(({ url }) => url),
+    ['https://api.aicredits.in/health', 'https://api.aicredits.in/api/models'],
+  );
+  assert.ok(requests.every(({ authorization }) => authorization === 'Bearer test-key'));
+  assert.deepEqual(result.models, ['openai/gpt-5.5']);
+});
+
+test('OpenAI-compatible provider rejects unavailable configured models', async () => {
+  const provider = createOpenAiCompatibleProvider({
+    providerName: 'aicredits',
+    apiKey: 'test-key',
+    baseURL: 'https://api.aicredits.in/v1',
+    client: { responses: { async create() {} } },
+    async fetchImpl(url) {
+      return {
+        ok: true,
+        async json() {
+          return url.endsWith('/health') ? { status: 'ok' } : [{ id: 'openai/gpt-5' }];
+        },
+      };
+    },
+  });
+
+  await assert.rejects(
+    () => provider.healthCheck({ models: ['openai/gpt-5.5'] }),
+    (error) => error.code === 'AI_MODEL_UNAVAILABLE' && error.status === 503,
+  );
+});
+
+test('OpenAI-compatible provider normalizes rate-limit failures', async () => {
+  const provider = createOpenAiCompatibleProvider({
+    providerName: 'aicredits',
+    client: {
+      responses: {
+        async create() {
+          throw Object.assign(new Error('provider detail'), { status: 429 });
+        },
+      },
+    },
+  });
+
+  await assert.rejects(
+    () =>
+      provider.generateStructured({
+        model: 'openai/gpt-5.5',
+        instructions: 'Return JSON.',
+        input: '{}',
+        schema: aiSchemas.intent,
+        schemaName: 'intent',
+      }),
+    (error) => error.code === 'AI_RATE_LIMITED' && error.status === 503,
+  );
+});
+
+test('OpenAI-compatible provider normalizes exhausted credit failures', async () => {
+  const provider = createOpenAiCompatibleProvider({
+    providerName: 'aicredits',
+    client: {
+      responses: {
+        async create() {
+          throw Object.assign(new Error('Payment required: credits exhausted'), {
+            status: 402,
+            error: { code: 'insufficient_quota', message: 'No credits remaining' },
+          });
+        },
+      },
+    },
+  });
+
+  await assert.rejects(
+    () =>
+      provider.generateStructured({
+        model: 'openai/gpt-5.5',
+        instructions: 'Return JSON.',
+        input: '{}',
+        schema: aiSchemas.intent,
+        schemaName: 'intent',
+      }),
+    (error) => error.code === 'AI_CREDITS_EXHAUSTED' && error.status === 503,
+  );
 });
 
 test('Sprint 2 persistence uses approved collections and embedded hierarchy', () => {

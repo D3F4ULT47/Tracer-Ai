@@ -16,6 +16,15 @@ export const roadmapController = Object.freeze({
       workspace: await roadmapService.get(request.auth.userId, request.params.roadmapId),
     });
   },
+  async adoptAnonymous(request, response) {
+    send(response, request, 'Anonymous roadmap adopted', {
+      workspace: await roadmapService.adoptAnonymous({
+        ownerId: request.auth.userId,
+        roadmapId: request.params.roadmapId,
+        anonymousSessionId: request.body.anonymousSessionId,
+      }),
+    });
+  },
   async update(request, response) {
     send(response, request, 'Roadmap saved', {
       workspace: await roadmapService.update({

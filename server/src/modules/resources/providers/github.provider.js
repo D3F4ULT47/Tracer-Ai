@@ -46,7 +46,7 @@ export function createGitHubProvider({ token, fetcher = fetch, timeoutMs = 8_000
         author: item.owner?.login ?? null,
         language: item.language ?? null,
         difficulty: context.task.difficulty,
-        tags: [context.task.title, ...(item.topics ?? []), item.language].filter(Boolean),
+        tags: [...(item.topics ?? []), item.language].filter(Boolean),
         thumbnailUrl: item.owner?.avatar_url ?? null,
         popularity: {
           stars: integer(item.stargazers_count),

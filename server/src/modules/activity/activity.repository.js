@@ -6,11 +6,32 @@ export const activityRepository = Object.freeze({
     return RoadmapActivity.create([event], { ...(session ? { session } : {}) });
   },
 
+  deleteForRoadmap({ userId, roadmapId, session }) {
+    const owner = new mongoose.Types.ObjectId(userId);
+    return RoadmapActivity.deleteMany(
+      {
+        roadmapId,
+        $or: [{ userId: owner }, { ownerId: owner }],
+      },
+      { ...(session ? { session } : {}) },
+    );
+  },
+
   list({ userId, limit, cursor, activityType }) {
     const owner = new mongoose.Types.ObjectId(userId);
     const ownership = { $or: [{ userId: owner }, { ownerId: owner }] };
     const pipeline = [
       { $match: ownership },
+      {
+        $lookup: {
+          from: 'roadmaps',
+          localField: 'roadmapId',
+          foreignField: 'roadmapId',
+          as: 'roadmap',
+        },
+      },
+      { $unwind: '$roadmap' },
+      { $match: { 'roadmap.deletedAt': null } },
       {
         $addFields: {
           effectiveTimestamp: { $ifNull: ['$timestamp', '$createdAt'] },

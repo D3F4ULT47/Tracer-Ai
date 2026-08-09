@@ -8,6 +8,7 @@ import { Toast } from '../components/Toast/index.js';
 import { rememberAuthReturn } from '../features/auth/auth-return.js';
 import { useCurrentUser } from '../features/auth/hooks/use-auth.js';
 import { RoadmapContextPanel } from '../features/roadmaps/components/RoadmapContextPanel.jsx';
+import { RoadmapDashboard } from '../features/roadmaps/components/RoadmapDashboard.jsx';
 import { RoadmapPreviewTree } from '../features/roadmaps/components/RoadmapPreviewTree.jsx';
 import { usePersistRoadmapPreview } from '../features/roadmaps/hooks/use-roadmap-generation.js';
 import {
@@ -31,6 +32,30 @@ function taskStats(roadmap) {
   };
 }
 
+function titleCase(value) {
+  if (!value) return '';
+  return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+}
+
+function roadmapLabel(title) {
+  const cleaned = String(title ?? '')
+    .replace(/^\s*become\s+(?:a|an|the)\s+/i, '')
+    .replace(/^\s*becoming\s+(?:a|an|the)\s+/i, '')
+    .replace(/\s+roadmap\s*$/i, '')
+    .trim();
+  return cleaned || title;
+}
+
+function summaryLine(summary) {
+  const normalized = String(summary ?? '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!normalized) return '';
+  const sentenceEnd = normalized.search(/[.!?](?:\s|$)/);
+  const firstSentence = sentenceEnd >= 0 ? normalized.slice(0, sentenceEnd + 1).trim() : normalized;
+  return firstSentence.length > 150 ? `${firstSentence.slice(0, 147).trim()}…` : firstSentence;
+}
+
 export function RoadmapPreviewPage() {
   const [preview] = useState(() => loadRoadmapPreview());
   const auth = useCurrentUser();
@@ -40,16 +65,17 @@ export function RoadmapPreviewPage() {
   const setCurrentRoadmapId = useAppStore((state) => state.setCurrentRoadmapId);
   const [stage, setStage] = useState(null);
   const automaticSaveStarted = useRef(false);
+  const roadmapId = preview?.roadmapId;
+  const anonymousSessionId = preview?.anonymousSessionId;
   const roadmap = preview?.roadmap;
   const context = preview?.context;
-  const sourceUnderstanding = preview?.sourceUnderstanding;
   const generationMetadata = preview?.generationMetadata;
   const isAuthenticated = Boolean(auth.data?.data?.user);
 
   const persistPreview = useCallback(() => {
-    if (!context) return;
+    if (!roadmapId || !anonymousSessionId) return;
     persist.mutate(
-      { context, sourceUnderstanding, onStage: setStage },
+      { roadmapId, anonymousSessionId, onStage: setStage },
       {
         onSuccess: (result) => {
           clearRoadmapPreview();
@@ -58,16 +84,24 @@ export function RoadmapPreviewPage() {
         },
       },
     );
-  }, [context, navigate, persist, setCurrentRoadmapId, sourceUnderstanding]);
+  }, [anonymousSessionId, navigate, persist, roadmapId, setCurrentRoadmapId]);
 
   useEffect(() => {
-    if (!roadmap || !context || !isAuthenticated || automaticSaveStarted.current) return;
+    if (
+      !roadmap ||
+      !roadmapId ||
+      !anonymousSessionId ||
+      !isAuthenticated ||
+      automaticSaveStarted.current
+    ) {
+      return;
+    }
     if (!consumePreviewSaveIntent()) return;
     automaticSaveStarted.current = true;
     persistPreview();
-  }, [context, isAuthenticated, persistPreview, roadmap]);
+  }, [anonymousSessionId, isAuthenticated, persistPreview, roadmap, roadmapId]);
 
-  if (!roadmap || !context) {
+  if (!roadmap || !context || !roadmapId || !anonymousSessionId) {
     return (
       <section className="workspace-state-page">
         <Card className="roadmaps-empty-state">
@@ -83,13 +117,28 @@ export function RoadmapPreviewPage() {
   }
 
   const progress = taskStats(roadmap);
+  const label = roadmapLabel(roadmap.title);
+  const nextMilestone =
+    roadmap.phases[0]?.weeks[0]?.milestones[0] ?? roadmap.phases[0]?.milestones[0] ?? 'Start';
   const workspace = {
     ...roadmap,
+    roadmapLabel: label,
+    roadmapIdentifier: `${label} • ${titleCase(roadmap.difficulty)}`,
+    summaryLine: summaryLine(roadmap.summary),
     currentVersion: 0,
     progress,
     currentPhase: roadmap.phases[0]?.title ?? null,
-    nextMilestone:
-      roadmap.phases[0]?.weeks[0]?.milestones[0] ?? roadmap.phases[0]?.milestones[0] ?? null,
+    nextMilestone,
+    dashboard: {
+      progressMade: {
+        percentage: progress.percentage,
+        completedTasks: progress.completedTasks,
+        totalTasks: progress.totalTasks,
+      },
+      learningVelocity: { minutesToday: 0 },
+      currentStreak: { days: 0 },
+      nextMilestone: { title: nextMilestone, remainingMinutes: progress.totalMinutes },
+    },
     estimatedCompletionDate: new Date(
       Date.parse(generationMetadata.generatedAt) + roadmap.estimatedWeeks * 7 * 24 * 60 * 60 * 1000,
     ).toISOString(),
@@ -101,7 +150,7 @@ export function RoadmapPreviewPage() {
     if (!isAuthenticated) {
       rememberPreviewSaveIntent();
       rememberAuthReturn(location);
-      navigate('/login', { state: { from: location } });
+      navigate('/signup', { state: { from: location } });
       return;
     }
     persistPreview();
@@ -119,8 +168,10 @@ export function RoadmapPreviewPage() {
         </div>
         <div className="preview-title-actions">
           <div>
-            <h1>{roadmap.title}</h1>
-            <p>{roadmap.summary}</p>
+            <h1 className="preview-roadmap-identifier">
+              {label} <span>• {titleCase(roadmap.difficulty)}</span>
+            </h1>
+            <p className="workspace-summary-line">{workspace.summaryLine}</p>
           </div>
           <Button variant="primary" onClick={saveRoadmap} disabled={persist.isPending}>
             <LockKeyhole size={15} />
@@ -128,9 +179,14 @@ export function RoadmapPreviewPage() {
               ? 'Saving…'
               : isAuthenticated
                 ? 'Save to My Roadmaps'
-                : 'Sign in to save'}
+                : 'Sign up to save'}
           </Button>
         </div>
+        <RoadmapDashboard dashboard={workspace.dashboard} progress={progress} />
+        <details className="workspace-about-roadmap">
+          <summary>About this roadmap</summary>
+          <p>{roadmap.description}</p>
+        </details>
         {stage ? (
           <div className="generation-stage">
             <span className="spin-dot" /> {stage}

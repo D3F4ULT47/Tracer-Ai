@@ -237,6 +237,16 @@ export function createRoadmapService({ repository = roadmapRepository } = {}) {
       );
     },
 
+    async adoptAnonymous({ ownerId, roadmapId, anonymousSessionId }) {
+      const result = await repository.adoptAnonymous({ ownerId, roadmapId, anonymousSessionId });
+      return presentWorkspace(
+        result.roadmap,
+        result.currentVersion,
+        result.initialVersion,
+        result.context,
+      );
+    },
+
     async update({ ownerId, roadmapId, revision, changes, confirmedProtectedEdit }) {
       const result = await repository.mutate({
         ownerId,
@@ -366,10 +376,16 @@ export function createRoadmapService({ repository = roadmapRepository } = {}) {
             node.title = changes.title;
             if (nodeType === 'task') renameTaskNode(planningGraph, nodeKey, changes.title);
           }
+          if (changes.description !== undefined) {
+            node.description = changes.description;
+            if (nodeType !== 'task') node.objective = changes.description || node.objective;
+          }
           if (nodeType === 'task') {
-            if (changes.description !== undefined) node.description = changes.description;
             if (changes.estimatedMinutes !== undefined) {
               node.estimatedMinutes = changes.estimatedMinutes;
+            }
+            if (changes.difficulty !== undefined) {
+              node.difficulty = changes.difficulty;
             }
             if (changes.notes !== undefined) {
               node.notes = changes.notes.map((note) => ({

@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { RoadmapContext } from '../src/modules/roadmaps/models/roadmap-context.model.js';
+import { Roadmap } from '../src/modules/roadmaps/models/roadmap.model.js';
+import { presentWorkspace } from '../src/modules/roadmaps/roadmap-presenter.js';
 import { createRoadmapService } from '../src/modules/roadmaps/roadmap.service.js';
 
 function task(key, state = 'NOT_STARTED', dependencies = []) {
@@ -132,6 +135,16 @@ function harness() {
         context: state.context,
       };
     },
+    async adoptAnonymous(input) {
+      state.adoption = input;
+      state.roadmap.ownerId = input.ownerId;
+      return {
+        roadmap: state.roadmap,
+        currentVersion: version(),
+        initialVersion: version(),
+        context: state.context,
+      };
+    },
     async mutate({ revision, changeSummary, apply }) {
       assert.equal(revision, state.roadmap.revision);
       const graph = structuredClone(state.graph);
@@ -180,6 +193,106 @@ test('roadmap progress is task-authoritative and duration weighted', async () =>
   assert.equal(workspace.metadata.targetRole, 'Frontend Engineer');
   assert.deepEqual(workspace.metadata.sourceTypes, ['github_repository']);
   assert.equal(workspace.sourceAttributions.length, 1);
+});
+
+test('workspace presenter serializes persisted Mongoose context arrays safely', () => {
+  const persistedRoadmap = new Roadmap(roadmap());
+  persistedRoadmap.phases[0].weeks[0].tasks[0].attachments = [
+    {
+      attachmentId: '33333333-3333-4333-8333-333333333333',
+      type: 'external_url',
+      url: 'https://developer.mozilla.org/docs/Web/JavaScript',
+      title: 'MDN JavaScript Guide',
+      description: null,
+      metadata: {
+        provider: 'official_docs',
+        host: 'developer.mozilla.org',
+        identifier: 'javascript-guide',
+        purpose: 'primary',
+      },
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+    },
+  ];
+  const persistedContext = new RoadmapContext({
+    roadmapId: persistedRoadmap.roadmapId,
+    ownerId: persistedRoadmap.ownerId,
+    contextVersion: 3,
+    contextHash: 'context-hash',
+    learningContext: { careerGoal: { value: 'Frontend Engineer' } },
+    sourceAttributions: [
+      {
+        sourceId: '11111111-1111-4111-8111-111111111111',
+        sourceType: 'github_repository',
+        identifier: 'example/frontend@main',
+        title: 'example/frontend',
+        url: 'https://github.com/example/frontend',
+        creator: 'example',
+        capturedAt: new Date('2026-01-01T00:00:00.000Z'),
+        relevantLocations: [],
+      },
+    ],
+  });
+
+  const workspace = presentWorkspace(persistedRoadmap, version(), version(), persistedContext);
+
+  assert.equal(workspace.sourceAttributions.length, 1);
+  assert.equal(workspace.sourceAttributions[0].capturedAt, '2026-01-01T00:00:00.000Z');
+  assert.deepEqual(workspace.sourceAttributions[0].relevantLocations, []);
+  assert.equal(
+    workspace.phases[0].weeks[0].tasks[0].attachments[0].metadata.provider,
+    'official_docs',
+  );
+});
+
+test('anonymous roadmap adoption returns the same roadmap with preserved task work', async () => {
+  const { service, state } = harness();
+  state.roadmap.ownerId = null;
+  state.roadmap.phases[0].weeks[0].tasks[0].state = 'COMPLETED';
+  state.roadmap.phases[0].weeks[0].tasks[0].notes = [
+    {
+      noteId: 'note-one',
+      content: 'Keep this note.',
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+    },
+  ];
+  state.roadmap.phases[0].weeks[0].tasks[0].attachments = [
+    {
+      attachmentId: '33333333-3333-4333-8333-333333333333',
+      type: 'external_url',
+      url: 'https://developer.mozilla.org/docs/Web/JavaScript',
+      title: 'MDN JavaScript Guide',
+      description: null,
+      metadata: {
+        provider: 'official_docs',
+        host: 'developer.mozilla.org',
+        identifier: 'javascript-guide',
+        purpose: 'primary',
+      },
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+    },
+  ];
+
+  const workspace = await service.adoptAnonymous({
+    ownerId: '507f1f77bcf86cd799439011',
+    roadmapId: state.roadmap.roadmapId,
+    anonymousSessionId: '99999999-9999-4999-8999-999999999999',
+  });
+
+  assert.deepEqual(state.adoption, {
+    ownerId: '507f1f77bcf86cd799439011',
+    roadmapId: state.roadmap.roadmapId,
+    anonymousSessionId: '99999999-9999-4999-8999-999999999999',
+  });
+  assert.equal(workspace.roadmapId, state.roadmap.roadmapId);
+  assert.equal(workspace.phases[0].weeks[0].tasks[0].state, 'COMPLETED');
+  assert.equal(workspace.phases[0].weeks[0].tasks[0].notes[0].content, 'Keep this note.');
+  assert.equal(
+    workspace.phases[0].weeks[0].tasks[0].attachments[0].url,
+    'https://developer.mozilla.org/docs/Web/JavaScript',
+  );
 });
 
 test('completing every task derives completed week and phase state', async () => {

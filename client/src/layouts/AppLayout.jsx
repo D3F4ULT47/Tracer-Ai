@@ -2,7 +2,6 @@ import { NavLink, Outlet } from 'react-router-dom';
 import {
   FolderKanban,
   Home,
-  LayoutDashboard,
   MoonStar,
   PanelLeftClose,
   PanelLeftOpen,
@@ -27,12 +26,11 @@ export function AppLayout({ children }) {
     <div className="app-shell" data-sidebar-collapsed={isSidebarCollapsed}>
       <aside className="sidebar" data-collapsed={isSidebarCollapsed}>
         <div className="sidebar-header">
-          <div className="sidebar-brand">
-            <span className="brand-mark" aria-hidden="true">
-              <LayoutDashboard size={18} />
-            </span>
-            {!isSidebarCollapsed ? <span className="brand">Tracer AI</span> : null}
-          </div>
+          {!isSidebarCollapsed ? (
+            <div className="sidebar-brand">
+              <span className="brand">Tracer AI</span>
+            </div>
+          ) : null}
           <button
             type="button"
             className="icon-button"

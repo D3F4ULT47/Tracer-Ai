@@ -5,7 +5,6 @@ import { Badge } from '../components/Badge/index.js';
 import { Button } from '../components/Button/index.js';
 import { Card } from '../components/Card/index.js';
 import { Modal } from '../components/Modal/index.js';
-import { Toast } from '../components/Toast/index.js';
 import { useCurrentUser } from '../features/auth/hooks/use-auth.js';
 import { useRecentActivity } from '../features/activity/hooks/use-activity.js';
 import { useCommunityFeed } from '../features/community/hooks/use-community-feed.js';
@@ -13,6 +12,7 @@ import {
   useAnswerRoadmapClarification,
   useGenerateRoadmap,
 } from '../features/roadmaps/hooks/use-roadmap-generation.js';
+import { GenerationExperience } from '../features/roadmaps/components/GenerationExperience.jsx';
 import { saveRoadmapPreview } from '../features/roadmaps/preview-storage.js';
 import { useProfile } from '../features/users/hooks/use-profile.js';
 import { useAppStore } from '../store/use-app-store.js';
@@ -26,6 +26,24 @@ const suggestedGoals = [
   'Machine Learning',
   'Roadmap for Placement',
 ];
+
+const generationStageOrder = [
+  'input_analysis',
+  'source_understanding',
+  'learner_assessment',
+  'learning_context',
+  'roadmap_planning',
+  'roadmap_validation',
+  'resource_discovery',
+  'resource_ranking',
+  'resource_attachment',
+  'persistence',
+  'workspace_ready',
+];
+
+function isEarlierStage(candidate, current) {
+  return generationStageOrder.indexOf(candidate) < generationStageOrder.indexOf(current);
+}
 
 export function HomePage() {
   const auth = useCurrentUser();
@@ -46,6 +64,7 @@ export function HomePage() {
   const composerRef = useRef(null);
   const fileRef = useRef(null);
   const proficiencyControlRef = useRef(null);
+  const transitionTimerRef = useRef(null);
   const generateRoadmap = useGenerateRoadmap();
   const answerClarification = useAnswerRoadmapClarification();
   const isAuthenticated = Boolean(auth.data?.data?.user);
@@ -54,6 +73,13 @@ export function HomePage() {
   const profile = useProfile({ enabled: isAuthenticated, retry: false });
   const displayName = profile.data?.data?.profile?.name ?? auth.data?.data?.user?.name;
   const firstName = displayName?.trim().split(/\s+/)[0];
+
+  useEffect(
+    () => () => {
+      if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
+    },
+    [],
+  );
 
   useEffect(() => {
     function focusComposer(event) {
@@ -76,25 +102,36 @@ export function HomePage() {
         setStatus(null);
         return;
       }
-      if (!result.persisted) {
-        saveRoadmapPreview({
-          roadmap: result.roadmap,
-          context: result.context,
-          sourceUnderstanding: result.sourceUnderstanding,
-          generationMetadata: result.generationMetadata,
-        });
-        navigate('/roadmaps/preview');
-        return;
-      }
-      setCurrentRoadmapId(result.roadmapId);
-      setComposerDraft('');
-      navigate(`/roadmaps/${result.roadmapId}`);
+      setStatus({
+        tone: 'success',
+        stageId: 'workspace_ready',
+        percentage: 100,
+        message: 'Roadmap ready. Opening your workspace…',
+      });
+      transitionTimerRef.current = setTimeout(() => {
+        if (!result.persisted) {
+          saveRoadmapPreview({
+            roadmapId: result.roadmapId,
+            version: result.version,
+            anonymousSessionId: result.anonymousSessionId,
+            roadmap: result.roadmap,
+            context: result.context,
+            sourceUnderstanding: result.sourceUnderstanding,
+            generationMetadata: result.generationMetadata,
+          });
+          navigate('/roadmaps/preview');
+          return;
+        }
+        setCurrentRoadmapId(result.roadmapId);
+        setComposerDraft('');
+        navigate(`/roadmaps/${result.roadmapId}`);
+      }, 700);
     },
     [navigate, setComposerDraft, setCurrentRoadmapId],
   );
 
   const startGeneration = useCallback(
-    (proficiency) => {
+    (proficiency, retryFrom = null) => {
       const submission = {
         goal: composerDraft,
         experienceLevel: proficiency === 'not_sure' ? null : proficiency,
@@ -103,17 +140,40 @@ export function HomePage() {
         resumeFile,
         persist: isAuthenticated,
       };
-      setStatus({ tone: 'default', message: 'Starting your roadmap…' });
+      setStatus({
+        tone: 'default',
+        stageId: retryFrom?.stageId ?? 'input_analysis',
+        percentage: retryFrom?.percentage ?? 1,
+        message: retryFrom ? 'Retrying this step…' : 'Starting your roadmap…',
+      });
       setClarification(null);
       generateRoadmap.mutate(
         {
           ...submission,
-          onStage: (message) => setStatus({ tone: 'default', message }),
+          onStage: (message, stage) =>
+            setStatus((current) => {
+              const nextStage = stage?.id ?? current?.stageId ?? 'input_analysis';
+              if (retryFrom && isEarlierStage(nextStage, retryFrom.stageId)) return current;
+              return {
+                tone: 'default',
+                stageId: nextStage,
+                percentage: Math.max(stage?.percentage ?? 1, current?.percentage ?? 0),
+                message,
+              };
+            }),
         },
         {
           onSuccess: handleGenerationResult,
           onError: (error) =>
-            setStatus({ tone: 'error', message: generationErrorMessage(error), retry: true }),
+            setStatus((current) => ({
+              ...(current ?? {
+                stageId: 'input_analysis',
+                percentage: 1,
+                message: 'Starting your roadmap…',
+              }),
+              tone: 'error',
+              error: { message: generationErrorMessage(error), retry: true },
+            })),
         },
       );
     },
@@ -175,12 +235,26 @@ export function HomePage() {
         decision: clarification.decision,
         answer,
         persist: isAuthenticated,
-        onStage: (message) => setStatus({ tone: 'default', message }),
+        onStage: (message, stage) =>
+          setStatus((current) => ({
+            tone: 'default',
+            stageId: stage?.id ?? current?.stageId ?? 'learning_context',
+            percentage: Math.max(stage?.percentage ?? 40, current?.percentage ?? 0),
+            message,
+          })),
       },
       {
         onSuccess: handleGenerationResult,
         onError: (error) =>
-          setStatus({ tone: 'error', message: generationErrorMessage(error), retry: false }),
+          setStatus((current) => ({
+            ...(current ?? {
+              stageId: 'learning_context',
+              percentage: 40,
+              message: 'Updating your learning context…',
+            }),
+            tone: 'error',
+            error: { message: generationErrorMessage(error), retry: false },
+          })),
       },
     );
   }
@@ -201,22 +275,7 @@ export function HomePage() {
                     into an interactive roadmap you can edit, track, and adapt.
                   </p>
                 </div>
-                {isAuthenticated ? <Badge tone="success">Personal workspace</Badge> : null}
               </div>
-              {status ? (
-                status.tone === 'error' ? (
-                  <div className="generation-error">
-                    <Toast tone="error">{status.message}</Toast>
-                    {status.retry ? (
-                      <Button type="button" onClick={() => startGeneration(submittedProficiency)}>
-                        Try again
-                      </Button>
-                    ) : null}
-                  </div>
-                ) : (
-                  <GenerationProgress message={status.message} />
-                )
-              ) : null}
               {clarification ? (
                 <Card className="clarification-card">
                   <form onSubmit={submitClarification}>
@@ -345,6 +404,8 @@ export function HomePage() {
                   <button
                     key={goal}
                     type="button"
+                    data-selected={composerDraft === goal}
+                    aria-pressed={composerDraft === goal}
                     onClick={() => {
                       setComposerDraft(goal);
                       composerRef.current?.focus();
@@ -394,6 +455,14 @@ export function HomePage() {
           setPersonalizedOpen(false);
         }}
       />
+      {status ? (
+        <GenerationExperience
+          progress={status}
+          error={status.error}
+          onRetry={() => startGeneration(submittedProficiency, status)}
+          onBack={() => setStatus(null)}
+        />
+      ) : null}
     </section>
   );
 }
@@ -540,6 +609,9 @@ function RecentActivity({ query, isAuthenticated }) {
 }
 
 function generationErrorMessage(error) {
+  if (error.code === 'AI_CREDITS_EXHAUSTED') {
+    return 'Roadmap generation is temporarily unavailable because the AI gateway credits are exhausted. Add credits or switch providers, then retry.';
+  }
   if (error.code === 'AI_RATE_LIMITED') {
     return 'You’ve created several roadmaps recently. Please wait a little before trying again.';
   }
@@ -550,18 +622,6 @@ function generationErrorMessage(error) {
     return 'The AI service couldn’t finish this roadmap. Your goal is still here—please try again.';
   }
   return error.message || 'We couldn’t finish your roadmap. Your input is safe; please try again.';
-}
-
-function GenerationProgress({ message }) {
-  return (
-    <div className="generation-progress" role="status" aria-live="polite">
-      <span className="generation-orb" aria-hidden="true" />
-      <div>
-        <strong>{message}</strong>
-        <small>Building the complete roadmap in one pass</small>
-      </div>
-    </div>
-  );
 }
 
 function PersonalizedRoadmapModal({ open, initial, onClose, onApply, onQuick }) {

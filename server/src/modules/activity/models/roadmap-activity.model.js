@@ -5,9 +5,10 @@ import mongoose from 'mongoose';
 const roadmapActivitySchema = new mongoose.Schema(
   {
     activityId: { type: String, default: randomUUID, unique: true, sparse: true, immutable: true },
-    userId: { type: mongoose.Schema.Types.ObjectId, default: null, index: true, immutable: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, default: null, index: true },
     roadmapId: { type: String, required: true, index: true, immutable: true },
-    ownerId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true, immutable: true },
+    ownerId: { type: mongoose.Schema.Types.ObjectId, default: null, index: true },
+    anonymousSessionId: { type: String, default: null, index: true, immutable: true },
     roadmapTitle: { type: String, default: null, maxlength: 300, immutable: true },
     activityType: { type: String, enum: ACTIVITY_TYPES, default: null, immutable: true },
     entityType: {

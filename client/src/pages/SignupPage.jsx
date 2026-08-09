@@ -11,6 +11,7 @@ import { authKeys } from '../features/auth/hooks/use-auth.js';
 export function SignupPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
   const signup = useMutation({
     async mutationFn(credentials) {
       const registration = await authApi.register(credentials);

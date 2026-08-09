@@ -22,6 +22,9 @@ vi.mock('../features/roadmaps/hooks/use-roadmap-generation.js', () => ({
 }));
 
 const preview = {
+  roadmapId: '33333333-3333-4333-8333-333333333333',
+  version: 1,
+  anonymousSessionId: '99999999-9999-4999-8999-999999999999',
   context: { contextVersion: 1 },
   generationMetadata: {
     generatedAt: '2026-01-01T00:00:00.000Z',
@@ -73,6 +76,7 @@ const preview = {
 };
 
 beforeEach(() => {
+  localStorage.clear();
   sessionStorage.clear();
   mocks.authenticated = false;
   mocks.persist.mockReset();
@@ -99,6 +103,14 @@ it('automatically saves the pending preview after authentication returns', async
     await screen.findByRole('heading', { name: 'Saved roadmap workspace' }),
   ).toBeInTheDocument();
   expect(mocks.persist).toHaveBeenCalledTimes(1);
+  expect(mocks.persist).toHaveBeenCalledWith(
+    {
+      roadmapId: '33333333-3333-4333-8333-333333333333',
+      anonymousSessionId: '99999999-9999-4999-8999-999999999999',
+      onStage: expect.any(Function),
+    },
+    expect.any(Object),
+  );
 });
 
 afterEach(cleanup);
@@ -108,18 +120,18 @@ it('shows the anonymous roadmap value before asking for authentication', async (
     <MemoryRouter initialEntries={['/roadmaps/preview']}>
       <Routes>
         <Route path="/roadmaps/preview" element={<RoadmapPreviewPage />} />
-        <Route path="/login" element={<div>Sign in screen</div>} />
+        <Route path="/signup" element={<div>Sign up screen</div>} />
       </Routes>
     </MemoryRouter>,
   );
-  expect(screen.getByRole('heading', { name: 'Frontend Roadmap' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Frontend • Beginner' })).toBeInTheDocument();
   const user = userEvent.setup();
   await user.click(screen.getByRole('button', { name: 'Expand JavaScript' }));
   expect(screen.getByText('Learn syntax')).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: 'MDN JavaScript Guide (primary)' })).toHaveAttribute(
+  expect(screen.getByRole('link', { name: 'MDN JavaScript Guide' })).toHaveAttribute(
     'href',
     'https://developer.mozilla.org/docs/Web/JavaScript',
   );
-  await user.click(screen.getByRole('button', { name: 'Sign in to save' }));
-  expect(screen.getByText('Sign in screen')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Sign up to save' }));
+  expect(screen.getByText('Sign up screen')).toBeInTheDocument();
 });

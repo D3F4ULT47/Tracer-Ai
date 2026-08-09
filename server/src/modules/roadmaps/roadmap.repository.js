@@ -1,7 +1,8 @@
 import { createHash, randomUUID } from 'node:crypto';
 import mongoose from 'mongoose';
 import { AppError } from '../../shared/app-error.js';
-import { activityRepository, createActivityEvent } from '../activity/index.js';
+import { RoadmapActivity, activityRepository, createActivityEvent } from '../activity/index.js';
+import { aiOwnershipTransferRepository } from '../ai/ownership-transfer/index.js';
 import { RoadmapContext } from './models/roadmap-context.model.js';
 import { RoadmapGeneration } from './models/roadmap-generation.model.js';
 import { RoadmapVersion } from './models/roadmap-version.model.js';
@@ -14,6 +15,13 @@ function hash(value) {
 
 function notFound() {
   return new AppError('Roadmap was not found', { status: 404, code: 'ROADMAP_NOT_FOUND' });
+}
+
+function anonymousNotFound() {
+  return new AppError('Anonymous roadmap could not be adopted', {
+    status: 404,
+    code: 'ANONYMOUS_ROADMAP_NOT_FOUND',
+  });
 }
 
 async function loadVersions(roadmapId, session) {
@@ -67,6 +75,73 @@ export const roadmapRepository = Object.freeze({
       ...(await loadVersions(roadmapId)),
       context: await loadContext(roadmap.contextId),
     };
+  },
+
+  async adoptAnonymous({ ownerId, roadmapId, anonymousSessionId }) {
+    const session = await mongoose.startSession();
+    try {
+      let result;
+      await session.withTransaction(async () => {
+        const owner = new mongoose.Types.ObjectId(ownerId);
+        const existing = await Roadmap.findOne({
+          roadmapId,
+          ownerId: owner,
+          anonymousSessionId,
+          deletedAt: null,
+        }).session(session);
+        if (existing) {
+          const { currentVersion, initialVersion } = await loadVersions(roadmapId, session);
+          result = {
+            roadmap: existing,
+            currentVersion,
+            initialVersion,
+            context: await loadContext(existing.contextId, session),
+          };
+          return;
+        }
+
+        const roadmap = await Roadmap.findOne({
+          roadmapId,
+          ownerId: null,
+          anonymousSessionId,
+          deletedAt: null,
+        }).session(session);
+        if (!roadmap) throw anonymousNotFound();
+
+        roadmap.ownerId = owner;
+        roadmap.adoptedAt = new Date();
+        await roadmap.save({ session });
+
+        const ownershipFilter = { roadmapId, ownerId: null, anonymousSessionId };
+        const generations = await RoadmapGeneration.find(ownershipFilter, { runId: 1 }).session(
+          session,
+        );
+        const runIds = generations.map((generation) => generation.runId);
+        await Promise.all([
+          RoadmapContext.updateOne(ownershipFilter, { $set: { ownerId: owner } }, { session }),
+          RoadmapGeneration.updateMany(ownershipFilter, { $set: { ownerId: owner } }, { session }),
+          RoadmapVersion.updateMany(ownershipFilter, { $set: { ownerId: owner } }, { session }),
+          RoadmapActivity.updateMany(
+            ownershipFilter,
+            { $set: { ownerId: owner, userId: owner } },
+            { session },
+          ),
+          aiOwnershipTransferRepository.adoptRunOwnership({ runIds, ownerId: owner, session }),
+        ]);
+
+        const { currentVersion, initialVersion } = await loadVersions(roadmapId, session);
+        result = {
+          roadmap,
+          currentVersion,
+          initialVersion,
+          context: await loadContext(roadmap.contextId, session),
+        };
+      });
+      if (!result) throw anonymousNotFound();
+      return result;
+    } finally {
+      await session.endSession();
+    }
   },
 
   async mutate({ ownerId, roadmapId, revision, changeSummary, apply }) {
@@ -251,18 +326,7 @@ export const roadmapRepository = Object.freeze({
         roadmap.deletedAt = deletedAt;
         roadmap.deletedBy = ownerId;
         await roadmap.save({ session });
-        await activityRepository.append(
-          createActivityEvent({
-            userId: ownerId,
-            roadmapId,
-            roadmapTitle: roadmap.title,
-            roadmapVersion: roadmap.currentVersion,
-            activityType: 'ROADMAP_DELETED',
-            shortDescription: `Moved ${roadmap.title} to recoverable deletion.`,
-            metadata: { recoverable: true },
-          }),
-          { session },
-        );
+        await activityRepository.deleteForRoadmap({ userId: ownerId, roadmapId, session });
       });
       return { roadmapId, deletedAt: deletedAt.toISOString() };
     } finally {

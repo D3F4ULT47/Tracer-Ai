@@ -1,6 +1,43 @@
 import { useState } from 'react';
-import { Check, ChevronDown, ChevronRight, Circle, Clock3, Flag } from 'lucide-react';
+import {
+  AlertCircle,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Circle,
+  Clock3,
+  ExternalLink,
+  Flag,
+} from 'lucide-react';
 import { Badge } from '../../../components/Badge/index.js';
+
+function PreviewResource({ task }) {
+  const attachments = task.attachments ?? [];
+  const primary =
+    attachments.find((attachment) => attachment.metadata?.purpose === 'primary') ??
+    attachments[0] ??
+    null;
+  if (!primary) {
+    return (
+      <div className="task-resource-preview task-resource-preview--empty">
+        <AlertCircle size={14} />
+        <span>{task.resourceStatus?.message ?? 'No suitable learning resource found.'}</span>
+      </div>
+    );
+  }
+  return (
+    <div className="task-resource-preview">
+      <ExternalLink size={14} />
+      <a href={primary.url} target="_blank" rel="noreferrer">
+        {primary.title || primary.url}
+      </a>
+      <small>
+        {primary.metadata?.provider ?? primary.type}
+        {attachments.length > 1 ? ` · +${attachments.length - 1} more` : ''}
+      </small>
+    </div>
+  );
+}
 
 export function RoadmapPreviewTree({ roadmap }) {
   const [expanded, setExpanded] = useState(() => new Set(roadmap.phases.map((phase) => phase.key)));
@@ -77,22 +114,7 @@ export function RoadmapPreviewTree({ roadmap }) {
                               <Clock3 size={13} /> {task.estimatedMinutes}m
                             </span>
                           </div>
-                          {task.attachments?.length > 0 ? (
-                            <div className="preview-task-attachments">
-                              {task.attachments.map((attachment) => (
-                                <a
-                                  key={attachment.attachmentId}
-                                  href={attachment.url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  aria-label={`${attachment.title} (${attachment.metadata?.purpose ?? attachment.type})`}
-                                >
-                                  {attachment.title}
-                                  <small>{attachment.metadata?.purpose ?? attachment.type}</small>
-                                </a>
-                              ))}
-                            </div>
-                          ) : null}
+                          <PreviewResource task={task} />
                         </div>
                       ))}
                     </div>

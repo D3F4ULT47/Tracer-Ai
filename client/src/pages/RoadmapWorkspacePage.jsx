@@ -8,12 +8,19 @@ import { Toast } from '../components/Toast/index.js';
 import { ConfirmDialog } from '../features/roadmaps/components/ConfirmDialog.jsx';
 import { InlineEdit } from '../features/roadmaps/components/InlineEdit.jsx';
 import { RoadmapContextPanel } from '../features/roadmaps/components/RoadmapContextPanel.jsx';
+import { RoadmapDashboard } from '../features/roadmaps/components/RoadmapDashboard.jsx';
 import { RoadmapTree } from '../features/roadmaps/components/RoadmapTree.jsx';
 import {
   useRoadmap,
   useRoadmapVisibility,
   useWorkspaceMutation,
 } from '../features/roadmaps/hooks/use-roadmaps.js';
+import { useAppStore } from '../store/use-app-store.js';
+
+function titleCase(value) {
+  if (!value) return '';
+  return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+}
 
 function isProtected(node) {
   return ['COMPLETED', 'LOCKED'].includes(node.state) || (node.progress?.completedTasks ?? 0) > 0;
@@ -37,7 +44,21 @@ function findNode(workspace, type, key) {
 function optimisticUpdate(workspace, type, key, changes) {
   const next = structuredClone(workspace);
   const node = findNode(next, type, key);
-  if (node) Object.assign(node, changes);
+  if (node) {
+    Object.assign(node, changes);
+    if (type === 'task' && changes.attachments !== undefined) {
+      node.resourceStatus =
+        changes.attachments.length > 0
+          ? {
+              state: 'available',
+              message: 'Recommended learning resource attached.',
+            }
+          : {
+              state: 'not_found',
+              message: 'No suitable learning resource found.',
+            };
+    }
+  }
   return next;
 }
 
@@ -58,6 +79,8 @@ export function RoadmapWorkspacePage() {
   const query = useRoadmap(id);
   const mutation = useWorkspaceMutation(id);
   const visibilityMutation = useRoadmapVisibility(id);
+  const isOverviewCollapsed = useAppStore((state) => state.isOverviewCollapsed);
+  const toggleOverview = useAppStore((state) => state.toggleOverview);
   const [workspaceOverride, setWorkspace] = useState(null);
   const [saveState, setSaveState] = useState('saved');
   const [saveError, setSaveError] = useState(null);
@@ -216,49 +239,78 @@ export function RoadmapWorkspacePage() {
           <Badge>{workspace.type}</Badge>
           <span>Version {workspace.currentVersion}</span>
         </div>
-        <div className="workspace-title-row">
-          <InlineEdit
-            value={workspace.title}
-            label="Roadmap title"
-            className="workspace-title-input"
-            onCommit={(title) =>
-              confirmProtected(workspace.progress, (confirmedProtectedEdit) =>
-                persist(
-                  {
-                    operation: 'update',
-                    changes: { title },
-                    confirmedProtectedEdit,
-                    revision: workspace.revision,
-                  },
-                  (current) => ({ ...current, title }),
-                ),
-              )
-            }
-          />
-          <SaveIndicator
-            state={saveState}
-            onRetry={() => {
-              if (mutation.variables) persist(mutation.variables);
-            }}
-          />
-          <Button type="button" onClick={toggleVisibility} disabled={visibilityMutation.isPending}>
-            {workspace.visibility === 'PUBLIC' ? <Lock size={14} /> : <Globe2 size={14} />}
-            {visibilityMutation.isPending
-              ? 'Updating…'
-              : workspace.visibility === 'PUBLIC'
-                ? 'Make Private'
-                : 'Publish'}
-          </Button>
+        <div className="workspace-title-row workspace-title-row--compact">
+          <div className="workspace-identifier">
+            <InlineEdit
+              value={workspace.roadmapLabel ?? workspace.title}
+              label="Roadmap title"
+              className="workspace-title-input workspace-identifier-input"
+              onCommit={(title) =>
+                confirmProtected(workspace.progress, (confirmedProtectedEdit) =>
+                  persist(
+                    {
+                      operation: 'update',
+                      changes: { title },
+                      confirmedProtectedEdit,
+                      revision: workspace.revision,
+                    },
+                    (current) => ({
+                      ...current,
+                      title,
+                      roadmapLabel: title,
+                      roadmapIdentifier: `${title} • ${titleCase(current.difficulty)}`,
+                    }),
+                  ),
+                )
+              }
+            />
+            <span className="workspace-identifier-separator">•</span>
+            <span className="workspace-identifier-difficulty">
+              {titleCase(workspace.difficulty)}
+            </span>
+          </div>
+          <div className="workspace-header-actions">
+            <SaveIndicator
+              state={saveState}
+              onRetry={() => {
+                if (mutation.variables) persist(mutation.variables);
+              }}
+            />
+            <Button
+              type="button"
+              onClick={toggleVisibility}
+              disabled={visibilityMutation.isPending}
+            >
+              {workspace.visibility === 'PUBLIC' ? <Lock size={14} /> : <Globe2 size={14} />}
+              {visibilityMutation.isPending
+                ? 'Updating…'
+                : workspace.visibility === 'PUBLIC'
+                  ? 'Make Private'
+                  : 'Publish'}
+            </Button>
+          </div>
         </div>
-        <p>{workspace.summary}</p>
+        <p className="workspace-summary-line">{workspace.summaryLine || workspace.summary}</p>
+        <RoadmapDashboard dashboard={workspace.dashboard} progress={workspace.progress} />
+        <details className="workspace-about-roadmap">
+          <summary>About this roadmap</summary>
+          <p>{workspace.description}</p>
+        </details>
         {saveError ? <Toast tone="error">Save failed: {saveError}</Toast> : null}
       </header>
 
-      <div className="roadmap-workspace-grid">
+      <div
+        className="roadmap-workspace-grid"
+        data-overview-collapsed={isOverviewCollapsed ? 'true' : 'false'}
+      >
         <main className="roadmap-workspace-center">
           <RoadmapTree workspace={workspace} actions={actions} saving={saveState === 'saving'} />
         </main>
-        <RoadmapContextPanel workspace={workspace} />
+        <RoadmapContextPanel
+          workspace={workspace}
+          collapsed={isOverviewCollapsed}
+          onToggle={toggleOverview}
+        />
       </div>
       <ConfirmDialog confirmation={confirmation} onCancel={() => setConfirmation(null)} />
     </section>

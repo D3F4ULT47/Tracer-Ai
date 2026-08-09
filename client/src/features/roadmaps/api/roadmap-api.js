@@ -28,6 +28,11 @@ export const roadmapApi = Object.freeze({
       params: { roadmapId },
       body: {},
     }),
+  adoptAnonymous: ({ roadmapId, anonymousSessionId }) =>
+    contractRequest(ROADMAP_WORKSPACE_ENDPOINTS.adoptAnonymous, {
+      params: { roadmapId },
+      body: { anonymousSessionId },
+    }),
   remove: (roadmapId) =>
     contractRequest(ROADMAP_WORKSPACE_ENDPOINTS.remove, {
       params: { roadmapId },

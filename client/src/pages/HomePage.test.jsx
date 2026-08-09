@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   authenticated: false,
   profileName: null,
   generationResult: null,
+  generationError: null,
   generateInput: null,
   activities: [],
   communityRoadmaps: [],
@@ -26,6 +27,10 @@ vi.mock('../features/roadmaps/hooks/use-roadmap-generation.js', () => ({
     isPending: false,
     mutate(input, callbacks) {
       mocks.generateInput = input;
+      if (mocks.generationError) {
+        callbacks.onError(mocks.generationError);
+        return;
+      }
       callbacks.onSuccess(mocks.generationResult);
     },
   }),
@@ -66,6 +71,7 @@ beforeEach(() => {
   mocks.authenticated = false;
   mocks.profileName = null;
   mocks.generationResult = null;
+  mocks.generationError = null;
   mocks.generateInput = null;
   mocks.activities = [];
   mocks.communityRoadmaps = [];
@@ -78,6 +84,7 @@ function renderHome() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<div>Authentication required</div>} />
+        <Route path="/signup" element={<div>Create account</div>} />
         <Route path="/roadmaps/preview" element={<div>Anonymous Roadmap Preview</div>} />
         <Route path="/roadmaps/:id" element={<div>Interactive Roadmap Workspace</div>} />
       </Routes>
@@ -173,6 +180,9 @@ describe('Home roadmap generation flow', () => {
     mocks.generationResult = {
       status: 'generated',
       persisted: false,
+      roadmapId: '33333333-3333-4333-8333-333333333333',
+      version: 1,
+      anonymousSessionId: '99999999-9999-4999-8999-999999999999',
       roadmap: { title: 'Backend Roadmap' },
       context: { contextVersion: 1 },
       generationMetadata: { generatedAt: '2026-01-01T00:00:00.000Z' },
@@ -196,7 +206,10 @@ describe('Home roadmap generation flow', () => {
     await user.click(screen.getByRole('radio', { name: 'Advanced' }));
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
-    expect(screen.getByText('Anonymous Roadmap Preview')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Your roadmap is ready' })).toBeInTheDocument();
+    expect(
+      await screen.findByText('Anonymous Roadmap Preview', {}, { timeout: 1_500 }),
+    ).toBeInTheDocument();
     expect(screen.queryByText('Authentication required')).not.toBeInTheDocument();
     expect(mocks.generateInput).toMatchObject({
       goal: 'Become a backend engineer',
@@ -221,9 +234,38 @@ describe('Home roadmap generation flow', () => {
     await user.click(screen.getByRole('button', { name: 'Generate roadmap' }));
     await user.click(screen.getByRole('button', { name: 'Dismiss proficiency prompt' }));
 
-    expect(screen.getByText('Interactive Roadmap Workspace')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Your roadmap is ready' })).toBeInTheDocument();
+    expect(
+      await screen.findByText('Interactive Roadmap Workspace', {}, { timeout: 1_500 }),
+    ).toBeInTheDocument();
     expect(mocks.generateInput.goal).toBe('Learn frontend engineering');
     expect(mocks.generateInput.experienceLevel).toBeNull();
     expect(useAppStore.getState().currentRoadmapId).toBe('d2e4439c-8f14-47dd-9280-a2a3cc1029fd');
+  });
+
+  it('keeps the generation screen open with a clear message when AI credits are exhausted', async () => {
+    mocks.generationError = Object.assign(new Error('An unexpected error occurred'), {
+      code: 'AI_CREDITS_EXHAUSTED',
+      status: 503,
+    });
+    renderHome();
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByRole('textbox', { name: 'Describe your learning goal' }),
+      'Learn full-stack development',
+    );
+    await user.click(screen.getByRole('button', { name: 'Generate roadmap' }));
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+    expect(
+      screen.getByRole('heading', { name: 'Generating your personalized roadmap' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('We paused at this step')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Roadmap generation is temporarily unavailable because the AI gateway credits are exhausted. Add credits or switch providers, then retry.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
   });
 });

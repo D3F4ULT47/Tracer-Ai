@@ -1,6 +1,25 @@
 import { number, strings, text, tokens } from './ranking-context.js';
 
 const difficultyOrder = ['beginner', 'intermediate', 'advanced', 'expert'];
+const relevanceStopWords = new Set([
+  'and',
+  'build',
+  'complete',
+  'create',
+  'for',
+  'from',
+  'into',
+  'learn',
+  'roadmap',
+  'that',
+  'the',
+  'this',
+  'through',
+  'understand',
+  'using',
+  'with',
+  'your',
+]);
 
 function clamp(value) {
   return Math.round(Math.max(0, Math.min(100, value)) * 100) / 100;
@@ -41,6 +60,10 @@ function normalized(value) {
   return String(value ?? '')
     .trim()
     .toLowerCase();
+}
+
+function relevanceTokens(...values) {
+  return new Set([...tokens(...values)].filter((token) => !relevanceStopWords.has(token)));
 }
 
 export function createDefaultScoringRules() {
@@ -227,20 +250,27 @@ export function createDefaultScoringRules() {
       name: 'goalMatch',
       source: 'learning_context',
       score({ resource, task, learningContext }) {
-        const resourceTokens = tokens(resource.title, resource.description, resource.tags);
-        const goalTokens = tokens(
-          task.title,
+        const resourceTokens = relevanceTokens(resource.title, resource.description, resource.tags);
+        const titleTokens = relevanceTokens(task.title);
+        const contextTokens = relevanceTokens(
           task.description,
           text(learningContext.primaryGoal),
           text(learningContext.careerGoal),
           text(learningContext.careerDirection),
         );
-        if (goalTokens.size === 0) return result(60, 'system_default');
-        const matches = [...goalTokens].filter((token) => resourceTokens.has(token)).length;
-        const completedTokens = tokens(task.progressContext?.completedPhaseTitles ?? []);
+        if (titleTokens.size === 0 && contextTokens.size === 0) {
+          return result(60, 'system_default');
+        }
+        const titleMatches = [...titleTokens].filter((token) => resourceTokens.has(token)).length;
+        const contextMatches = [...contextTokens].filter((token) =>
+          resourceTokens.has(token),
+        ).length;
+        const titleRatio = titleTokens.size > 0 ? titleMatches / titleTokens.size : 0;
+        const contextRatio = contextTokens.size > 0 ? contextMatches / contextTokens.size : 0;
+        const completedTokens = relevanceTokens(task.progressContext?.completedPhaseTitles ?? []);
         const redundant = [...completedTokens].filter((token) => resourceTokens.has(token)).length;
         return result(
-          40 + (matches / goalTokens.size) * 60 - Math.min(15, redundant * 3),
+          25 + titleRatio * 55 + contextRatio * 20 - Math.min(15, redundant * 3),
           'learning_context',
         );
       },

@@ -10,6 +10,12 @@ export const roadmapPlanningRouter = Router();
 
 registerContractRoute(
   roadmapPlanningRouter,
+  ROADMAP_PLANNING_ENDPOINTS.progress,
+  asyncHandler(roadmapPlanningController.progress),
+);
+
+registerContractRoute(
+  roadmapPlanningRouter,
   ROADMAP_PLANNING_ENDPOINTS.preview,
   optionalAuthenticate,
   aiGenerationRateLimit,

@@ -1,3 +1,4 @@
+import { PanelRightClose, PanelRightOpen } from 'lucide-react';
 import { Badge } from '../../../components/Badge/index.js';
 import { Button } from '../../../components/Button/index.js';
 
@@ -5,7 +6,7 @@ function date(value) {
   return value ? new Date(value).toLocaleDateString() : 'Not available';
 }
 
-export function RoadmapContextPanel({ workspace }) {
+export function RoadmapContextPanel({ workspace, collapsed = false, onToggle = null }) {
   const metadata = workspace.metadata ?? {
     estimatedDuration: { weeks: workspace.estimatedWeeks ?? 0, hours: 0 },
     difficulty: workspace.difficulty,
@@ -26,12 +27,43 @@ export function RoadmapContextPanel({ workspace }) {
     ['Weekly commitment', `${workspace.weeklyCommitmentHours}h`],
   ];
 
+  if (collapsed) {
+    return (
+      <aside
+        className="roadmap-context-panel roadmap-context-panel--collapsed"
+        aria-label="Roadmap overview collapsed"
+      >
+        <button
+          type="button"
+          className="context-panel-toggle"
+          onClick={onToggle}
+          aria-label="Expand roadmap overview"
+        >
+          <PanelRightOpen size={16} />
+          <span>Overview</span>
+        </button>
+      </aside>
+    );
+  }
+
   return (
     <aside className="roadmap-context-panel" aria-label="Roadmap context">
       <div className="context-panel-section">
         <div className="context-panel-heading">
           <h2>Overview</h2>
-          <Badge>v{workspace.currentVersion}</Badge>
+          <div className="context-panel-heading-actions">
+            <Badge>v{workspace.currentVersion}</Badge>
+            {onToggle ? (
+              <button
+                type="button"
+                className="context-panel-icon-button"
+                onClick={onToggle}
+                aria-label="Collapse roadmap overview"
+              >
+                <PanelRightClose size={15} />
+              </button>
+            ) : null}
+          </div>
         </div>
         <div
           className="workspace-progress-track"

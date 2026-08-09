@@ -115,10 +115,11 @@ function persistenceBundle({
   generatedAt,
   sourceUnderstanding,
   resourceEnrichment,
+  anonymousSessionId = null,
 }) {
   const roadmap = generation.roadmap;
   const snapshotHash = hash(roadmap);
-  const common = { roadmapId, ownerId };
+  const common = { roadmapId, ownerId, anonymousSessionId };
 
   return {
     context: {
@@ -186,6 +187,7 @@ function persistenceBundle({
       shortDescription: `Created ${roadmap.title}.`,
       timestamp: generatedAt,
       metadata: { contextVersion: context.contextVersion, promptVersion: prompt.version },
+      anonymousSessionId,
     }),
   };
 }
@@ -200,7 +202,20 @@ export function createRoadmapPlanningService({
   log = logger,
 } = {}) {
   return Object.freeze({
-    async generate({ ownerId, requestId, context, sourceUnderstanding = null, persist = true }) {
+    async generate({
+      ownerId,
+      requestId,
+      context,
+      sourceUnderstanding = null,
+      persist = true,
+      anonymousSessionId = null,
+      onProgress,
+    }) {
+      let activeStage = 'roadmap_planning';
+      const report = (stage, status = 'active') => {
+        activeStage = stage;
+        onProgress?.(stage, status);
+      };
       validateAiOutput('learningContext', context);
       if (sourceUnderstanding) validateAiOutput('sourceUnderstanding', sourceUnderstanding);
       const clarificationDecision = clarification.decide(context);
@@ -242,6 +257,7 @@ export function createRoadmapPlanningService({
       let result;
       let planned;
       try {
+        report('roadmap_planning');
         result = await provider.generateStructured({
           model: configuration.model,
           instructions: prompt.content,
@@ -256,8 +272,10 @@ export function createRoadmapPlanningService({
           maxOutputTokens: aiConfig.roadmapMaxOutputTokens,
           metadata: { run_id: runId, operation },
         });
+        report('roadmap_validation');
         planned = validateAndRepairRoadmapGeneration(result.data);
       } catch (error) {
+        report(activeStage, 'failed');
         const safeError = safePlanningError(error, runId, log);
         try {
           await repositories.usage.record(
@@ -279,6 +297,7 @@ export function createRoadmapPlanningService({
       }
 
       let generation = planned.generation;
+      const shouldPersist = persist || Boolean(anonymousSessionId);
       let resourceEnrichment = {
         taskCount: generation.roadmap.phases.flatMap((phase) =>
           phase.weeks.flatMap((week) => week.tasks),
@@ -288,9 +307,11 @@ export function createRoadmapPlanningService({
         partial: true,
       };
       try {
+        report('resource_discovery');
         const enriched = await enrichment.enrich({
           learningContext: context,
           roadmap: generation.roadmap,
+          onProgress: report,
         });
         validateAiOutput('roadmap', enriched.roadmap);
         generation = { ...generation, roadmap: enriched.roadmap };
@@ -315,7 +336,8 @@ export function createRoadmapPlanningService({
             outcome: 'success',
           }),
         );
-        if (persist) {
+        report('persistence');
+        if (shouldPersist) {
           await repositories.persistInitialGeneration(
             persistenceBundle({
               ownerId,
@@ -329,18 +351,21 @@ export function createRoadmapPlanningService({
               generatedAt,
               sourceUnderstanding,
               resourceEnrichment,
+              anonymousSessionId,
             }),
           );
         }
         const roadmap = generation.roadmap;
-        await repositories.runs.complete(runId, persist ? roadmapId : null, {
+        await repositories.runs.complete(runId, shouldPersist ? roadmapId : null, {
           detectedLevel: roadmap.currentLevel,
           estimatedWeeks: roadmap.estimatedWeeks,
           missingSkills: roadmap.missingSkills,
           weeklyCommitmentHours: roadmap.weeklyCommitmentHours,
           confidence: roadmap.confidence,
         });
+        report('workspace_ready');
       } catch (error) {
+        report(activeStage, 'failed');
         const safeError = new AppError('Roadmap generation could not be persisted', {
           status: 500,
           code: 'ROADMAP_PERSISTENCE_FAILED',
@@ -355,8 +380,9 @@ export function createRoadmapPlanningService({
       }
 
       return Object.freeze({
-        roadmapId: persist ? roadmapId : null,
-        version: persist ? 1 : 0,
+        roadmapId: shouldPersist ? roadmapId : null,
+        version: shouldPersist ? 1 : 0,
+        ...(anonymousSessionId ? { anonymousSessionId } : {}),
         roadmap: generation.roadmap,
         generationMetadata: Object.freeze({
           runId,

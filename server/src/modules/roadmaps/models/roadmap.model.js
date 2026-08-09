@@ -108,7 +108,8 @@ const phaseSchema = new mongoose.Schema(
 const roadmapSchema = new mongoose.Schema(
   {
     roadmapId: { type: String, required: true, unique: true, immutable: true },
-    ownerId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true, immutable: true },
+    ownerId: { type: mongoose.Schema.Types.ObjectId, default: null, index: true },
+    anonymousSessionId: { type: String, default: null, index: true, immutable: true },
     contextId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'RoadmapContext',
@@ -133,6 +134,7 @@ const roadmapSchema = new mongoose.Schema(
     lastOpenedAt: { type: Date, default: null },
     deletedAt: { type: Date, default: null, index: true },
     deletedBy: { type: mongoose.Schema.Types.ObjectId, default: null },
+    adoptedAt: { type: Date, default: null },
     phases: { type: [phaseSchema], required: true, validate: boundedArray(30, 'Roadmap phases') },
     schemaVersion: { type: String, default: '2.0.0' },
   },

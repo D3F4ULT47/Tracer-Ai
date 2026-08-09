@@ -27,7 +27,7 @@ const tabs = [
   'Preferences',
 ];
 
-function QueryState({ query, empty, children }) {
+function QueryState({ query, empty, emptyMessage = 'Nothing here yet.', children }) {
   if (query.isPending) return <Loader />;
   if (query.isError) {
     const provisioning = query.error?.code === 'PROFILE_PROVISIONING';
@@ -44,7 +44,7 @@ function QueryState({ query, empty, children }) {
       </div>
     );
   }
-  if (empty) return <div className="empty-state">Nothing here yet.</div>;
+  if (empty) return <div className="empty-state">{emptyMessage}</div>;
   return children;
 }
 
@@ -70,6 +70,7 @@ export function ProfilePage() {
             <Button
               key={tab}
               variant={activeTab === tab ? 'selected' : 'link'}
+              aria-current={activeTab === tab ? 'page' : undefined}
               onClick={() => setActiveTab(tab)}
             >
               {tab}
@@ -77,7 +78,7 @@ export function ProfilePage() {
           ))}
         </nav>
         <div>
-          <Card>
+          <Card className="settings-content-card">
             <ProfileTab tab={activeTab} currentUser={currentUser} />
           </Card>
         </div>
@@ -148,8 +149,12 @@ function ResumeTab() {
   return (
     <div>
       <h2>Resume</h2>
-      <p className="muted">Resume uploads and version creation begin in Sprint 3.</p>
-      <QueryState query={query} empty={!query.isPending && resumes.length === 0}>
+      <p className="muted">Resume versions connected to your profile appear here.</p>
+      <QueryState
+        query={query}
+        empty={!query.isPending && resumes.length === 0}
+        emptyMessage="No resume versions are connected to this profile yet."
+      >
         {resumes.map((resume) => (
           <div key={resume._id}>{resume.name}</div>
         ))}
@@ -294,7 +299,11 @@ function ConnectedAccountsTab({ currentUser }) {
   return (
     <div>
       <h2>Connected Accounts</h2>
-      <QueryState query={currentUser} empty={!currentUser.isPending && accounts.length === 0}>
+      <QueryState
+        query={currentUser}
+        empty={!currentUser.isPending && accounts.length === 0}
+        emptyMessage="No external accounts are connected yet."
+      >
         {accounts.map((account) => (
           <div className="list-row" key={account}>
             <span>{account}</span>

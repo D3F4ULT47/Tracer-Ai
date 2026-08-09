@@ -1,4 +1,4 @@
-const requiredMethods = Object.freeze(['generateStructured']);
+const requiredMethods = Object.freeze(['healthCheck', 'generateStructured']);
 
 export function defineAiProvider(provider) {
   if (!provider?.name || typeof provider.name !== 'string') {

@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 const roadmapVersionSchema = new mongoose.Schema(
   {
     roadmapId: { type: String, required: true, index: true, immutable: true },
-    ownerId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true, immutable: true },
+    ownerId: { type: mongoose.Schema.Types.ObjectId, default: null, index: true },
+    anonymousSessionId: { type: String, default: null, index: true, immutable: true },
     contextId: { type: mongoose.Schema.Types.ObjectId, required: true, immutable: true },
     generationId: { type: mongoose.Schema.Types.ObjectId, default: null, immutable: true },
     version: { type: Number, required: true, min: 1, immutable: true },

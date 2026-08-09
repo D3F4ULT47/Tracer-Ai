@@ -47,6 +47,32 @@ const roadmapDefinitions = convertSchema(
   '#/properties/data/definitions/roadmap/properties/',
 );
 
+const generationSessionId = { type: 'string', format: 'uuid' };
+const anonymousSessionId = { type: 'string', format: 'uuid' };
+
+const generationProgress = {
+  type: 'object',
+  required: ['sessionId', 'stage', 'percentage', 'status', 'updatedAt'],
+  properties: {
+    sessionId: generationSessionId,
+    stage: {
+      enum: [
+        'roadmap_planning',
+        'roadmap_validation',
+        'resource_discovery',
+        'resource_ranking',
+        'resource_attachment',
+        'persistence',
+        'workspace_ready',
+      ],
+    },
+    percentage: { type: 'integer', minimum: 0, maximum: 100 },
+    status: { enum: ['active', 'failed', 'complete'] },
+    updatedAt: { type: 'string', format: 'date-time' },
+  },
+  additionalProperties: false,
+};
+
 export const ROADMAP_PLANNING_ENDPOINTS = Object.freeze({
   preview: defineEndpoint({
     id: 'ai.roadmap-planning.preview',
@@ -60,18 +86,23 @@ export const ROADMAP_PLANNING_ENDPOINTS = Object.freeze({
         context: contextDefinitions,
         sourceUnderstanding: sourceUnderstandingDefinitions,
       },
-      required: ['context'],
+      required: ['context', 'anonymousSessionId'],
       properties: {
         context,
         sourceUnderstanding: { ...sourceUnderstanding, type: ['object', 'null'] },
+        generationSessionId,
+        anonymousSessionId,
       },
       additionalProperties: false,
     },
     dataSchema: {
       type: 'object',
       definitions: { roadmap: { properties: roadmapDefinitions } },
-      required: ['roadmap', 'generationMetadata'],
+      required: ['roadmapId', 'version', 'anonymousSessionId', 'roadmap', 'generationMetadata'],
       properties: {
+        roadmapId: { type: 'string', format: 'uuid' },
+        version: { type: 'integer', const: 1 },
+        anonymousSessionId,
         roadmap,
         generationMetadata: {
           type: 'object',
@@ -115,6 +146,7 @@ export const ROADMAP_PLANNING_ENDPOINTS = Object.freeze({
       properties: {
         context,
         sourceUnderstanding: { ...sourceUnderstanding, type: ['object', 'null'] },
+        generationSessionId,
       },
       additionalProperties: false,
     },
@@ -151,5 +183,19 @@ export const ROADMAP_PLANNING_ENDPOINTS = Object.freeze({
       },
       additionalProperties: false,
     },
+  }),
+  progress: defineEndpoint({
+    id: 'ai.roadmap-planning.progress',
+    method: 'GET',
+    path: '/ai/roadmaps/progress/:sessionId',
+    auth: false,
+    csrf: false,
+    paramsSchema: {
+      type: 'object',
+      required: ['sessionId'],
+      properties: { sessionId: generationSessionId },
+      additionalProperties: false,
+    },
+    dataSchema: generationProgress,
   }),
 });

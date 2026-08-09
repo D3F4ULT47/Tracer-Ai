@@ -1,7 +1,7 @@
 import { createPrivateKey, createPublicKey } from 'node:crypto';
 import { env } from '../../config/env.js';
-import { requireAiConfiguration } from '../../modules/ai/ai.config.js';
-import { createOpenAiProvider } from '../../modules/ai/providers/openai.provider.js';
+import { aiConfig, requireAiConfiguration } from '../../modules/ai/ai.config.js';
+import { getConfiguredAiProvider } from '../../modules/ai/providers/provider.factory.js';
 import { getTemporaryFileStore } from '../../modules/uploads/index.js';
 
 function requireValue(name, value) {
@@ -33,17 +33,15 @@ function validateAuthenticationConfiguration() {
     throw new Error('JWT public and private keys do not match');
 }
 
-function validateAiConfiguration() {
-  const configuration = requireAiConfiguration('core');
-  createOpenAiProvider({
-    apiKey: configuration.apiKey,
-    timeout: configuration.requestTimeoutMs,
-  });
+async function validateAiConfiguration() {
+  requireAiConfiguration('core');
+  const { provider } = getConfiguredAiProvider('core');
+  await provider.healthCheck({ models: Object.values(aiConfig.modelProfiles).filter(Boolean) });
 }
 
-export function validateRuntimeConfiguration() {
+export async function validateRuntimeConfiguration() {
   requireValue('MONGODB_URI', env.MONGODB_URI);
   validateAuthenticationConfiguration();
-  validateAiConfiguration();
+  await validateAiConfiguration();
   getTemporaryFileStore();
 }

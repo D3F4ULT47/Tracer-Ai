@@ -12,7 +12,8 @@ const validationSchema = new mongoose.Schema(
 const roadmapGenerationSchema = new mongoose.Schema(
   {
     roadmapId: { type: String, required: true, index: true, immutable: true },
-    ownerId: { type: mongoose.Schema.Types.ObjectId, required: true, index: true, immutable: true },
+    ownerId: { type: mongoose.Schema.Types.ObjectId, default: null, index: true },
+    anonymousSessionId: { type: String, default: null, index: true, immutable: true },
     contextId: { type: mongoose.Schema.Types.ObjectId, required: true, immutable: true },
     runId: { type: String, required: true, unique: true, immutable: true },
     provider: { type: String, required: true, immutable: true },

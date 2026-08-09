@@ -12,11 +12,13 @@ export function createActivityEvent({
   runId = `activity-${randomUUID()}`,
   metadata = {},
   timestamp = new Date(),
+  anonymousSessionId = null,
 }) {
   return Object.freeze({
     activityId: randomUUID(),
     userId,
     ownerId: userId,
+    anonymousSessionId,
     roadmapId,
     roadmapTitle,
     activityType,

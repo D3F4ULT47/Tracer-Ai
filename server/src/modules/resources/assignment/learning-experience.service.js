@@ -6,10 +6,26 @@ import { validateAssignmentInput } from './assignment.input.js';
 
 const primaryTypes = Object.freeze({
   learn: ['documentation', 'video', 'playlist', 'course', 'reference', 'article'],
-  practice: ['project', 'repository', 'video', 'documentation'],
-  project: ['project', 'repository', 'documentation', 'video'],
-  assessment: ['project', 'repository', 'documentation', 'reference'],
-  checkpoint: ['documentation', 'reference', 'project', 'repository'],
+  practice: ['playlist', 'course', 'video', 'project', 'repository', 'documentation', 'article'],
+  project: ['playlist', 'course', 'video', 'project', 'repository', 'documentation', 'article'],
+  assessment: [
+    'playlist',
+    'course',
+    'video',
+    'project',
+    'repository',
+    'documentation',
+    'reference',
+  ],
+  checkpoint: [
+    'playlist',
+    'course',
+    'video',
+    'documentation',
+    'reference',
+    'project',
+    'repository',
+  ],
 });
 
 function tasksIn(roadmap) {

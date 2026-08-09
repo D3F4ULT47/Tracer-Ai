@@ -8,21 +8,25 @@ beforeEach(() => {
     currentRoadmapId: null,
     experienceLevel: 'intermediate',
     isSidebarCollapsed: true,
+    isOverviewCollapsed: true,
   });
 });
 
 describe('workspace UI state', () => {
   it('starts collapsed and retains the composer input independently of authentication', () => {
     expect(useAppStore.getState().isSidebarCollapsed).toBe(true);
+    expect(useAppStore.getState().isOverviewCollapsed).toBe(true);
 
     useAppStore.getState().setComposerDraft('Become a frontend engineer');
     useAppStore.getState().setExperienceLevel('advanced');
     useAppStore.getState().toggleSidebar();
+    useAppStore.getState().toggleOverview();
 
     expect(useAppStore.getState()).toMatchObject({
       composerDraft: 'Become a frontend engineer',
       experienceLevel: 'advanced',
       isSidebarCollapsed: false,
+      isOverviewCollapsed: false,
     });
   });
 });

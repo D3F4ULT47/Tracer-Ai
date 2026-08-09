@@ -535,3 +535,52 @@ test('anonymous preview generates the complete roadmap without persistence', asy
   assert.equal(result.roadmap.phases.length, 2);
   assert.equal(harness.storage.state.completed[0][1], null);
 });
+
+test('anonymous preview with a session persists temporary work for later adoption', async () => {
+  const harness = serviceHarness(completeGeneration());
+  const result = await harness.service.generate({
+    ownerId: null,
+    requestId: 'anonymous-request',
+    context: learningContext(),
+    persist: false,
+    anonymousSessionId: '99999999-9999-4999-8999-999999999999',
+  });
+
+  assert.equal(harness.calls(), 1);
+  assert.match(result.roadmapId, /^[0-9a-f-]{36}$/);
+  assert.equal(result.version, 1);
+  assert.equal(result.anonymousSessionId, '99999999-9999-4999-8999-999999999999');
+  assert.equal(harness.storage.state.persisted.length, 1);
+  assert.equal(harness.storage.state.persisted[0].roadmap.ownerId, null);
+  assert.equal(
+    harness.storage.state.persisted[0].roadmap.anonymousSessionId,
+    '99999999-9999-4999-8999-999999999999',
+  );
+  assert.equal(
+    harness.storage.state.persisted[0].version.anonymousSessionId,
+    '99999999-9999-4999-8999-999999999999',
+  );
+  assert.equal(harness.storage.state.completed[0][1], result.roadmapId);
+});
+
+test('generation reports truthful planning, validation, enrichment, and readiness stages', async () => {
+  const harness = serviceHarness(completeGeneration());
+  const progress = [];
+
+  await harness.service.generate({
+    ownerId: '507f1f77bcf86cd799439011',
+    requestId: 'progress-request',
+    context: learningContext(),
+    onProgress(stage, status) {
+      progress.push([stage, status ?? 'active']);
+    },
+  });
+
+  assert.deepEqual(progress, [
+    ['roadmap_planning', 'active'],
+    ['roadmap_validation', 'active'],
+    ['resource_discovery', 'active'],
+    ['persistence', 'active'],
+    ['workspace_ready', 'active'],
+  ]);
+});

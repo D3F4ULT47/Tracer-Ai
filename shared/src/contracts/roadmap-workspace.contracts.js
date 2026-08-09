@@ -7,6 +7,8 @@ const roadmapIdParams = {
   additionalProperties: false,
 };
 
+const anonymousSessionId = { type: 'string', format: 'uuid' };
+
 const nodeParams = {
   type: 'object',
   required: ['roadmapId', 'nodeType', 'nodeKey'],
@@ -21,6 +23,8 @@ const nodeParams = {
 const mutationBase = {
   revision: { type: 'integer', minimum: 0 },
 };
+
+const roadmapDifficulty = { enum: ['beginner', 'intermediate', 'advanced', 'expert'] };
 
 const progress = {
   type: 'object',
@@ -99,6 +103,16 @@ const attachment = {
   additionalProperties: false,
 };
 
+const taskResourceStatus = {
+  type: 'object',
+  required: ['state', 'message'],
+  properties: {
+    state: { enum: ['available', 'not_found', 'temporarily_unavailable'] },
+    message: { type: 'string' },
+  },
+  additionalProperties: false,
+};
+
 const task = {
   type: 'object',
   required: [
@@ -111,6 +125,7 @@ const task = {
     'completionCriteria',
     'type',
     'state',
+    'resourceStatus',
     'notes',
     'attachments',
   ],
@@ -119,11 +134,12 @@ const task = {
     title: { type: 'string' },
     description: { type: 'string' },
     estimatedMinutes: { type: 'integer' },
-    difficulty: { enum: ['beginner', 'intermediate', 'advanced', 'expert'] },
+    difficulty: roadmapDifficulty,
     dependencies: { type: 'array', items: { type: 'string' } },
     completionCriteria: { type: 'array', items: { type: 'string' } },
     type: { enum: ['learn', 'practice', 'project', 'assessment', 'checkpoint'] },
     state: { enum: ['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'LOCKED'] },
+    resourceStatus: taskResourceStatus,
     notes: { type: 'array', items: note },
     attachments: { type: 'array', maxItems: 50, items: attachment },
   },
@@ -200,13 +216,55 @@ const phase = {
   additionalProperties: false,
 };
 
+const dashboard = {
+  type: 'object',
+  required: ['progressMade', 'learningVelocity', 'currentStreak', 'nextMilestone'],
+  properties: {
+    progressMade: {
+      type: 'object',
+      required: ['percentage', 'completedTasks', 'totalTasks'],
+      properties: {
+        percentage: { type: 'number', minimum: 0, maximum: 100 },
+        completedTasks: { type: 'integer', minimum: 0 },
+        totalTasks: { type: 'integer', minimum: 0 },
+      },
+      additionalProperties: false,
+    },
+    learningVelocity: {
+      type: 'object',
+      required: ['minutesToday'],
+      properties: { minutesToday: { type: 'integer', minimum: 0 } },
+      additionalProperties: false,
+    },
+    currentStreak: {
+      type: 'object',
+      required: ['days'],
+      properties: { days: { type: 'integer', minimum: 0 } },
+      additionalProperties: false,
+    },
+    nextMilestone: {
+      type: 'object',
+      required: ['title', 'remainingMinutes'],
+      properties: {
+        title: { type: 'string' },
+        remainingMinutes: { type: 'integer', minimum: 0 },
+      },
+      additionalProperties: false,
+    },
+  },
+  additionalProperties: false,
+};
+
 const workspace = {
   type: 'object',
   required: [
     'roadmapId',
     'title',
+    'roadmapLabel',
+    'roadmapIdentifier',
     'description',
     'summary',
+    'summaryLine',
     'type',
     'difficulty',
     'visibility',
@@ -220,6 +278,7 @@ const workspace = {
     'generationTimestamp',
     'learningContextVersion',
     'progress',
+    'dashboard',
     'currentPhase',
     'nextMilestone',
     'estimatedCompletionDate',
@@ -230,10 +289,13 @@ const workspace = {
   properties: {
     roadmapId: { type: 'string', format: 'uuid' },
     title: { type: 'string' },
+    roadmapLabel: { type: 'string' },
+    roadmapIdentifier: { type: 'string' },
     description: { type: 'string' },
     summary: { type: 'string' },
+    summaryLine: { type: 'string' },
     type: { enum: ['career', 'skill', 'project', 'resume'] },
-    difficulty: { enum: ['beginner', 'intermediate', 'advanced', 'expert'] },
+    difficulty: roadmapDifficulty,
     visibility: { enum: ['PRIVATE', 'PUBLIC'] },
     publishedAt: { type: ['string', 'null'], format: 'date-time' },
     weeklyCommitmentHours: { type: 'number' },
@@ -245,6 +307,7 @@ const workspace = {
     generationTimestamp: { type: 'string' },
     learningContextVersion: { type: 'integer', minimum: 1 },
     progress,
+    dashboard,
     currentPhase: { type: ['string', 'null'] },
     nextMilestone: { type: ['string', 'null'] },
     estimatedCompletionDate: { type: ['string', 'null'] },
@@ -268,7 +331,7 @@ const workspace = {
           },
           additionalProperties: false,
         },
-        difficulty: { enum: ['beginner', 'intermediate', 'advanced', 'expert'] },
+        difficulty: roadmapDifficulty,
         generationDate: { type: 'string', format: 'date-time' },
         version: { type: 'integer', minimum: 1 },
         sourceTypes: {
@@ -363,7 +426,7 @@ const summary = {
     roadmapId: { type: 'string', format: 'uuid' },
     title: { type: 'string' },
     type: { enum: ['career', 'skill', 'project', 'resume'] },
-    difficulty: { enum: ['beginner', 'intermediate', 'advanced', 'expert'] },
+    difficulty: roadmapDifficulty,
     visibility: { enum: ['PRIVATE', 'PUBLIC'] },
     publishedAt: { type: ['string', 'null'], format: 'date-time' },
     progress,
@@ -453,7 +516,7 @@ export const ROADMAP_WORKSPACE_ENDPOINTS = Object.freeze({
             title: { type: 'string', minLength: 1, maxLength: 300 },
             description: { type: 'string', maxLength: 5000 },
             estimatedMinutes: { type: 'integer', minimum: 5, maximum: 2400 },
-            difficulty: { enum: ['beginner', 'intermediate', 'advanced', 'expert'] },
+            difficulty: roadmapDifficulty,
             type: { enum: ['learn', 'practice', 'project', 'assessment', 'checkpoint'] },
           },
           additionalProperties: false,
@@ -482,6 +545,7 @@ export const ROADMAP_WORKSPACE_ENDPOINTS = Object.freeze({
           properties: {
             title: { type: 'string', minLength: 1, maxLength: 300 },
             description: { type: 'string', minLength: 1, maxLength: 5000 },
+            difficulty: roadmapDifficulty,
             estimatedMinutes: { type: 'integer', minimum: 5, maximum: 2400 },
             state: { enum: ['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'LOCKED'] },
             notes: {
@@ -564,6 +628,21 @@ export const ROADMAP_WORKSPACE_ENDPOINTS = Object.freeze({
     csrf: true,
     paramsSchema: roadmapIdParams,
     bodySchema: { type: 'object', properties: {}, additionalProperties: false },
+    dataSchema: workspaceData,
+  }),
+  adoptAnonymous: defineEndpoint({
+    id: 'roadmaps.adopt-anonymous',
+    method: 'POST',
+    path: '/roadmaps/:roadmapId/adopt',
+    auth: true,
+    csrf: true,
+    paramsSchema: roadmapIdParams,
+    bodySchema: {
+      type: 'object',
+      required: ['anonymousSessionId'],
+      properties: { anonymousSessionId },
+      additionalProperties: false,
+    },
     dataSchema: workspaceData,
   }),
   remove: defineEndpoint({

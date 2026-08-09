@@ -26,7 +26,7 @@ export function useAnswerRoadmapClarification() {
 export function usePersistRoadmapPreview() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: roadmapGenerationApi.persistContext,
+    mutationFn: roadmapGenerationApi.adoptPreview,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['roadmaps'] });
       queryClient.invalidateQueries({ queryKey: ['activity'] });

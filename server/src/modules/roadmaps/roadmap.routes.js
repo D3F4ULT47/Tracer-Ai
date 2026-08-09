@@ -21,6 +21,13 @@ registerContractRoute(
 );
 registerContractRoute(
   roadmapRouter,
+  ROADMAP_WORKSPACE_ENDPOINTS.adoptAnonymous,
+  authenticate,
+  requireCsrf,
+  asyncHandler(roadmapController.adoptAnonymous),
+);
+registerContractRoute(
+  roadmapRouter,
   ROADMAP_WORKSPACE_ENDPOINTS.update,
   authenticate,
   requireCsrf,

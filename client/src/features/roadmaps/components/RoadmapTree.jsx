@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import {
+  AlertCircle,
   Check,
   ChevronDown,
   ChevronRight,
   Circle,
   Clock3,
+  ExternalLink,
   Flag,
   MoreHorizontal,
   Trash2,
@@ -24,6 +26,44 @@ function Progress({ value }) {
     <span className="tree-progress" title={`${value.percentage}% complete`}>
       <span style={{ width: `${value.percentage}%` }} />
     </span>
+  );
+}
+
+function resourceProviderLabel(attachment) {
+  return attachment.metadata?.provider ?? attachment.type.replaceAll('_', ' ');
+}
+
+function TaskResourcePreview({ task }) {
+  const attachments = task.attachments ?? [];
+  const primary =
+    attachments.find((attachment) => attachment.metadata?.purpose === 'primary') ??
+    attachments[0] ??
+    null;
+  const status = task.resourceStatus ?? {
+    state: 'not_found',
+    message: 'No suitable learning resource found.',
+  };
+
+  if (!primary) {
+    return (
+      <div className="task-resource-preview task-resource-preview--empty" data-state={status.state}>
+        <AlertCircle size={14} />
+        <span>{status.message}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="task-resource-preview" data-state="available">
+      <ExternalLink size={14} />
+      <a href={primary.url} target="_blank" rel="noreferrer">
+        {primary.title || primary.url}
+      </a>
+      <small>
+        {resourceProviderLabel(primary)}
+        {attachments.length > 1 ? ` · +${attachments.length - 1} more` : ''}
+      </small>
+    </div>
   );
 }
 
@@ -69,24 +109,34 @@ export function RoadmapTree({ workspace, actions, saving }) {
                 className="phase-title-input"
                 onCommit={(title) => actions.updateNode('phase', phase, { title })}
               />
+              <InlineEdit
+                multiline
+                debounceMs={750}
+                value={phase.description}
+                label="Phase description"
+                className="node-description-edit"
+                onCommit={(description) => actions.updateNode('phase', phase, { description })}
+              />
             </div>
-            <Progress value={phase.progress} />
-            <Badge>{statusLabel(phase.state)}</Badge>
-            <Button
-              type="button"
-              title="Complete every task in this phase"
-              onClick={() => actions.completeGroup('phase', phase)}
-            >
-              <Check size={14} />
-              Complete phase
-            </Button>
-            <Button
-              type="button"
-              variant="danger"
-              onClick={() => actions.deleteNode('phase', phase)}
-            >
-              <Trash2 size={14} />
-            </Button>
+            <div className="node-actions">
+              <Progress value={phase.progress} />
+              <Badge>{statusLabel(phase.state)}</Badge>
+              <Button
+                type="button"
+                title="Complete every task in this phase"
+                onClick={() => actions.completeGroup('phase', phase)}
+              >
+                <Check size={14} />
+                Complete phase
+              </Button>
+              <Button
+                type="button"
+                variant="danger"
+                onClick={() => actions.deleteNode('phase', phase)}
+              >
+                <Trash2 size={14} />
+              </Button>
+            </div>
           </div>
 
           {expanded.has(phase.key) ? (
@@ -140,21 +190,33 @@ function Week({ week, expanded, toggle, actions, saving }) {
           {expanded.has(week.key) ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         </button>
         <span className="week-number">W{week.weekNumber}</span>
-        <InlineEdit
-          value={week.title}
-          label="Week title"
-          className="week-title-input"
-          onCommit={(title) => actions.updateNode('week', week, { title })}
-        />
-        <Progress value={week.progress} />
-        <span className="task-count">{week.progress.totalTasks} tasks</span>
-        <Button type="button" onClick={() => actions.completeGroup('week', week)}>
-          <Check size={14} />
-          Complete
-        </Button>
-        <Button type="button" variant="danger" onClick={() => actions.deleteNode('week', week)}>
-          <Trash2 size={14} />
-        </Button>
+        <div className="node-title-block">
+          <InlineEdit
+            value={week.title}
+            label="Week title"
+            className="week-title-input"
+            onCommit={(title) => actions.updateNode('week', week, { title })}
+          />
+          <InlineEdit
+            multiline
+            debounceMs={750}
+            value={week.description}
+            label="Module description"
+            className="node-description-edit"
+            onCommit={(description) => actions.updateNode('week', week, { description })}
+          />
+        </div>
+        <div className="node-actions">
+          <Progress value={week.progress} />
+          <span className="task-count">{week.progress.totalTasks} tasks</span>
+          <Button type="button" onClick={() => actions.completeGroup('week', week)}>
+            <Check size={14} />
+            Complete
+          </Button>
+          <Button type="button" variant="danger" onClick={() => actions.deleteNode('week', week)}>
+            <Trash2 size={14} />
+          </Button>
+        </div>
       </div>
 
       {expanded.has(week.key) ? (
@@ -227,6 +289,7 @@ function Task({ task, actions }) {
           <Trash2 size={14} />
         </Button>
       </div>
+      <TaskResourcePreview task={task} />
       {open ? (
         <div className="task-details">
           <label>
@@ -238,6 +301,20 @@ function Task({ task, actions }) {
               label="Task description"
               onCommit={(description) => actions.updateNode('task', task, { description })}
             />
+          </label>
+          <label>
+            Difficulty
+            <select
+              value={task.difficulty}
+              onChange={(event) =>
+                actions.updateNode('task', task, { difficulty: event.target.value })
+              }
+            >
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+              <option value="expert">Expert</option>
+            </select>
           </label>
           <label>
             Estimated minutes

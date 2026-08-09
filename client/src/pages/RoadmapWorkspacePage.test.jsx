@@ -1,7 +1,8 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { useAppStore } from '../store/use-app-store.js';
 import { RoadmapWorkspacePage } from './RoadmapWorkspacePage.jsx';
 
 const mocks = vi.hoisted(() => ({ mutateAsync: vi.fn(), visibilityMutateAsync: vi.fn() }));
@@ -9,8 +10,11 @@ const mocks = vi.hoisted(() => ({ mutateAsync: vi.fn(), visibilityMutateAsync: v
 const workspace = {
   roadmapId: 'd2e4439c-8f14-47dd-9280-a2a3cc1029fd',
   title: 'Frontend Roadmap',
+  roadmapLabel: 'Frontend',
+  roadmapIdentifier: 'Frontend • Intermediate',
   description: 'Learn frontend.',
   summary: 'A practical frontend path.',
+  summaryLine: 'A practical frontend path.',
   type: 'skill',
   difficulty: 'intermediate',
   visibility: 'PRIVATE',
@@ -33,6 +37,16 @@ const workspace = {
     totalTasks: 1,
     completedMinutes: 0,
     totalMinutes: 60,
+  },
+  dashboard: {
+    progressMade: {
+      percentage: 0,
+      completedTasks: 0,
+      totalTasks: 1,
+    },
+    learningVelocity: { minutesToday: 0 },
+    currentStreak: { days: 0 },
+    nextMilestone: { title: 'First milestone', remainingMinutes: 60 },
   },
   metadata: {
     estimatedDuration: { weeks: 1, hours: 1 },
@@ -107,6 +121,10 @@ const workspace = {
               completionCriteria: ['Write a script'],
               type: 'learn',
               state: 'NOT_STARTED',
+              resourceStatus: {
+                state: 'not_found',
+                message: 'No suitable learning resource found.',
+              },
               notes: [],
               attachments: [],
             },
@@ -122,6 +140,11 @@ vi.mock('../features/roadmaps/hooks/use-roadmaps.js', () => ({
   useWorkspaceMutation: () => ({ mutateAsync: mocks.mutateAsync, isPending: false }),
   useRoadmapVisibility: () => ({ mutateAsync: mocks.visibilityMutateAsync, isPending: false }),
 }));
+
+beforeEach(() => {
+  localStorage.clear();
+  useAppStore.setState({ isOverviewCollapsed: true });
+});
 
 afterEach(() => {
   cleanup();
@@ -160,8 +183,13 @@ it('renders and expands the complete roadmap hierarchy', async () => {
   );
   const user = userEvent.setup();
   expect(screen.getByDisplayValue('Foundations')).toBeInTheDocument();
+  expect(screen.getByText('Progress Made')).toBeInTheDocument();
+  expect(screen.getByText('0 / 1 Tasks')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Expand roadmap overview' })).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Expand Week One' }));
   expect(screen.getByDisplayValue('Learn JavaScript')).toBeInTheDocument();
+  expect(screen.getByText('No suitable learning resource found.')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Expand roadmap overview' }));
   expect(screen.getByText('0% complete')).toBeInTheDocument();
   expect(screen.getByText('Learning Context v2')).toBeInTheDocument();
   expect(screen.getByText('Target role Frontend Engineer')).toBeInTheDocument();

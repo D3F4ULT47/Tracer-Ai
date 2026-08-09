@@ -8,6 +8,7 @@ import { createGitHubProvider } from '../src/modules/resources/providers/github.
 import { createOfficialDocsProvider } from '../src/modules/resources/providers/official-docs.provider.js';
 import { resourceCandidate } from '../src/modules/resources/providers/resource-candidate.js';
 import { createYouTubeProvider } from '../src/modules/resources/providers/youtube.provider.js';
+import { buildDiscoveryQuery } from '../src/modules/resources/resource-discovery.input.js';
 import { createResourceDiscoveryService } from '../src/modules/resources/resource-discovery.service.js';
 import { createResourceRepository } from '../src/modules/resources/resource.repository.js';
 import { hashResourceUrl } from '../src/modules/resources/resource-url.js';
@@ -63,6 +64,43 @@ const discoveryInput = {
     preferredResourceLanguage: { value: 'English' },
   },
 };
+
+test('discovery query includes roadmap, phase, task, and learner semantics', () => {
+  const result = buildDiscoveryQuery({
+    roadmap: {
+      title: 'American Express Campus Challenge',
+      description: 'Prepare a product strategy and customer profitability analysis.',
+      summary: 'Create a ranking model and a product case presentation.',
+      type: 'project',
+    },
+    phase: {
+      title: 'Product Case Readiness',
+      description: 'Turn model insights into a customer experience proposal.',
+      objective: 'Develop a quantified product recommendation.',
+    },
+    week: {
+      title: 'Product Strategy',
+      description: 'Define customer segments and success metrics.',
+      objective: 'Build the product case.',
+    },
+    ...discoveryInput,
+    learningContext: {
+      technologyStack: { value: ['Product Analytics'] },
+      missingSkills: { value: [{ name: 'Customer Segmentation' }] },
+      preferredResourceLanguage: { value: 'English' },
+      primaryGoal: { value: 'Complete a product strategy challenge' },
+    },
+    task: {
+      ...discoveryInput.task,
+      title: 'Plan the product case approach',
+    },
+  });
+
+  assert.match(result.query, /Plan the product case approach/);
+  assert.match(result.query, /customer/);
+  assert.match(result.query, /strategy/);
+  assert.ok(result.semanticTerms.includes('profitability'));
+});
 
 test('resource registry exposes searchable providers without breaking URL adapters', () => {
   const registry = new ResourceAdapterRegistry();
@@ -175,6 +213,67 @@ test('YouTube provider remains disabled without a key and normalizes API results
   assert.equal(normalized.canonicalUrl, 'https://www.youtube.com/watch?v=video-1');
   assert.equal(normalized.estimatedDurationMinutes, 13);
   assert.equal(normalized.popularity.views, 5000);
+});
+
+test('YouTube provider enriches playlists and recognizes long complete courses', async () => {
+  const provider = createYouTubeProvider({
+    apiKey: 'youtube-key',
+    fetcher: async (url) => {
+      const pathname = new URL(url).pathname;
+      if (pathname.endsWith('/search')) {
+        return response({
+          items: [
+            {
+              id: { playlistId: 'playlist-1' },
+              snippet: {
+                title: 'Product Management Learning Path',
+                description: 'A structured product management playlist.',
+                channelTitle: 'Product School',
+              },
+            },
+            {
+              id: { videoId: 'course-1' },
+              snippet: {
+                title: 'Data Analysis Full Course',
+                description: 'A complete data analysis course.',
+                channelTitle: 'Data School',
+              },
+            },
+          ],
+        });
+      }
+      if (pathname.endsWith('/playlists')) {
+        return response({
+          items: [
+            {
+              id: 'playlist-1',
+              contentDetails: { itemCount: 24 },
+              snippet: { defaultLanguage: 'en' },
+            },
+          ],
+        });
+      }
+      return response({
+        items: [
+          {
+            id: 'course-1',
+            contentDetails: { duration: 'PT3H10M' },
+            statistics: { viewCount: '250000', likeCount: '12000' },
+            snippet: { defaultAudioLanguage: 'en' },
+          },
+        ],
+      });
+    },
+  });
+
+  const raw = await provider.search({ query: 'product data learning' }, { limit: 5 });
+  const normalized = raw.map((item) => provider.normalize(item, discoveryInput));
+
+  assert.equal(normalized[0].type, 'playlist');
+  assert.equal(normalized[0].providerMetadata.playlistItemCount, 24);
+  assert.equal(normalized[1].type, 'course');
+  assert.equal(normalized[1].estimatedDurationMinutes, 190);
+  assert.equal(normalized[1].language, 'en');
 });
 
 test('discovery isolates failed providers, validates candidates, deduplicates, and persists once', async () => {

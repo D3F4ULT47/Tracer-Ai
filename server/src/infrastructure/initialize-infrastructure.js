@@ -6,7 +6,7 @@ import { closeQueues } from '../queues/queue-factory.js';
 import { validateRuntimeConfiguration } from './startup/startup-validation.js';
 
 export async function initializeInfrastructure() {
-  validateRuntimeConfiguration();
+  await validateRuntimeConfiguration();
   await connectMongo();
   if (env.REDIS_ENABLED) await connectRedis();
   logger.info('Runtime configuration and required infrastructure validated');

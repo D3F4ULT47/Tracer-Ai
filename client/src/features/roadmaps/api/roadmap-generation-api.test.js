@@ -3,6 +3,7 @@ import {
   INPUT_ENDPOINTS,
   LEARNING_CONTEXT_ENDPOINTS,
   ROADMAP_PLANNING_ENDPOINTS,
+  ROADMAP_WORKSPACE_ENDPOINTS,
   SOURCE_UNDERSTANDING_ENDPOINTS,
 } from '@tracer-ai/shared/contracts';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -53,13 +54,32 @@ function mockGenerationPipeline() {
       return { data: { context: { contextVersion: 1 } } };
     }
     if (endpoint === ROADMAP_PLANNING_ENDPOINTS.preview) {
-      return { data: { roadmap: { title: 'Backend roadmap' } } };
+      return {
+        data: {
+          roadmapId: '33333333-3333-4333-8333-333333333333',
+          version: 1,
+          anonymousSessionId: request.body.anonymousSessionId,
+          roadmap: { title: 'Backend roadmap' },
+          generationMetadata: { generatedAt: '2026-01-01T00:00:00.000Z' },
+        },
+      };
+    }
+    if (endpoint === ROADMAP_WORKSPACE_ENDPOINTS.adoptAnonymous) {
+      return {
+        data: {
+          workspace: {
+            roadmapId: request.params.roadmapId,
+            currentVersion: 1,
+          },
+        },
+      };
     }
     throw new Error(`Unexpected endpoint: ${endpoint.id}`);
   });
 }
 
 beforeEach(() => {
+  localStorage.clear();
   contractRequest.mockReset();
   mockGenerationPipeline();
 });
@@ -80,6 +100,16 @@ describe('roadmap generation input UX handoff', () => {
       expect.objectContaining({
         body: expect.objectContaining({
           explicitInput: expect.objectContaining({ experienceLevel: 'advanced' }),
+        }),
+      }),
+    );
+    expect(contractRequest).toHaveBeenCalledWith(
+      ROADMAP_PLANNING_ENDPOINTS.preview,
+      expect.objectContaining({
+        body: expect.objectContaining({
+          context: { contextVersion: 1 },
+          generationSessionId: expect.any(String),
+          anonymousSessionId: expect.any(String),
         }),
       }),
     );
@@ -131,5 +161,25 @@ describe('roadmap generation input UX handoff', () => {
       ([endpoint]) => endpoint === LEARNING_CONTEXT_ENDPOINTS.create,
     );
     expect(contextCall[1].body.explicitInput.primaryGoal).toBe('Prepare me for frontend roles.');
+  });
+
+  it('adopts an anonymous preview without triggering roadmap generation again', async () => {
+    const result = await roadmapGenerationApi.adoptPreview({
+      roadmapId: '33333333-3333-4333-8333-333333333333',
+      anonymousSessionId: '99999999-9999-4999-8999-999999999999',
+    });
+
+    expect(result).toMatchObject({
+      roadmapId: '33333333-3333-4333-8333-333333333333',
+      version: 1,
+    });
+    expect(contractRequest).toHaveBeenCalledWith(ROADMAP_WORKSPACE_ENDPOINTS.adoptAnonymous, {
+      params: { roadmapId: '33333333-3333-4333-8333-333333333333' },
+      body: { anonymousSessionId: '99999999-9999-4999-8999-999999999999' },
+    });
+    expect(contractRequest).not.toHaveBeenCalledWith(
+      ROADMAP_PLANNING_ENDPOINTS.generate,
+      expect.anything(),
+    );
   });
 });

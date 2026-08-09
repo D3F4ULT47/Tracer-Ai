@@ -45,6 +45,8 @@ test('shared endpoint contracts drive route paths for server and client', () => 
   assert.equal(SOURCE_UNDERSTANDING_ENDPOINTS.create.auth, false);
   assert.equal(ROADMAP_WORKSPACE_ENDPOINTS.get.path, '/roadmaps/:roadmapId');
   assert.equal(ROADMAP_WORKSPACE_ENDPOINTS.updateNode.csrf, true);
+  assert.equal(ROADMAP_WORKSPACE_ENDPOINTS.adoptAnonymous.path, '/roadmaps/:roadmapId/adopt');
+  assert.equal(ROADMAP_WORKSPACE_ENDPOINTS.adoptAnonymous.method, 'POST');
   assert.equal(ROADMAP_WORKSPACE_ENDPOINTS.remove.method, 'DELETE');
   assert.equal(ROADMAP_WORKSPACE_ENDPOINTS.visibility.path, '/roadmaps/:roadmapId/visibility');
   assert.equal(ACTIVITY_ENDPOINTS.list.path, '/activity');

@@ -1,20 +1,21 @@
 import { aiConfig, requireAiConfiguration } from '../ai.config.js';
 import { aiProviderRegistry } from './ai-provider.registry.js';
-import { createOpenAiProvider } from './openai.provider.js';
+import { createOpenAiCompatibleProvider } from './openai-compatible.provider.js';
 
 let initialized = false;
 
 function initializeProviders() {
   if (initialized) return;
 
-  if (aiConfig.provider === 'openai') {
-    aiProviderRegistry.register(
-      createOpenAiProvider({
-        apiKey: aiConfig.apiKey,
-        timeout: aiConfig.requestTimeoutMs,
-      }),
-    );
-  }
+  aiProviderRegistry.register(
+    createOpenAiCompatibleProvider({
+      providerName: aiConfig.provider,
+      apiKey: aiConfig.apiKey,
+      baseURL: aiConfig.baseURL,
+      timeout: aiConfig.requestTimeoutMs,
+      maxRetries: aiConfig.maxRetries,
+    }),
+  );
 
   initialized = true;
 }

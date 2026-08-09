@@ -24,6 +24,7 @@ test('assessment route and its shared validators compile into the application', 
   assert.ok(paths.includes('/ai/roadmaps/preview'));
   assert.ok(paths.includes('/roadmaps'));
   assert.ok(paths.includes('/roadmaps/:roadmapId'));
+  assert.ok(paths.includes('/roadmaps/:roadmapId/adopt'));
   assert.ok(paths.includes('/roadmaps/:roadmapId/nodes/:nodeType/:nodeKey'));
 });
 

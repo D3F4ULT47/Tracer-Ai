@@ -7,7 +7,6 @@ const aiUsageRecordSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       default: null,
       index: true,
-      immutable: true,
     },
     provider: { type: String, required: true, immutable: true },
     model: { type: String, required: true, immutable: true },
