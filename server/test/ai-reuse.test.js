@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { EventEmitter } from 'node:events';
 import test from 'node:test';
 import express from 'express';
 import request from 'supertest';
@@ -433,7 +434,7 @@ function memoryIdempotencyRepository() {
     async claim(data) {
       const existing = records.get(id(data));
       if (existing) return { record: { ...existing }, created: false };
-      const record = { ...data, _id: nextId++, status: 'processing' };
+      const record = { ...data, _id: nextId++, status: 'processing', updatedAt: new Date() };
       records.set(id(data), record);
       return { record: { ...record }, created: true };
     },
@@ -445,6 +446,12 @@ function memoryIdempotencyRepository() {
       const record = byId(recordId);
       if (record?.status !== 'failed') return false;
       record.status = 'processing';
+      return true;
+    },
+    async reclaimStale(recordId, staleBefore) {
+      const record = byId(recordId);
+      if (record?.status !== 'processing' || !(record.updatedAt < staleBefore)) return false;
+      record.updatedAt = new Date();
       return true;
     },
     async complete(recordId, responseStatus, body) {
@@ -600,4 +607,53 @@ test('requests without a key, or with the store down, run normally', async () =>
     400,
   );
   assert.equal(runs, 2);
+});
+
+test('a client disconnect does not fail the record; the handler result is still stored', async () => {
+  const repository = memoryIdempotencyRepository();
+  const middleware = idempotent('ai.test', { repository, config, log: silent });
+  const response = Object.assign(new EventEmitter(), {
+    statusCode: 201,
+    writableFinished: false,
+    json(payload) {
+      return payload;
+    },
+  });
+  const request = {
+    body: { goal: 'x' },
+    get: (name) => (name === 'idempotency-key' ? key : undefined),
+  };
+  await new Promise((resolve) => middleware(request, response, resolve));
+
+  response.emit('close');
+  response.json({ success: true, data: { run: 1 } });
+  await new Promise((resolve) => setImmediate(resolve));
+
+  const [record] = repository.records.values();
+  assert.equal(record.status, 'completed');
+  assert.equal(JSON.parse(record.responseBody).data.run, 1);
+});
+
+test('a record abandoned in processing is reclaimed by a later retry', async () => {
+  const repository = memoryIdempotencyRepository();
+  let runs = 0;
+  const app = idempotentApp({
+    repository,
+    handler: (_request, response) => {
+      runs += 1;
+      response.json({ success: true, data: { run: runs } });
+    },
+  });
+  await request(app).post('/ai').set('Idempotency-Key', key).send({ goal: 'x' });
+  await new Promise((resolve) => setImmediate(resolve));
+  const [record] = repository.records.values();
+  Object.assign(record, {
+    status: 'processing',
+    responseBody: null,
+    updatedAt: new Date(Date.now() - config.idempotencyWaitMs * 3),
+  });
+
+  const retry = await request(app).post('/ai').set('Idempotency-Key', key).send({ goal: 'x' });
+  assert.equal(retry.status, 200);
+  assert.equal(retry.body.data.run, 2);
 });

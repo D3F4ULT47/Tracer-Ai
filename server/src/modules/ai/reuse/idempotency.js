@@ -43,6 +43,13 @@ export const idempotencyRepository = Object.freeze({
     );
     return result.modifiedCount === 1;
   },
+  async reclaimStale(id, staleBefore, expiresAt) {
+    const result = await AiIdempotencyKey.updateOne(
+      { _id: id, status: 'processing', updatedAt: { $lt: staleBefore } },
+      { $set: { expiresAt } },
+    );
+    return result.modifiedCount === 1;
+  },
   complete(id, responseStatus, body) {
     return AiIdempotencyKey.updateOne(
       { _id: id },
@@ -69,6 +76,7 @@ function requestFingerprint(endpoint, body) {
  * ADR 0001 AI-5: a repeated `Idempotency-Key` returns the original response instead of running
  * the AI call again. Requests without the header behave exactly as before. Records expire after
  * the configured TTL; failed responses are not replayed, so a retry after a failure runs again.
+ * A record still `processing` after twice the wait limit is treated as abandoned and reclaimed.
  */
 export function idempotent(
   endpoint,
@@ -95,27 +103,26 @@ export function idempotent(
     response.status(record.responseStatus).json(JSON.parse(record.responseBody));
   }
 
+  /**
+   * Settles the record from the response the handler writes, not from the connection: a client
+   * that disconnects mid-generation must still be able to replay the result when it retries.
+   */
   function track(response, id) {
-    let captured = null;
     const sendJson = response.json.bind(response);
+    let settled = false;
     response.json = (payload) => {
-      captured = payload;
+      if (!settled) {
+        settled = true;
+        const write =
+          payload?.success === true && response.statusCode < 400
+            ? repository.complete(id, response.statusCode, payload)
+            : repository.fail(id);
+        Promise.resolve(write).catch((error) =>
+          log.warn({ errorName: error?.name }, 'Idempotency record could not be updated'),
+        );
+      }
       return sendJson(payload);
     };
-    let settled = false;
-    const settle = (finished) => {
-      if (settled) return;
-      settled = true;
-      const succeeded = finished && captured?.success === true && response.statusCode < 400;
-      const write = succeeded
-        ? repository.complete(id, response.statusCode, captured)
-        : repository.fail(id);
-      Promise.resolve(write).catch((error) =>
-        log.warn({ errorName: error?.name }, 'Idempotency record could not be updated'),
-      );
-    };
-    response.on('finish', () => settle(true));
-    response.on('close', () => settle(response.writableFinished));
   }
 
   return async function idempotencyMiddleware(request, response, next) {
@@ -159,6 +166,12 @@ export function idempotent(
         if (record.status === 'completed') return replay(response, record);
         if (record.status === 'failed') {
           created = await repository.reclaimFailed(record._id, expiresAt());
+          if (!created) record = await repository.find(lookup);
+          continue;
+        }
+        const staleBefore = new Date(now() - config.idempotencyWaitMs * 2);
+        if (new Date(record.updatedAt) < staleBefore) {
+          created = await repository.reclaimStale(record._id, staleBefore, expiresAt());
           if (!created) record = await repository.find(lookup);
           continue;
         }
