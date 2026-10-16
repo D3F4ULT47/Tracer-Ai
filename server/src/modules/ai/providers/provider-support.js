@@ -21,8 +21,43 @@ export function catalogEntries(payload) {
     .filter((model) => model.id);
 }
 
+function providerText(error) {
+  return [error?.message, error?.code, error?.type, error?.error?.code, error?.error?.message]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+}
+
+function header(error, name) {
+  return error?.headers?.get?.(name) ?? null;
+}
+
+/**
+ * OpenRouter's account-wide daily free-model limit, as opposed to the per-minute limit. A daily
+ * 429 cannot succeed on any free model until the reset, so it is never retried.
+ */
+export function dailyQuotaResetAt(error, now = Date.now()) {
+  if (error?.status !== 429) return null;
+  const reset = Number(header(error, 'x-ratelimit-reset'));
+  const resetAt = Number.isFinite(reset) && reset > 0 ? reset : null;
+  const text = providerText(error);
+  const daily =
+    text.includes('per-day') ||
+    text.includes('per day') ||
+    (header(error, 'x-ratelimit-remaining') === '0' && resetAt !== null && resetAt - now > 60_000);
+  if (!daily) return null;
+  return resetAt ?? nextUtcMidnight(now);
+}
+
+function nextUtcMidnight(now) {
+  const date = new Date(now);
+  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + 1);
+}
+
 export function isRetryable(error) {
+  if (error instanceof OpenAI.APIUserAbortError) return false;
   if (error instanceof OpenAI.APIConnectionError) return true;
+  if (dailyQuotaResetAt(error) !== null) return false;
   const status = error?.status;
   return status === 408 || status === 409 || status === 429 || (status >= 500 && status < 600);
 }
@@ -74,23 +109,22 @@ export async function fetchJson(url, { apiKey, fetchImpl, timeout }) {
 
 export function normalizeProviderError(error) {
   if (error instanceof AppError) return error;
-  const providerText = [
-    error?.message,
-    error?.code,
-    error?.type,
-    error?.error?.code,
-    error?.error?.message,
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .toLowerCase();
+  const resetAt = dailyQuotaResetAt(error);
+  if (resetAt !== null) {
+    return new AppError('The free AI model daily quota is exhausted', {
+      status: 503,
+      code: 'AI_FREE_QUOTA_EXHAUSTED',
+      details: { retryAt: new Date(resetAt).toISOString() },
+    });
+  }
+  const text = providerText(error);
   if (
     error?.status === 402 ||
-    providerText.includes('insufficient_quota') ||
-    providerText.includes('quota') ||
-    providerText.includes('credit') ||
-    providerText.includes('balance') ||
-    providerText.includes('payment required')
+    text.includes('insufficient_quota') ||
+    text.includes('quota') ||
+    text.includes('credit') ||
+    text.includes('balance') ||
+    text.includes('payment required')
   ) {
     return new AppError('AI provider credits are exhausted', {
       status: 503,
@@ -111,8 +145,10 @@ export function normalizeProviderError(error) {
   }
   if (
     error?.status === 408 ||
+    error instanceof OpenAI.APIUserAbortError ||
     error?.name === 'APIConnectionTimeoutError' ||
-    error?.name === 'AbortError'
+    error?.name === 'AbortError' ||
+    error?.name === 'TimeoutError'
   ) {
     return new AppError('AI provider request timed out', {
       status: 504,
@@ -146,10 +182,15 @@ export function refusalError() {
   });
 }
 
+// A retry is only worth starting if the backoff plus this much time for the call itself still
+// fits before the deadline.
+const RETRY_HEADROOM_MS = 10_000;
+
 /**
  * Sends one request with same-model retries on transient errors. `parse.usage` reads token usage
  * before `parse.data` can reject the output, so failures after tokens were spent are still
- * accounted on `error.aiAttempt`.
+ * accounted on `error.aiAttempt`. `signal` aborts the in-flight request; `deadline` (epoch ms)
+ * stops retries that could not finish in time.
  */
 export async function sendWithRetries({
   send,
@@ -161,6 +202,9 @@ export async function sendWithRetries({
   endpointHost,
   endpointClass,
   pricing,
+  reasoningEffort = null,
+  signal,
+  deadline = null,
 }) {
   const startedAt = Date.now();
   let attempt = 1;
@@ -170,6 +214,7 @@ export async function sendWithRetries({
     attempt,
     endpointHost,
     endpointClass,
+    reasoningEffort,
     pricing: pricing ?? null,
     usage: parsed?.usage ?? null,
     providerReportedCost: parsed?.reportedCost ?? null,
@@ -179,11 +224,13 @@ export async function sendWithRetries({
   try {
     for (; ; attempt += 1) {
       try {
-        response = await send();
+        response = await send(signal ? { signal } : undefined);
         break;
       } catch (error) {
-        if (attempt > maxRetries || !isRetryable(error)) throw error;
-        await sleep(retryDelayMs(error, attempt));
+        if (attempt > maxRetries || !isRetryable(error) || signal?.aborted) throw error;
+        const wait = retryDelayMs(error, attempt);
+        if (deadline !== null && Date.now() + wait + RETRY_HEADROOM_MS > deadline) throw error;
+        await sleep(wait, undefined, signal ? { signal } : undefined);
       }
     }
     parsed = parse.usage(response);

@@ -67,6 +67,14 @@ export const aiConfig = Object.freeze({
     ),
   ),
   profileSettings,
+  preparation: Object.freeze({
+    freeBudgetMs: env.AI_FREE_PREPARATION_BUDGET_MS,
+    freeAttemptTimeoutMs: env.AI_FREE_ATTEMPT_TIMEOUT_MS,
+    paidBudgetMs: env.AI_PAID_FALLBACK_BUDGET_MS,
+    paidAttemptLimit: env.AI_PAID_PREPARATION_LIMIT,
+    freeUnavailablePolicy: env.AI_FREE_UNAVAILABLE_POLICY,
+    failurePolicy: env.AI_PREPARATION_FAILURE_POLICY,
+  }),
   isProduction: env.NODE_ENV === 'production',
 });
 

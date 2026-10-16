@@ -34,6 +34,18 @@ function supportsStructuredChat(providerName, entry) {
   return !Array.isArray(apis) || apis.some((api) => String(api).toLowerCase().includes('chat'));
 }
 
+// AICredits' catalog does not list per-model parameters, so a reasoning effort is only sent where
+// the OpenRouter catalog confirms `reasoning` support.
+function supportsReasoning(providerName, entry) {
+  if (!isOpenRouter(providerName)) return false;
+  const parameters = entry?.supported_parameters;
+  return Array.isArray(parameters) && parameters.includes('reasoning');
+}
+
+function reasoningParameter(providerName, effort) {
+  return isOpenRouter(providerName) ? { reasoning: { effort } } : { reasoning_effort: effort };
+}
+
 function catalogPricing(providerName, entry) {
   if (isOpenRouter(providerName)) {
     return normalizePricing({
@@ -61,6 +73,26 @@ export function createChatCompletionsProvider({
   const sdk = client ?? new OpenAI({ apiKey, baseURL, timeout, maxRetries: 0 });
   const endpointHost = baseURL ? new URL(baseURL).host : null;
   const pricing = new Map();
+  const catalog = new Map();
+
+  function applyCatalogEntries(models, entries) {
+    for (const model of models) {
+      const entry = entries.get(model);
+      if (!entry) continue;
+      catalog.set(model, {
+        supported_parameters: entry.supported_parameters ?? null,
+        supported_apis: entry.supported_apis ?? null,
+        pricing: entry.pricing ?? null,
+        created: entry.created ?? null,
+        input_cost_per_token_inr: entry.input_cost_per_token_inr ?? null,
+        cached_input_cost_per_token_inr: entry.cached_input_cost_per_token_inr ?? null,
+        output_cost_per_token_inr: entry.output_cost_per_token_inr ?? null,
+        last_updated: entry.last_updated ?? null,
+      });
+      const modelPricing = catalogPricing(providerName, entry);
+      if (modelPricing) pricing.set(model, modelPricing);
+    }
+  }
 
   return defineAiProvider({
     name: providerName,
@@ -86,12 +118,18 @@ export function createChatCompletionsProvider({
           { status: 503, code: 'AI_MODEL_UNSUPPORTED_API' },
         );
       }
-      for (const model of models) {
-        const modelPricing = catalogPricing(providerName, entries.get(model));
-        if (modelPricing) pricing.set(model, modelPricing);
-      }
+      applyCatalogEntries(models, entries);
 
       return Object.freeze({ provider: providerName, models: Object.freeze([...new Set(models)]) });
+    },
+
+    catalogSnapshot() {
+      return Object.fromEntries(catalog);
+    },
+
+    restoreCatalog(snapshot) {
+      const entries = new Map(Object.entries(snapshot ?? {}));
+      applyCatalogEntries([...entries.keys()], entries);
     },
 
     async generateStructured({
@@ -104,7 +142,13 @@ export function createChatCompletionsProvider({
       maxOutputTokens,
       reasoningEffort,
       maxRetries: callMaxRetries,
+      signal,
+      deadline = null,
     }) {
+      const appliedEffort =
+        reasoningEffort && supportsReasoning(providerName, catalog.get(model))
+          ? reasoningEffort
+          : null;
       const request = {
         model,
         messages: [
@@ -112,7 +156,7 @@ export function createChatCompletionsProvider({
           { role: 'user', content: input },
         ],
         ...(maxOutputTokens ? { max_completion_tokens: maxOutputTokens } : {}),
-        ...(reasoningEffort ? { reasoning_effort: reasoningEffort } : {}),
+        ...(appliedEffort ? reasoningParameter(providerName, appliedEffort) : {}),
         response_format: {
           type: 'json_schema',
           json_schema: {
@@ -128,7 +172,7 @@ export function createChatCompletionsProvider({
       };
 
       return sendWithRetries({
-        send: () => sdk.chat.completions.create(request),
+        send: (options) => sdk.chat.completions.create(request, options),
         parse: {
           usage: (response) => ({
             usage: normalizeUsage(response.usage),
@@ -148,6 +192,9 @@ export function createChatCompletionsProvider({
         endpointHost,
         endpointClass,
         pricing: pricing.get(model),
+        reasoningEffort: appliedEffort,
+        signal,
+        deadline,
       });
     },
   });

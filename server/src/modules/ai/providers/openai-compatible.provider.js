@@ -126,6 +126,8 @@ export function createOpenAiCompatibleProvider({
       reasoningEffort,
       maxRetries: callMaxRetries,
       metadata,
+      signal,
+      deadline = null,
     }) {
       const request = {
         model,
@@ -147,7 +149,7 @@ export function createOpenAiCompatibleProvider({
       };
 
       return sendWithRetries({
-        send: () => sdk.responses.create(request),
+        send: (options) => sdk.responses.create(request, options),
         parse: {
           usage: (response) => ({
             usage: normalizeUsage(response.usage),
@@ -166,6 +168,9 @@ export function createOpenAiCompatibleProvider({
         endpointHost,
         endpointClass,
         pricing: pricing.get(model),
+        reasoningEffort: reasoningEffort ?? null,
+        signal,
+        deadline,
       });
     },
   });
