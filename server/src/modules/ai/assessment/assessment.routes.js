@@ -4,6 +4,7 @@ import { asyncHandler } from '../../../shared/async-handler.js';
 import { registerContractRoute } from '../../../shared/contract-route.js';
 import { optionalAuthenticate } from '../../auth/index.js';
 import { aiGenerationRateLimit } from '../ai-rate-limit.js';
+import { idempotent } from '../reuse/idempotency.js';
 import { assessmentController } from './assessment.controller.js';
 
 export const assessmentRouter = Router();
@@ -12,6 +13,7 @@ registerContractRoute(
   assessmentRouter,
   ASSESSMENT_ENDPOINTS.create,
   optionalAuthenticate,
+  idempotent(ASSESSMENT_ENDPOINTS.create.id),
   aiGenerationRateLimit,
   asyncHandler(assessmentController.create),
 );

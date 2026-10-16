@@ -61,7 +61,7 @@ export const roadmapPlanningController = Object.freeze({
     response.json(
       createSuccessResponse({
         message: 'Generation progress retrieved',
-        data: generationProgressService.get(request.params.sessionId),
+        data: await generationProgressService.read(request.params.sessionId),
         requestId: request.id,
       }),
     );

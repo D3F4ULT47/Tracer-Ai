@@ -3,6 +3,7 @@ import { appendOutboxEvent } from '../infrastructure/events/outbox.service.js';
 import { AccountToken } from '../modules/auth/models/account-token.model.js';
 import { AuthSession } from '../modules/auth/models/auth-session.model.js';
 import { User } from '../modules/auth/models/user.model.js';
+import { purgeLearnerReuseData } from '../modules/ai/reuse/purge.js';
 
 export async function processScheduledAccountDeletions(now = new Date(), limit = 25) {
   const users = await User.find({
@@ -33,6 +34,7 @@ export async function processScheduledAccountDeletions(now = new Date(), limit =
     } finally {
       await session.endSession();
     }
+    await purgeLearnerReuseData(user._id);
   }
   return users.length;
 }

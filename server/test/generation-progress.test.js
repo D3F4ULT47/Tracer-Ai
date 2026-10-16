@@ -20,6 +20,31 @@ test('generation progress is monotonic and marks workspace readiness complete', 
   assert.equal(service.get(sessionId).percentage, 100);
 });
 
+test('progress written on one instance is readable on another through the shared store', async () => {
+  const shared = new Map();
+  const store = {
+    distributed: () => true,
+    async set(key, value) {
+      shared.set(key, value);
+    },
+    async get(key) {
+      return shared.get(key) ?? null;
+    },
+  };
+  const writer = createGenerationProgressService({ store });
+  const reader = createGenerationProgressService({ store });
+  const sessionId = '33333333-3333-4333-8333-333333333333';
+
+  writer.update(sessionId, 'resource_discovery');
+  await new Promise((resolve) => setImmediate(resolve));
+
+  assert.equal((await reader.read(sessionId)).stage, 'resource_discovery');
+  await assert.rejects(
+    reader.read('44444444-4444-4444-8444-444444444444'),
+    (error) => error.code === 'GENERATION_PROGRESS_NOT_FOUND',
+  );
+});
+
 test('generation progress preserves a failed stage for recovery UI', () => {
   const service = createGenerationProgressService();
   const sessionId = '22222222-2222-4222-8222-222222222222';

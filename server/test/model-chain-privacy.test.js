@@ -224,17 +224,19 @@ test('non-transient failures such as exhausted credit do not retry the same mode
 
 test('chat adapter sends strict JSON schema output and maps chat usage', async () => {
   const { requests, providerFor } = harness(() => json(chatBody(JSON.stringify(intent))));
-  const result = await providerFor({ provider: 'openrouter' }).generateStructured({
-    ...request,
-    model: 'nvidia/nemotron-3-super-120b-a12b:free',
-    reasoningEffort: 'low',
-  });
+  const provider = providerFor({ provider: 'openrouter' });
+  const model = 'nvidia/nemotron-3-super-120b-a12b:free';
+  await provider.generateStructured({ ...request, model, reasoningEffort: 'low' });
+  provider.restoreCatalog({ [model]: { supported_parameters: ['reasoning'] } });
+  const result = await provider.generateStructured({ ...request, model, reasoningEffort: 'low' });
 
-  const body = requests[0].body;
+  assert.equal(requests[0].body.reasoning, undefined);
+  assert.equal(requests[0].body.reasoning_effort, undefined);
+  const body = requests[1].body;
   assert.equal(body.response_format.type, 'json_schema');
   assert.equal(body.response_format.json_schema.strict, true);
   assert.equal(body.provider.require_parameters, true);
-  assert.equal(body.reasoning_effort, 'low');
+  assert.deepEqual(body.reasoning, { effort: 'low' });
   assert.equal(result.endpointClass, 'free');
   assert.deepEqual(result.usage, {
     inputTokens: 100,

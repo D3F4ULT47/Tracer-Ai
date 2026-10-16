@@ -10,6 +10,8 @@ function record(base, { provider, model, result, error, pipelineId, latencyMs, o
     latencyMs: result?.latencyMs ?? latencyMs,
     outcome,
     providerRequestId: result?.providerRequestId ?? null,
+    reuseOutcome: result?.reuse?.outcome ?? null,
+    sourceRunId: result?.reuse?.sourceRunId ?? null,
   };
 }
 

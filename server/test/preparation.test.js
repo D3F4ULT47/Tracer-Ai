@@ -335,7 +335,12 @@ test('case 3: one combined call, kept on paid models when a resume is present', 
   assert.equal(result.preparation.case, 3);
   assert.deepEqual(result.preparation.executedOperations, ['combined_preparation']);
   assert.deepEqual(calls.resolver, [
-    { profile: 'fast', operation: 'combined_preparation', dataClass: 'personal' },
+    {
+      profile: 'fast',
+      operation: 'combined_preparation',
+      dataClass: 'personal',
+      reuse: { scope: null, cacheTtlSeconds: 3_600 },
+    },
   ]);
   const sentSources = calls.providerInputs[0].parsed.sources.map(({ type }) => type);
   assert.ok(!sentSources.includes('resume'), 'resume is learner evidence, not a planning source');

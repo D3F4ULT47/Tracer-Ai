@@ -75,6 +75,15 @@ export const aiConfig = Object.freeze({
     freeUnavailablePolicy: env.AI_FREE_UNAVAILABLE_POLICY,
     failurePolicy: env.AI_PREPARATION_FAILURE_POLICY,
   }),
+  reuse: Object.freeze({
+    idempotencyEnabled: env.AI_IDEMPOTENCY_ENABLED,
+    idempotencyTtlSeconds: env.AI_IDEMPOTENCY_TTL_SECONDS,
+    idempotencyWaitMs: env.AI_IDEMPOTENCY_WAIT_MS,
+    dedupEnabled: env.AI_DEDUP_ENABLED,
+    resultCacheEnabled: env.AI_RESULT_CACHE_ENABLED,
+    publicTtlSeconds: env.AI_CACHE_PUBLIC_TTL_SECONDS,
+    ownerTtlSeconds: env.AI_CACHE_OWNER_TTL_SECONDS,
+  }),
   isProduction: env.NODE_ENV === 'production',
 });
 

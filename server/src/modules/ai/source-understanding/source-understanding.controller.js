@@ -1,5 +1,6 @@
 import { createSuccessResponse } from '@tracer-ai/shared/contracts';
 import { pipelineIdFrom } from '../accounting/pipeline-id.js';
+import { requestScope } from '../reuse/reuse-scope.js';
 import { sourceUnderstandingService } from './source-understanding.service.js';
 
 export const sourceUnderstandingController = Object.freeze({
@@ -9,6 +10,7 @@ export const sourceUnderstandingController = Object.freeze({
       requestId: request.id,
       pipelineId: pipelineIdFrom(request),
       sources: request.body.sources,
+      learner: requestScope(request),
     });
     response.json(
       createSuccessResponse({

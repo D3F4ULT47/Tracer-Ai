@@ -1,5 +1,6 @@
 import { createSuccessResponse } from '@tracer-ai/shared/contracts';
 import { pipelineIdFrom } from '../accounting/pipeline-id.js';
+import { requestScope } from '../reuse/reuse-scope.js';
 import { preparationService } from './preparation.service.js';
 
 export const preparationController = Object.freeze({
@@ -8,6 +9,7 @@ export const preparationController = Object.freeze({
       ownerId: request.auth?.userId ?? null,
       requestId: request.id,
       pipelineId: pipelineIdFrom(request),
+      learner: requestScope(request),
       input: {
         sources: request.body.sources,
         assessmentInputs: request.body.assessmentInputs,

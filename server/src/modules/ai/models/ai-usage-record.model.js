@@ -51,6 +51,13 @@ const aiUsageRecordSchema = new mongoose.Schema(
       immutable: true,
     },
     providerRequestId: { type: String, default: null, immutable: true },
+    reuseOutcome: {
+      type: String,
+      enum: ['cache_hit', 'shared_in_flight', null],
+      default: null,
+      immutable: true,
+    },
+    sourceRunId: { type: String, default: null, immutable: true },
     calculatedCost: { type: Number, default: null, min: 0, immutable: true },
     costCurrency: { type: String, default: 'USD', immutable: true },
     pricingVersion: { type: String, default: null, immutable: true },
@@ -66,6 +73,7 @@ const aiUsageRecordSchema = new mongoose.Schema(
 
 aiUsageRecordSchema.index({ ownerId: 1, createdAt: -1 });
 aiUsageRecordSchema.index({ model: 1, outcome: 1, createdAt: -1 });
+aiUsageRecordSchema.index({ reuseOutcome: 1, createdAt: -1 });
 
 export const AiUsageRecord =
   mongoose.models.AiUsageRecord ?? mongoose.model('AiUsageRecord', aiUsageRecordSchema);

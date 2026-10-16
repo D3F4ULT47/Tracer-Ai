@@ -109,7 +109,7 @@ function attemptRecord(entry, chainIndex, { result = null, error = null, fallbac
   });
 }
 
-function cancelledError() {
+export function cancelledError() {
   return new AppError('The request was cancelled before the AI call finished', {
     status: 499,
     code: 'AI_REQUEST_CANCELLED',

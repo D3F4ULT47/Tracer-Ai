@@ -8,6 +8,7 @@ import { validateAiOutput } from '../json.validator.js';
 import { loadPrompt } from '../prompt.repository.js';
 import { DATA_CLASSES } from '../providers/model-chain.js';
 import { getConfiguredAiProvider } from '../providers/provider.factory.js';
+import { sourceScope } from '../reuse/reuse-scope.js';
 import { SourceHandlerRegistry } from './source-handler.registry.js';
 import { registerDefaultSourceHandlers } from './source.handlers.js';
 import { validateSourceUnderstandingInput } from './source-input.js';
@@ -145,12 +146,22 @@ export function createSourceUnderstandingService({
     pipelineId = null,
     profile = 'core',
     promptVersion = LEGACY_SOURCE_PROMPT_VERSION,
+    learner = null,
   }) {
     const { inputs, sources } = normalized;
     const prompt = await promptLoader(promptName, promptVersion);
+    const dataClass = dataClassForSources(inputs);
+    const scope = sourceScope({ sources: inputs, dataClass, learner });
     const { provider, configuration } = providerResolver(profile, {
       operation,
-      dataClass: dataClassForSources(inputs),
+      dataClass,
+      reuse: {
+        scope,
+        cacheTtlSeconds:
+          scope?.kind === 'public'
+            ? aiConfig.reuse.publicTtlSeconds
+            : aiConfig.reuse.ownerTtlSeconds,
+      },
     });
     const runId = randomUUID();
     const startedAt = Date.now();
@@ -214,7 +225,14 @@ export function createSourceUnderstandingService({
     normalize,
     understandNormalized,
 
-    async understand({ ownerId, requestId, sources: rawSources, pipelineId = null, profile }) {
+    async understand({
+      ownerId,
+      requestId,
+      sources: rawSources,
+      pipelineId = null,
+      profile,
+      learner = null,
+    }) {
       const normalized = await normalize(rawSources);
       if (normalized.sources.length === 0) throw normalized.failures[0].reason;
       if (normalized.failures.length > 0) {
@@ -223,7 +241,14 @@ export function createSourceUnderstandingService({
           'Canonical understanding continued after one or more source failures',
         );
       }
-      return understandNormalized({ normalized, ownerId, requestId, pipelineId, profile });
+      return understandNormalized({
+        normalized,
+        ownerId,
+        requestId,
+        pipelineId,
+        profile,
+        learner,
+      });
     },
   });
 }

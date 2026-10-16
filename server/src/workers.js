@@ -2,11 +2,15 @@ import { registerEventHandlers } from './infrastructure/events/register-event-ha
 import { processOutboxBatch } from './infrastructure/events/outbox.worker.js';
 import { connectMongo, disconnectMongo } from './infrastructure/database/mongo.js';
 import { logger } from './infrastructure/logging/logger.js';
+import { connectRedis, disconnectRedis } from './infrastructure/redis/redis.js';
+import { env } from './config/env.js';
 import { processScheduledAccountDeletions } from './jobs/account-deletion.job.js';
 
 let stopping = false;
 registerEventHandlers();
 await connectMongo();
+if (env.REDIS_ENABLED)
+  await connectRedis().catch((error) => logger.warn({ err: error }, 'Worker Redis unavailable'));
 logger.info('Tracer AI worker is running');
 let lastMaintenanceAt = 0;
 
@@ -22,7 +26,7 @@ while (!stopping) {
 async function shutdown(signal) {
   stopping = true;
   logger.info({ signal }, 'Worker shutdown started');
-  await disconnectMongo();
+  await Promise.allSettled([...(env.REDIS_ENABLED ? [disconnectRedis()] : []), disconnectMongo()]);
 }
 
 process.on('SIGINT', () => void shutdown('SIGINT'));

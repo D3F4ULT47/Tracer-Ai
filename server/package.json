@@ -11,6 +11,7 @@
     "migrate:sprint-1": "node ../scripts/migrations/001-create-auth-and-user-indexes.js",
     "migrate:sprint-3": "node ../scripts/migrations/002-create-resource-indexes.js",
     "migrate:mvp-completion": "node ../scripts/migrations/003-create-mvp-completion-indexes.js",
+    "migrate:ai-reuse": "node ../scripts/migrations/004-create-ai-reuse-indexes.js",
     "verify:auth-runtime": "node ../scripts/verify-auth-runtime.js",
     "build": "node --check src/server.js",
     "test": "node --test test/*.test.js",

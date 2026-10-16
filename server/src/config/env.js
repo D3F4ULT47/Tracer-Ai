@@ -83,6 +83,22 @@ const environmentSchema = z
     AI_PAID_PREPARATION_LIMIT: z.coerce.number().int().min(0).max(10).default(2),
     AI_FREE_UNAVAILABLE_POLICY: z.enum(['reject', 'continue']).default('reject'),
     AI_PREPARATION_FAILURE_POLICY: z.enum(['fail', 'degraded']).default('fail'),
+    AI_IDEMPOTENCY_ENABLED: z
+      .enum(['true', 'false'])
+      .default('true')
+      .transform((value) => value === 'true'),
+    AI_DEDUP_ENABLED: z
+      .enum(['true', 'false'])
+      .default('true')
+      .transform((value) => value === 'true'),
+    AI_RESULT_CACHE_ENABLED: z
+      .enum(['true', 'false'])
+      .default('true')
+      .transform((value) => value === 'true'),
+    AI_CACHE_PUBLIC_TTL_SECONDS: z.coerce.number().int().min(0).max(2_592_000).default(604_800),
+    AI_CACHE_OWNER_TTL_SECONDS: z.coerce.number().int().min(0).max(86_400).default(3_600),
+    AI_IDEMPOTENCY_TTL_SECONDS: z.coerce.number().int().min(60).max(604_800).default(86_400),
+    AI_IDEMPOTENCY_WAIT_MS: z.coerce.number().int().min(1_000).max(600_000).default(180_000),
     AI_ASSESSMENT_CONFIDENCE_THRESHOLD: z.coerce.number().min(0).max(1).default(0.65),
     AI_ASSESSMENT_MAX_OUTPUT_TOKENS: z.coerce.number().int().min(1_000).max(32_000).default(8_000),
     AI_SOURCE_UNDERSTANDING_MAX_OUTPUT_TOKENS: z.coerce

@@ -14,6 +14,7 @@ import { clarificationService } from '../clarification/clarification.service.js'
 import { validateAiOutput } from '../json.validator.js';
 import { loadPrompt } from '../prompt.repository.js';
 import { getConfiguredAiProvider } from '../providers/provider.factory.js';
+import { learnerScope } from '../reuse/reuse-scope.js';
 import { roadmapPlanningRepository } from './roadmap-planning.repository.js';
 import { validateAndRepairRoadmapGeneration } from './roadmap-planning.validator.js';
 
@@ -240,7 +241,10 @@ export function createRoadmapPlanningService({
       }
 
       const prompt = await promptLoader(promptName, promptVersion);
-      const { provider, configuration } = providerResolver('core', { operation });
+      const { provider, configuration } = providerResolver('core', {
+        operation,
+        reuse: { scope: learnerScope({ ownerId, anonymousSessionId }), cacheTtlSeconds: 0 },
+      });
       const runId = randomUUID();
       const roadmapId = randomUUID();
 

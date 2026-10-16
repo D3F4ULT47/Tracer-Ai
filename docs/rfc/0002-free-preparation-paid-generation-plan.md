@@ -163,9 +163,21 @@ Reviewer: \_\_\_\_ Date: \_\_\_\_ Evaluation ID: \_\_\_\_ Decision: **Not starte
 - An eligibility record is `approved` only when the numeric thresholds pass **and** an R1 record with no unacceptable fixture references the same evaluation ID (AT-HR-1).
 - **Remediation for an unacceptable fixture:** record the cause (model, prompt or fixture label). Then remove the model for that operation or change the prompt version, rerun the affected fixtures for that configuration, and review them again. A prompt change invalidates earlier R1 results for that prompt.
 
-## 7. Decisions that remain unresolved
+## 7. Decisions
 
-Each decision lists the RFC 0001 default that applies until it is made. Owner directions from Oct 12 are shown for reference only.
+**Recorded on Oct 16 2026 by the owner.** These replace the RFC 0001 defaults below, and the code defaults in `server/src/config/env.js` follow them:
+
+| ID   | Decision                                                                                                         | Code default                         |
+| ---- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| D-1  | Keep the RFC 0001 rule: resume text never reaches free models; resume requests prepare on the paid fallbacks     | Privacy gate unchanged               |
+| D-2  | At most 2 paid preparation attempts per roadmap (gpt-oss-120b, then gpt-5-mini), retries included                | `AI_PAID_PREPARATION_LIMIT=2`        |
+| D-3  | When every preparation model fails, the request fails (`502 AI_PREPARATION_FAILED`); no degraded generation      | `AI_PREPARATION_FAILURE_POLICY=fail` |
+| D-7  | When the free daily quota is exhausted, cases 2–4 are rejected (503) and the client shows a service-down message | `AI_FREE_UNAVAILABLE_POLICY=reject`  |
+| D-12 | Commit and tag the baseline: done, `rfc0001-baseline` at `f4b4d08`                                               | —                                    |
+
+Recommendations adopted for the decisions not asked: D-4 and D-5 keep the legacy pipeline and endpoints for now; D-8 uses the starting budgets; D-9 keeps AICredits startup failure and snapshots only the OpenRouter catalog; D-10 excludes the generation model from preparation. The RFC 0001 behaviours stay available by setting `AI_FREE_UNAVAILABLE_POLICY=continue` or `AI_PREPARATION_FAILURE_POLICY=degraded`.
+
+The table below is the original list; the column "RFC 0001 default" shows what applied before the Oct 16 decisions.
 
 | ID   | Decision                                                                                                                                                                  | RFC 0001 default (in force)                                | Owner direction (Oct 12)           | Recommendation                                                                                                                                        |
 | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |

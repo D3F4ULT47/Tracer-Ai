@@ -87,5 +87,6 @@ const aiRunSchema = new mongoose.Schema(
 );
 
 aiRunSchema.index({ ownerId: 1, createdAt: -1 });
+aiRunSchema.index({ operation: 1, inputHash: 1, createdAt: -1 });
 
 export const AiRun = mongoose.models.AiRun ?? mongoose.model('AiRun', aiRunSchema);

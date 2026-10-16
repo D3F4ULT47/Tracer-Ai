@@ -46,11 +46,32 @@ function emitStage(onStage, id, message, percentage) {
   onStage?.(message, { id, percentage });
 }
 
-function pipelineHeaders(pipelineId) {
-  return pipelineId ? { 'x-tracer-pipeline-id': pipelineId } : undefined;
+/**
+ * Headers for AI calls. One `actionKey` is reused for every call in a user action and for its
+ * retry, so the server can return the original result instead of paying for the call again.
+ */
+function aiHeaders(pipelineId, actionKey) {
+  return {
+    ...(pipelineId ? { 'x-tracer-pipeline-id': pipelineId } : {}),
+    ...(actionKey ? { 'Idempotency-Key': actionKey } : {}),
+    'x-tracer-anonymous-session-id': getAnonymousRoadmapSessionId(),
+  };
 }
 
-async function generateRoadmapRequest(endpoint, body, onStage, pipelineId) {
+function isConnectionFailure(error) {
+  return error?.status === undefined && error?.name !== 'AbortError';
+}
+
+async function aiRequest(endpoint, request) {
+  try {
+    return await contractRequest(endpoint, request);
+  } catch (error) {
+    if (!isConnectionFailure(error)) throw error;
+    return contractRequest(endpoint, request);
+  }
+}
+
+async function generateRoadmapRequest(endpoint, body, onStage, pipelineId, actionKey) {
   const generationSessionId = crypto.randomUUID();
   let stopped = false;
   let polling = false;
@@ -73,9 +94,9 @@ async function generateRoadmapRequest(endpoint, body, onStage, pipelineId) {
 
   const interval = setInterval(() => void poll(), 400);
   try {
-    return await contractRequest(endpoint, {
+    return await aiRequest(endpoint, {
       body: { ...body, generationSessionId },
-      headers: pipelineHeaders(pipelineId),
+      headers: aiHeaders(pipelineId, actionKey),
     });
   } finally {
     stopped = true;
@@ -90,6 +111,7 @@ async function generateFromContext(
   onStage,
   persist,
   pipelineId,
+  actionKey,
 ) {
   if (mode !== 'quick') {
     emitStage(
@@ -126,6 +148,7 @@ async function generateFromContext(
     },
     onStage,
     pipelineId,
+    actionKey,
   );
   emitStage(onStage, 'workspace_ready', backendStageMessages.workspace_ready, 100);
   return {
@@ -148,6 +171,7 @@ export const roadmapGenerationApi = Object.freeze({
     onStage,
   }) {
     const pipelineId = crypto.randomUUID();
+    const actionKey = crypto.randomUUID();
     emitStage(
       onStage,
       'input_analysis',
@@ -185,9 +209,9 @@ export const roadmapGenerationApi = Object.freeze({
       text: ingestion.normalizedText,
       fileIngestions: [fileIngestion],
     });
-    const sourceUnderstanding = await contractRequest(SOURCE_UNDERSTANDING_ENDPOINTS.create, {
+    const sourceUnderstanding = await aiRequest(SOURCE_UNDERSTANDING_ENDPOINTS.create, {
       body: { sources },
-      headers: pipelineHeaders(pipelineId),
+      headers: aiHeaders(pipelineId, actionKey),
     });
 
     emitStage(
@@ -196,9 +220,9 @@ export const roadmapGenerationApi = Object.freeze({
       'Estimating your current level from the evidence you provided.',
       28,
     );
-    const assessment = await contractRequest(ASSESSMENT_ENDPOINTS.create, {
+    const assessment = await aiRequest(ASSESSMENT_ENDPOINTS.create, {
       body: { inputs: assessmentInputs(ingestion, fileIngestion, sources) },
-      headers: pipelineHeaders(pipelineId),
+      headers: aiHeaders(pipelineId, actionKey),
     });
 
     emitStage(
@@ -227,6 +251,7 @@ export const roadmapGenerationApi = Object.freeze({
       onStage,
       persist,
       pipelineId,
+      actionKey,
     );
   },
 
@@ -257,6 +282,7 @@ export const roadmapGenerationApi = Object.freeze({
       },
       onStage,
       pipelineId,
+      crypto.randomUUID(),
     );
     emitStage(onStage, 'workspace_ready', backendStageMessages.workspace_ready, 100);
     return {

@@ -149,12 +149,14 @@ export function createPreparationService({
     pipelineId,
     normalized,
     assessmentInputs,
+    learner,
   }) {
     const prepared = prepareAssessmentInputs(assessmentInputs);
     const prompt = await promptLoader('preparation-combined', '1.0.0');
     const { provider, configuration } = providerResolver('fast', {
       operation: combinedOperation,
       dataClass: dataClassForAssessment(assessmentInputs),
+      reuse: { scope: learner, cacheTtlSeconds: aiConfig.reuse.ownerTtlSeconds },
     });
     const runId = randomUUID();
     const startedAt = Date.now();
@@ -259,18 +261,20 @@ export function createPreparationService({
     });
   }
 
-  async function prepareLegacy({ ownerId, requestId, pipelineId, input }) {
+  async function prepareLegacy({ ownerId, requestId, pipelineId, input, learner }) {
     const understood = await sourceUnderstanding.understand({
       ownerId,
       requestId,
       pipelineId,
       sources: input.sources,
+      learner,
     });
     const assessed = await assessment.assess({
       ownerId,
       requestId,
       pipelineId,
       inputs: input.assessmentInputs,
+      learner,
     });
     const context = await buildContext({
       ownerId,
@@ -311,7 +315,7 @@ export function createPreparationService({
     };
   }
 
-  async function prepareRouted({ ownerId, requestId, pipelineId, input }) {
+  async function prepareRouted({ ownerId, requestId, pipelineId, input, learner }) {
     const assessmentEnabled = await flags.isEnabled(reservedFlags.AI_LEARNER_ASSESSMENT, {
       userId: ownerId,
     });
@@ -365,6 +369,7 @@ export function createPreparationService({
           pipelineId,
           normalized,
           assessmentInputs: input.assessmentInputs,
+          learner,
         });
         understanding = combined.understanding;
         assessmentResult = combined.assessment;
@@ -384,6 +389,7 @@ export function createPreparationService({
           pipelineId,
           profile: 'fast',
           promptVersion: ROUTED_SOURCE_PROMPT_VERSION,
+          learner,
         });
         understanding = result.understanding;
       } catch (error) {
@@ -399,6 +405,7 @@ export function createPreparationService({
           pipelineId,
           inputs: input.assessmentInputs,
           profile: 'fast',
+          learner,
         });
         assessmentResult = result.assessment;
       } catch (error) {
@@ -474,14 +481,26 @@ export function createPreparationService({
   }
 
   return Object.freeze({
-    async prepare({ ownerId, requestId, pipelineId, input }) {
+    async prepare({ ownerId, requestId, pipelineId, input, learner = null }) {
       const resolvedPipelineId = pipelineId ?? randomUUID();
       const routed = await flags.isEnabled(reservedFlags.AI_ROUTED_PREPARATION, {
         userId: ownerId,
       });
       const prepared = routed
-        ? await prepareRouted({ ownerId, requestId, pipelineId: resolvedPipelineId, input })
-        : await prepareLegacy({ ownerId, requestId, pipelineId: resolvedPipelineId, input });
+        ? await prepareRouted({
+            ownerId,
+            requestId,
+            pipelineId: resolvedPipelineId,
+            input,
+            learner,
+          })
+        : await prepareLegacy({
+            ownerId,
+            requestId,
+            pipelineId: resolvedPipelineId,
+            input,
+            learner,
+          });
       return Object.freeze({ pipelineId: resolvedPipelineId, ...prepared });
     },
   });

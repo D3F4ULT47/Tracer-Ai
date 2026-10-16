@@ -62,7 +62,14 @@ export function createAssessmentService({
   log = logger,
 } = {}) {
   return Object.freeze({
-    async assess({ ownerId, requestId, inputs, pipelineId = null, profile = 'core' }) {
+    async assess({
+      ownerId,
+      requestId,
+      inputs,
+      pipelineId = null,
+      profile = 'core',
+      learner = null,
+    }) {
       const enabled = await flags.isEnabled(reservedFlags.AI_LEARNER_ASSESSMENT, {
         userId: ownerId,
       });
@@ -78,6 +85,7 @@ export function createAssessmentService({
       const { provider, configuration } = providerResolver(profile, {
         operation,
         dataClass: dataClassForAssessmentInputs(prepared.inputs),
+        reuse: { scope: learner, cacheTtlSeconds: aiConfig.reuse.ownerTtlSeconds },
       });
       const runId = randomUUID();
       const recordUsage = (fields) =>

@@ -1,3 +1,4 @@
+import { aiResultStore } from '../../../infrastructure/cache/ai-result-store.js';
 import { AppError } from '../../../shared/app-error.js';
 
 const sessionLifetimeMs = 15 * 60 * 1_000;
@@ -14,8 +15,23 @@ export const generationStagePercentages = Object.freeze({
 
 const stageOrder = Object.keys(generationStagePercentages);
 
-export function createGenerationProgressService({ now = () => new Date() } = {}) {
+function notFound() {
+  return new AppError('Generation progress is not available yet', {
+    status: 404,
+    code: 'GENERATION_PROGRESS_NOT_FOUND',
+  });
+}
+
+/**
+ * Progress lives in this process and, when Redis is connected, is mirrored there so a poll that
+ * lands on another API instance still finds it.
+ */
+export function createGenerationProgressService({
+  now = () => new Date(),
+  store = aiResultStore,
+} = {}) {
   const sessions = new Map();
+  const sharedKey = (sessionId) => `ai:progress:${sessionId}`;
 
   function removeExpired() {
     const cutoff = now().getTime() - sessionLifetimeMs;
@@ -45,22 +61,27 @@ export function createGenerationProgressService({ now = () => new Date() } = {})
       updatedAt: now().toISOString(),
     });
     sessions.set(sessionId, snapshot);
+    if (store?.distributed()) void store.set(sharedKey(sessionId), snapshot, sessionLifetimeMs);
     return snapshot;
   }
 
   function get(sessionId) {
     removeExpired();
     const snapshot = sessions.get(sessionId);
-    if (!snapshot) {
-      throw new AppError('Generation progress is not available yet', {
-        status: 404,
-        code: 'GENERATION_PROGRESS_NOT_FOUND',
-      });
-    }
+    if (!snapshot) throw notFound();
     return snapshot;
   }
 
-  return Object.freeze({ get, update });
+  async function read(sessionId) {
+    removeExpired();
+    const local = sessions.get(sessionId);
+    if (local) return local;
+    const shared = store?.distributed() ? await store.get(sharedKey(sessionId)) : null;
+    if (!shared) throw notFound();
+    return Object.freeze(shared);
+  }
+
+  return Object.freeze({ get, read, update });
 }
 
 export const generationProgressService = createGenerationProgressService();

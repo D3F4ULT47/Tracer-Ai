@@ -10,6 +10,7 @@ import {
 } from './model-chain.js';
 import { loadModelEligibility } from './model-eligibility.js';
 import { createOpenAiCompatibleProvider } from './openai-compatible.provider.js';
+import { aiReuseLayer } from '../reuse/reusable-provider.js';
 
 let initialized = false;
 let eligibilityRecords;
@@ -54,11 +55,12 @@ function registeredEntries(chain) {
 
 /**
  * Resolves a profile to a gated model chain. `dataClass` defaults to personal so an unclassified
- * request can never reach a free endpoint.
+ * request can never reach a free endpoint. `reuse.scope` enables result caching and in-flight
+ * deduplication for that learner (or `public`); without a scope every call goes to the provider.
  */
 export function getConfiguredAiProvider(
   profile = 'core',
-  { operation = 'roadmap_generation', dataClass = DATA_CLASSES.PERSONAL } = {},
+  { operation = 'roadmap_generation', dataClass = DATA_CLASSES.PERSONAL, reuse = null } = {},
 ) {
   const configuration = requireAiConfiguration(profile);
   initializeProviders();
@@ -74,13 +76,22 @@ export function getConfiguredAiProvider(
     adapterOf: (entry) => aiProviderRegistry.get(entry.provider).api,
     production: aiConfig.isProduction,
   });
-  const provider = createModelChain({
+  const chain = createModelChain({
     entries,
     providerFor: (entry) => aiProviderRegistry.get(entry.provider),
     maxRetries: configuration.maxRetries,
     reasoningEffort: configuration.reasoningEffort,
     log: logger,
   });
+  const provider = reuse?.scope
+    ? aiReuseLayer.wrap(chain, {
+        operation,
+        scope: reuse.scope,
+        dataClass,
+        models: entries.map((entry) => `${entry.provider}:${entry.model}`),
+        cacheTtlSeconds: reuse.cacheTtlSeconds ?? 0,
+      })
+    : chain;
 
   return Object.freeze({
     provider,
