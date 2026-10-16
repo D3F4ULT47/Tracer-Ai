@@ -1,4 +1,5 @@
 import { createSuccessResponse } from '@tracer-ai/shared/contracts';
+import { pipelineIdFrom } from '../accounting/pipeline-id.js';
 import { assessmentService } from './assessment.service.js';
 
 export const assessmentController = Object.freeze({
@@ -6,6 +7,7 @@ export const assessmentController = Object.freeze({
     const result = await assessmentService.assess({
       ownerId: request.auth?.userId ?? null,
       requestId: request.id,
+      pipelineId: pipelineIdFrom(request),
       inputs: request.body.inputs,
     });
 

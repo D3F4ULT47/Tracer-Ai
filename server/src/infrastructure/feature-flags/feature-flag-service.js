@@ -4,6 +4,7 @@ const reservedFlags = Object.freeze({
   ADVANCED_ANALYTICS: 'advanced-analytics',
   AI_ROADMAP_GENERATION: 'ai-roadmap-generation',
   AI_LEARNER_ASSESSMENT: 'ai-learner-assessment',
+  AI_ROUTED_PREPARATION: 'ai-routed-preparation',
   COLLABORATION: 'collaboration',
   FLASHCARDS: 'flashcards',
   MENTOR: 'mentor',

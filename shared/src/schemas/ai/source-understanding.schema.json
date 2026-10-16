@@ -24,7 +24,7 @@
     "assumptions"
   ],
   "properties": {
-    "schemaVersion": { "type": "string", "const": "1.0.0" },
+    "schemaVersion": { "type": "string", "enum": ["1.0.0", "1.1.0"] },
     "understandingId": { "type": "string", "format": "uuid" },
     "generatedAt": { "type": "string", "format": "date-time" },
     "mode": { "enum": ["single", "mixed"] },
@@ -68,9 +68,32 @@
       "type": "array",
       "maxItems": 100,
       "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+    },
+    "requirements": {
+      "type": "array",
+      "maxItems": 200,
+      "items": { "$ref": "#/$defs/requirement" }
     }
   },
   "$defs": {
+    "requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "statement", "kind", "origin", "criticality", "evidenceIds"],
+      "properties": {
+        "id": { "type": "string", "minLength": 2, "maxLength": 10 },
+        "statement": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "kind": { "enum": ["deliverable", "constraint", "evaluation_criterion", "requirement"] },
+        "origin": { "enum": ["source_fact", "inference"] },
+        "criticality": { "enum": ["critical", "noncritical"] },
+        "evidenceIds": {
+          "type": "array",
+          "maxItems": 50,
+          "items": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "uniqueItems": true
+        }
+      }
+    },
     "sourceProcessing": {
       "type": "object",
       "additionalProperties": false,

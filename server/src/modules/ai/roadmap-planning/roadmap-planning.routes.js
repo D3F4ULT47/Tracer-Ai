@@ -4,9 +4,18 @@ import { asyncHandler } from '../../../shared/async-handler.js';
 import { registerContractRoute } from '../../../shared/contract-route.js';
 import { authenticate, optionalAuthenticate, requireCsrf } from '../../auth/index.js';
 import { aiGenerationRateLimit } from '../ai-rate-limit.js';
+import { preparationController } from '../preparation/preparation.controller.js';
 import { roadmapPlanningController } from './roadmap-planning.controller.js';
 
 export const roadmapPlanningRouter = Router();
+
+registerContractRoute(
+  roadmapPlanningRouter,
+  ROADMAP_PLANNING_ENDPOINTS.prepare,
+  optionalAuthenticate,
+  aiGenerationRateLimit,
+  asyncHandler(preparationController.prepare),
+);
 
 registerContractRoute(
   roadmapPlanningRouter,

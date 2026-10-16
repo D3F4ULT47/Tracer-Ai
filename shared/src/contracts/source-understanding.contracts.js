@@ -25,7 +25,7 @@ const understandingDefinitions = {
   location: convert(roadmapSourceSchema.$defs.location),
 };
 
-const sourceRequest = {
+export const sourceRequestSchema = {
   type: 'object',
   required: ['type'],
   properties: {
@@ -70,7 +70,7 @@ export const SOURCE_UNDERSTANDING_ENDPOINTS = Object.freeze({
       type: 'object',
       required: ['sources'],
       properties: {
-        sources: { type: 'array', minItems: 1, maxItems: 8, items: sourceRequest },
+        sources: { type: 'array', minItems: 1, maxItems: 8, items: sourceRequestSchema },
       },
       additionalProperties: false,
     },

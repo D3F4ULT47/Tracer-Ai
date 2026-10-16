@@ -1,4 +1,5 @@
 import { createSuccessResponse } from '@tracer-ai/shared/contracts';
+import { pipelineIdFrom } from '../accounting/pipeline-id.js';
 import { generationProgressService } from './generation-progress.service.js';
 import { roadmapPlanningService } from './roadmap-planning.service.js';
 
@@ -7,8 +8,10 @@ export const roadmapPlanningController = Object.freeze({
     const result = await roadmapPlanningService.generate({
       ownerId: request.auth?.userId ?? null,
       requestId: request.id,
+      pipelineId: pipelineIdFrom(request),
       context: request.body.context,
       sourceUnderstanding: request.body.sourceUnderstanding ?? null,
+      preparation: request.body.preparation ?? null,
       persist: false,
       anonymousSessionId: request.body.anonymousSessionId,
       onProgress: request.body.generationSessionId
@@ -35,8 +38,10 @@ export const roadmapPlanningController = Object.freeze({
     const result = await roadmapPlanningService.generate({
       ownerId: request.auth.userId,
       requestId: request.id,
+      pipelineId: pipelineIdFrom(request),
       context: request.body.context,
       sourceUnderstanding: request.body.sourceUnderstanding ?? null,
+      preparation: request.body.preparation ?? null,
       onProgress: request.body.generationSessionId
         ? (stage, status) =>
             generationProgressService.update(request.body.generationSessionId, stage, status)

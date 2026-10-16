@@ -330,3 +330,69 @@ test('anonymous Learning Context uses safe empty profile sources', async () => {
   assert.equal(context.primaryGoal.value, 'Learn frontend engineering');
   assert.equal(context.mode.value, 'quick');
 });
+
+test('Learning Context builds without an assessment and invents no proficiency', () => {
+  const context = buildLearningContext({
+    assessment: null,
+    mode: 'quick',
+    explicitInput: { primaryGoal: 'Learn SQL', goalType: 'learning_goal' },
+    profile: profile({ __v: 1 }),
+    learningProfile: learningProfile({ __v: 1 }),
+    applyUnknownLevelDefault: true,
+  });
+
+  assert.equal(validateAiOutput('learningContext', context), context);
+  assert.equal(context.generatedFrom.assessmentVersion, null);
+  assert.equal(context.currentProficiency.status, 'unresolved');
+  assert.equal(
+    context.currentProficiency.provenance.some(({ source }) => source === 'ai_assessment'),
+    false,
+  );
+  assert.deepEqual(
+    context.assumptions.value.find(({ field }) => field === 'currentProficiency'),
+    {
+      field: 'currentProficiency',
+      value: 'beginner_to_intermediate',
+      source: 'system_default',
+      confidence: 0.5,
+      reasoning:
+        'No level was selected and no learner evidence was assessed, so the roadmap targets a beginner-to-intermediate learner.',
+    },
+  );
+  assert.deepEqual(
+    context.knownSkills.value.map(({ name }) => name),
+    ['JavaScript'],
+  );
+  assert.equal(context.knownSkills.provenance[0].source, 'user_profile');
+});
+
+test('Learning Context without an assessment keeps the selected level and adds no default', () => {
+  const context = buildLearningContext({
+    assessment: null,
+    explicitInput: { primaryGoal: 'Learn React', experienceLevel: 'beginner' },
+    profile: profile(),
+    learningProfile: learningProfile(),
+    applyUnknownLevelDefault: true,
+  });
+
+  assert.equal(context.currentProficiency.value, 'beginner');
+  assert.equal(
+    context.assumptions.value.some(({ field }) => field === 'currentProficiency'),
+    false,
+  );
+});
+
+test('an assessment cannot override the level the user selected', () => {
+  const context = buildLearningContext({
+    assessment: assessment({ currentLevel: 'advanced' }),
+    explicitInput: { primaryGoal: 'Learn React', experienceLevel: 'beginner' },
+    profile: profile(),
+    learningProfile: learningProfile(),
+  });
+
+  assert.equal(context.currentProficiency.value, 'beginner');
+  assert.equal(
+    context.currentProficiency.provenance.find(({ selected }) => selected).source,
+    'explicit_user',
+  );
+});

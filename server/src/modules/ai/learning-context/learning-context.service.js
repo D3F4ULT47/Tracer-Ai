@@ -13,8 +13,9 @@ export function createLearningContextService({ repository = learningContextRepos
       questionnaire,
       resumeAnalysis,
       sourceVersions,
+      applyUnknownLevelDefault = false,
     }) {
-      validateAiOutput('learnerAssessment', assessment);
+      if (assessment) validateAiOutput('learnerAssessment', assessment);
       if (resumeAnalysis) validateAiOutput('resume', resumeAnalysis);
 
       const sources = ownerId
@@ -40,6 +41,7 @@ export function createLearningContextService({ repository = learningContextRepos
         learningProfile,
         resumeAnalysis,
         sourceVersions,
+        applyUnknownLevelDefault,
       });
       validateAiOutput('learningContext', context);
       return context;

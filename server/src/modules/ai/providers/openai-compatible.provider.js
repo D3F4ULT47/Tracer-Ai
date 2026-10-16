@@ -1,6 +1,16 @@
+import { setTimeout as delay } from 'node:timers/promises';
 import OpenAI from 'openai';
 import { AppError } from '../../../shared/app-error.js';
+import { pricingFromAiCreditsCatalogEntry } from '../accounting/ai-cost.js';
 import { defineAiProvider } from './ai-provider.js';
+import {
+  catalogEntries,
+  fetchJson,
+  parseStructuredText,
+  refusalError,
+  sendWithRetries,
+  toProviderSchema,
+} from './provider-support.js';
 
 function findRefusal(response) {
   for (const item of response.output ?? []) {
@@ -22,20 +32,9 @@ function normalizeUsage(usage = {}) {
   });
 }
 
-function toProviderSchema(schema) {
-  if (Array.isArray(schema)) return schema.map(toProviderSchema);
-  if (!schema || typeof schema !== 'object') return schema;
-
-  return Object.fromEntries(
-    Object.entries(schema)
-      .filter(([key]) => !['$schema', '$id', 'format', 'uniqueItems'].includes(key))
-      .map(([key, value]) => [key, toProviderSchema(value)]),
-  );
-}
-
-function providerEndpoints(providerName, baseURL) {
+export function providerEndpoints(providerName, baseURL) {
   const base = new URL(baseURL);
-  if (providerName === 'aicredits') {
+  if (providerName.startsWith('aicredits')) {
     return Object.freeze({
       health: new URL('/health', base).toString(),
       models: new URL('/api/models', base).toString(),
@@ -46,95 +45,34 @@ function providerEndpoints(providerName, baseURL) {
   return Object.freeze({ health: models, models });
 }
 
-function modelIds(payload) {
-  const models = Array.isArray(payload) ? payload : (payload?.data ?? payload?.models ?? []);
-  return new Set(
-    models
-      .map((model) => (typeof model === 'string' ? model : (model?.id ?? model?.model)))
-      .filter(Boolean),
-  );
-}
-
-async function fetchJson(url, { apiKey, fetchImpl, timeout }) {
-  let response;
-  try {
-    response = await fetchImpl(url, {
-      headers: { authorization: `Bearer ${apiKey}` },
-      signal: AbortSignal.timeout(Math.min(timeout, 10_000)),
-    });
-  } catch (error) {
-    throw new AppError('AI provider health check could not reach the configured endpoint', {
+/**
+ * Checks the gateway, confirms configured models exist, and returns their catalog entries.
+ */
+export async function checkCatalog({ providerName, apiKey, baseURL, timeout, fetchImpl, models }) {
+  if (!apiKey || !baseURL) {
+    throw new AppError('AI provider credentials are not configured', {
       status: 503,
-      code: error?.name === 'TimeoutError' ? 'AI_PROVIDER_TIMEOUT' : 'AI_PROVIDER_UNAVAILABLE',
+      code: 'AI_NOT_CONFIGURED',
     });
   }
 
-  if (!response.ok) {
-    throw new AppError('AI provider health check failed', {
+  const endpoints = providerEndpoints(providerName, baseURL);
+  const health = await fetchJson(endpoints.health, { apiKey, fetchImpl, timeout });
+  const catalog =
+    endpoints.models === endpoints.health
+      ? health
+      : await fetchJson(endpoints.models, { apiKey, fetchImpl, timeout });
+  const entries = new Map(catalogEntries(catalog).map((entry) => [entry.id, entry]));
+  const missingModels = [...new Set(models)].filter((model) => model && !entries.has(model));
+
+  if (missingModels.length > 0) {
+    throw new AppError(`Configured AI model is unavailable: ${missingModels.join(', ')}`, {
       status: 503,
-      code:
-        response.status === 401 ? 'AI_PROVIDER_AUTHENTICATION_FAILED' : 'AI_PROVIDER_UNAVAILABLE',
+      code: 'AI_MODEL_UNAVAILABLE',
     });
   }
 
-  try {
-    return await response.json();
-  } catch {
-    throw new AppError('AI provider health check returned an invalid response', {
-      status: 503,
-      code: 'AI_PROVIDER_INVALID_HEALTH_RESPONSE',
-    });
-  }
-}
-
-function normalizeProviderError(error) {
-  if (error instanceof AppError) return error;
-  const providerText = [
-    error?.message,
-    error?.code,
-    error?.type,
-    error?.error?.code,
-    error?.error?.message,
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .toLowerCase();
-  if (
-    error?.status === 402 ||
-    providerText.includes('insufficient_quota') ||
-    providerText.includes('quota') ||
-    providerText.includes('credit') ||
-    providerText.includes('balance') ||
-    providerText.includes('payment required')
-  ) {
-    return new AppError('AI provider credits are exhausted', {
-      status: 503,
-      code: 'AI_CREDITS_EXHAUSTED',
-    });
-  }
-  if (error?.status === 429) {
-    return new AppError('AI provider is temporarily rate limited', {
-      status: 503,
-      code: 'AI_RATE_LIMITED',
-    });
-  }
-  if (error?.status === 401 || error?.status === 403) {
-    return new AppError('AI provider authentication failed', {
-      status: 503,
-      code: 'AI_PROVIDER_AUTHENTICATION_FAILED',
-    });
-  }
-  if (
-    error?.status === 408 ||
-    error?.name === 'APIConnectionTimeoutError' ||
-    error?.name === 'AbortError'
-  ) {
-    return new AppError('AI provider request timed out', {
-      status: 504,
-      code: 'AI_PROVIDER_TIMEOUT',
-    });
-  }
-  return error;
+  return entries;
 }
 
 export function createOpenAiCompatibleProvider({
@@ -143,45 +81,35 @@ export function createOpenAiCompatibleProvider({
   baseURL,
   timeout = 120_000,
   maxRetries = 2,
+  endpointClass = 'paid_approved',
   client,
   fetchImpl = globalThis.fetch,
+  sleep = delay,
 } = {}) {
-  const sdk =
-    client ??
-    new OpenAI({
-      apiKey,
-      baseURL,
-      timeout,
-      maxRetries,
-    });
+  const sdk = client ?? new OpenAI({ apiKey, baseURL, timeout, maxRetries: 0 });
+  const endpointHost = baseURL ? new URL(baseURL).host : null;
+  const pricing = new Map();
 
   return defineAiProvider({
     name: providerName,
+    api: 'responses',
+    endpointClass,
+    endpointHost,
 
     async healthCheck({ models = [] } = {}) {
-      if (!apiKey || !baseURL) {
-        throw new AppError('AI provider credentials are not configured', {
-          status: 503,
-          code: 'AI_NOT_CONFIGURED',
-        });
-      }
-
-      const endpoints = providerEndpoints(providerName, baseURL);
-      const health = await fetchJson(endpoints.health, { apiKey, fetchImpl, timeout });
-      const catalog =
-        endpoints.models === endpoints.health
-          ? health
-          : await fetchJson(endpoints.models, { apiKey, fetchImpl, timeout });
-      const availableModels = modelIds(catalog);
-      const missingModels = [...new Set(models)].filter(
-        (model) => model && !availableModels.has(model),
-      );
-
-      if (missingModels.length > 0) {
-        throw new AppError(`Configured AI model is unavailable: ${missingModels.join(', ')}`, {
-          status: 503,
-          code: 'AI_MODEL_UNAVAILABLE',
-        });
+      const entries = await checkCatalog({
+        providerName,
+        apiKey,
+        baseURL,
+        timeout,
+        fetchImpl,
+        models,
+      });
+      if (providerName.startsWith('aicredits')) {
+        for (const model of models) {
+          const modelPricing = pricingFromAiCreditsCatalogEntry(entries.get(model));
+          if (modelPricing) pricing.set(model, modelPricing);
+        }
       }
 
       return Object.freeze({ provider: providerName, models: Object.freeze([...new Set(models)]) });
@@ -195,64 +123,50 @@ export function createOpenAiCompatibleProvider({
       schemaName,
       schemaDescription,
       maxOutputTokens,
+      reasoningEffort,
+      maxRetries: callMaxRetries,
       metadata,
     }) {
-      const startedAt = Date.now();
-      try {
-        const response = await sdk.responses.create({
-          model,
-          instructions,
-          input,
-          store: false,
-          ...(maxOutputTokens ? { max_output_tokens: maxOutputTokens } : {}),
-          ...(metadata ? { metadata } : {}),
-          text: {
-            format: {
-              type: 'json_schema',
-              name: schemaName,
-              schema: toProviderSchema(schema),
-              strict: true,
-              ...(schemaDescription ? { description: schemaDescription } : {}),
-            },
+      const request = {
+        model,
+        instructions,
+        input,
+        store: false,
+        ...(maxOutputTokens ? { max_output_tokens: maxOutputTokens } : {}),
+        ...(reasoningEffort ? { reasoning: { effort: reasoningEffort } } : {}),
+        ...(metadata ? { metadata } : {}),
+        text: {
+          format: {
+            type: 'json_schema',
+            name: schemaName,
+            schema: toProviderSchema(schema),
+            strict: true,
+            ...(schemaDescription ? { description: schemaDescription } : {}),
           },
-        });
+        },
+      };
 
-        const refusal = findRefusal(response);
-        if (refusal) {
-          throw new AppError('The AI provider declined this request', {
-            status: 422,
-            code: 'AI_REFUSAL',
-          });
-        }
-
-        if (!response.output_text) {
-          throw new AppError('The AI provider returned no structured output', {
-            status: 502,
-            code: 'AI_EMPTY_RESPONSE',
-          });
-        }
-
-        let data;
-        try {
-          data = JSON.parse(response.output_text);
-        } catch {
-          throw new AppError('The AI provider returned invalid JSON', {
-            status: 502,
-            code: 'AI_INVALID_JSON',
-          });
-        }
-
-        return Object.freeze({
-          data,
-          provider: providerName,
-          model: response.model ?? model,
-          providerRequestId: response.id,
-          latencyMs: Date.now() - startedAt,
-          usage: normalizeUsage(response.usage),
-        });
-      } catch (error) {
-        throw normalizeProviderError(error);
-      }
+      return sendWithRetries({
+        send: () => sdk.responses.create(request),
+        parse: {
+          usage: (response) => ({
+            usage: normalizeUsage(response.usage),
+            reportedCost: typeof response.usage?.cost === 'number' ? response.usage.cost : null,
+            reportedCostCurrency: typeof response.usage?.cost === 'number' ? 'USD' : null,
+          }),
+          data: (response) => {
+            if (findRefusal(response)) throw refusalError();
+            return parseStructuredText(response.output_text);
+          },
+        },
+        maxRetries: callMaxRetries ?? maxRetries,
+        sleep,
+        providerName,
+        model,
+        endpointHost,
+        endpointClass,
+        pricing: pricing.get(model),
+      });
     },
   });
 }

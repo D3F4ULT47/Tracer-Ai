@@ -43,7 +43,7 @@ const preferenceProperties = {
   constraints: stringList,
 };
 
-const explicitInputSchema = {
+export const explicitInputSchema = {
   type: 'object',
   properties: {
     primaryGoal: nullableString,
@@ -73,7 +73,7 @@ const explicitInputSchema = {
   additionalProperties: false,
 };
 
-const questionnaireSchema = {
+export const questionnaireSchema = {
   type: 'object',
   properties: {
     careerGoal: nullableString,

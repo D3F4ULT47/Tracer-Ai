@@ -34,9 +34,18 @@ export function validateSourceEvidence(understanding, sources) {
     ...understanding.milestones,
     ...understanding.creatorRecommendations,
     ...understanding.dependencies,
+    ...(understanding.requirements ?? []),
   ].flatMap((item) => item.evidenceIds);
   if (referencedEvidence.some((evidenceId) => !evidenceIds.has(evidenceId))) {
     throw new AppError('Source understanding references missing evidence', {
+      status: 422,
+      code: 'SOURCE_UNDERSTANDING_EVIDENCE_INVALID',
+    });
+  }
+
+  const requirementIds = (understanding.requirements ?? []).map(({ id }) => id);
+  if (new Set(requirementIds).size !== requirementIds.length) {
+    throw new AppError('Source understanding repeats a requirement ID', {
       status: 422,
       code: 'SOURCE_UNDERSTANDING_EVIDENCE_INVALID',
     });
@@ -50,4 +59,27 @@ export function validateSourceEvidence(understanding, sources) {
     });
   }
   return understanding;
+}
+
+const alwaysCriticalKinds = new Set(['deliverable', 'evaluation_criterion']);
+
+/**
+ * Criticality is decided by rules, not by the model: only evidenced source facts can be critical,
+ * and evidenced deliverables and evaluation criteria always are.
+ */
+export function normalizeRequirementCriticality(understanding) {
+  if (!understanding.requirements) return understanding;
+  const evidenceIds = new Set(understanding.evidence.map(({ evidenceId }) => evidenceId));
+  const requirements = understanding.requirements.map((requirement) => {
+    const evidenced =
+      requirement.origin === 'source_fact' &&
+      requirement.evidenceIds.some((evidenceId) => evidenceIds.has(evidenceId));
+    const criticality = !evidenced
+      ? 'noncritical'
+      : alwaysCriticalKinds.has(requirement.kind)
+        ? 'critical'
+        : requirement.criticality;
+    return { ...requirement, origin: evidenced ? 'source_fact' : 'inference', criticality };
+  });
+  return { ...understanding, requirements };
 }

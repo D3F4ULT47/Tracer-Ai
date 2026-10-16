@@ -57,7 +57,7 @@
         "profileVersion": { "type": ["integer", "null"], "minimum": 0 },
         "learningProfileVersion": { "type": ["integer", "null"], "minimum": 0 },
         "resumeVersion": { "type": ["integer", "null"], "minimum": 1 },
-        "assessmentVersion": { "type": "string", "minLength": 1 },
+        "assessmentVersion": { "type": ["string", "null"], "minLength": 1 },
         "clarificationVersion": { "type": "integer", "minimum": 0 }
       }
     },

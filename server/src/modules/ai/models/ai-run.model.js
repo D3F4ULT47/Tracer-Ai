@@ -21,9 +21,16 @@ const aiRunSchema = new mongoose.Schema(
       index: true,
     },
     requestId: { type: String, required: true, immutable: true },
+    pipelineId: { type: String, default: null, index: true, immutable: true },
     operation: {
       type: String,
-      enum: ['learner_assessment', 'source_understanding', 'roadmap_generation'],
+      enum: [
+        'learner_assessment',
+        'source_understanding',
+        'combined_preparation',
+        'roadmap_generation',
+        'roadmap_repair',
+      ],
       required: true,
       immutable: true,
     },

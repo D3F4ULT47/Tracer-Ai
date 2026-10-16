@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "description": "Production eligibility per provider, model, adapter and operation (RFC 0001 section 5.1). Written by scripts/ai-routing-evaluation.js; edits must be reviewed.",
+  "entries": [
+    {
+      "provider": "aicredits",
+      "model": "openai/gpt-5.5",
+      "adapter": "responses",
+      "operations": [
+        "source_understanding",
+        "learner_assessment",
+        "combined_preparation",
+        "roadmap_generation",
+        "roadmap_repair"
+      ],
+      "status": "legacy_baseline",
+      "note": "Model used by the pipeline before RFC 0001. Grandfathered until the evaluation records its metrics."
+    }
+  ]
+}

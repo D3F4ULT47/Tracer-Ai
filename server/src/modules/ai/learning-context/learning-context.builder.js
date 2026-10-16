@@ -1,3 +1,4 @@
+import { DEFAULT_UNKNOWN_LEVEL_DEPTH } from '@tracer-ai/shared/constants';
 import { createCandidate, resolveContextField } from './context-field.js';
 
 export const LEARNING_CONTEXT_FIELD_NAMES = Object.freeze([
@@ -345,7 +346,7 @@ function deriveClarifications(fields, assessment) {
       priority: 'high',
     });
   }
-  if (fields.currentProficiency.status === 'unresolved' || assessment.clarificationRequired) {
+  if (fields.currentProficiency.status === 'unresolved' || assessment?.clarificationRequired) {
     clarifications.push({
       field: 'currentProficiency',
       reason: 'Current proficiency is uncertain enough to materially change the learning plan.',
@@ -380,6 +381,7 @@ export function buildLearningContext({
   resumeAnalysis,
   sourceVersions = {},
   systemDefaults = {},
+  applyUnknownLevelDefault = false,
 }) {
   const candidates = Object.fromEntries(LEARNING_CONTEXT_FIELD_NAMES.map((field) => [field, []]));
 
@@ -452,7 +454,7 @@ export function buildLearningContext({
   );
   const storedAssumptions = mapLearningProfileInferences(candidates, learningProfile.inferences);
   addResumeCandidates(candidates, resumeAnalysis);
-  addAssessmentCandidates(candidates, assessment);
+  if (assessment) addAssessmentCandidates(candidates, assessment);
   addDirectFields(
     candidates,
     systemDefaults,
@@ -520,6 +522,16 @@ export function buildLearningContext({
             resolvedForConfidence.length
           ).toFixed(4),
         );
+  if (applyUnknownLevelDefault && resolvedFields.currentProficiency.status === 'unresolved') {
+    derivedAssumptions.push({
+      field: 'currentProficiency',
+      value: DEFAULT_UNKNOWN_LEVEL_DEPTH,
+      source: 'system_default',
+      confidence: 0.5,
+      reasoning:
+        'No level was selected and no learner evidence was assessed, so the roadmap targets a beginner-to-intermediate learner.',
+    });
+  }
   const assumptions = deriveAssumptions(resolvedFields, storedAssumptions, derivedAssumptions);
   const clarifications = deriveClarifications(resolvedFields, assessment);
 
@@ -531,7 +543,7 @@ export function buildLearningContext({
       profileVersion: Number.isInteger(profile.__v) ? profile.__v : null,
       learningProfileVersion: Number.isInteger(learningProfile.__v) ? learningProfile.__v : null,
       resumeVersion: sourceVersions.resumeVersion ?? null,
-      assessmentVersion: sourceVersions.assessmentVersion ?? assessment.schemaVersion,
+      assessmentVersion: sourceVersions.assessmentVersion ?? assessment?.schemaVersion ?? null,
       clarificationVersion: 0,
     }),
     clarificationState: Object.freeze({

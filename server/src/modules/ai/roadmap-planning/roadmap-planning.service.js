@@ -8,6 +8,7 @@ import { logger } from '../../../infrastructure/logging/logger.js';
 import { AppError } from '../../../shared/app-error.js';
 import { createActivityEvent } from '../../activity/index.js';
 import { roadmapResourceEnrichmentService } from '../../resources/index.js';
+import { buildUsageRecords } from '../accounting/usage-records.js';
 import { aiConfig } from '../ai.config.js';
 import { clarificationService } from '../clarification/clarification.service.js';
 import { validateAiOutput } from '../json.validator.js';
@@ -80,27 +81,15 @@ function safePlanningError(error, runId, log) {
   });
 }
 
-function usageRecord({ runId, ownerId, prompt, configuration, result, latencyMs, outcome }) {
-  const usage = result?.usage ?? {};
-  return {
-    runId,
-    ownerId,
-    provider: result?.provider ?? configuration.provider,
-    model: result?.model ?? configuration.model,
-    operation,
-    promptName: prompt.name,
-    promptVersion: prompt.version,
-    promptHash: prompt.hash,
-    outputSchemaVersion: AI_SCHEMA_VERSION,
-    inputTokens: usage.inputTokens ?? 0,
-    cachedInputTokens: usage.cachedInputTokens ?? 0,
-    outputTokens: usage.outputTokens ?? 0,
-    reasoningTokens: usage.reasoningTokens ?? 0,
-    totalTokens: usage.totalTokens ?? 0,
-    latencyMs: result?.latencyMs ?? latencyMs,
-    outcome,
-    providerRequestId: result?.providerRequestId ?? null,
-  };
+function recordUsage(repositories, fields) {
+  return Promise.all(
+    buildUsageRecords({
+      operation,
+      outputSchemaVersion: AI_SCHEMA_VERSION,
+      failureOutcome,
+      ...fields,
+    }).map((record) => repositories.usage.record(record)),
+  );
 }
 
 function persistenceBundle({
@@ -115,11 +104,20 @@ function persistenceBundle({
   generatedAt,
   sourceUnderstanding,
   resourceEnrichment,
+  preparation = null,
   anonymousSessionId = null,
 }) {
   const roadmap = generation.roadmap;
   const snapshotHash = hash(roadmap);
   const common = { roadmapId, ownerId, anonymousSessionId };
+  const {
+    sourceStatuses = [],
+    sourceExcerpts,
+    notices,
+    ...preparationDecision
+  } = preparation ?? {};
+  void sourceExcerpts;
+  void notices;
 
   return {
     context: {
@@ -129,6 +127,8 @@ function persistenceBundle({
       learningContext: context,
       sourceUnderstanding,
       sourceAttributions: sourceUnderstanding?.sourceAttributions ?? [],
+      preparationDecision: preparation ? preparationDecision : null,
+      sourceStatuses,
     },
     roadmap: {
       ...common,
@@ -207,8 +207,10 @@ export function createRoadmapPlanningService({
       requestId,
       context,
       sourceUnderstanding = null,
+      preparation = null,
       persist = true,
       anonymousSessionId = null,
+      pipelineId = null,
       onProgress,
     }) {
       let activeStage = 'roadmap_planning';
@@ -238,7 +240,7 @@ export function createRoadmapPlanningService({
       }
 
       const prompt = await promptLoader(promptName, promptVersion);
-      const { provider, configuration } = providerResolver('core');
+      const { provider, configuration } = providerResolver('core', { operation });
       const runId = randomUUID();
       const roadmapId = randomUUID();
 
@@ -247,6 +249,7 @@ export function createRoadmapPlanningService({
         runId,
         ownerId,
         requestId,
+        pipelineId,
         operation,
         inputHash: hash({ context, sourceUnderstanding }),
         inputType: generationInputType(context, sourceUnderstanding),
@@ -278,17 +281,17 @@ export function createRoadmapPlanningService({
         report(activeStage, 'failed');
         const safeError = safePlanningError(error, runId, log);
         try {
-          await repositories.usage.record(
-            usageRecord({
-              runId,
-              ownerId,
-              prompt,
-              configuration,
-              result,
-              latencyMs: Date.now() - startedAt,
-              outcome: failureOutcome(safeError),
-            }),
-          );
+          await recordUsage(repositories, {
+            runId,
+            ownerId,
+            pipelineId,
+            prompt,
+            configuration,
+            result,
+            error,
+            latencyMs: Date.now() - startedAt,
+            outcome: failureOutcome(safeError),
+          });
           await repositories.runs.fail(runId, safeError);
         } catch (accountingError) {
           log.error({ err: accountingError, runId }, 'Roadmap failure accounting failed');
@@ -325,17 +328,16 @@ export function createRoadmapPlanningService({
 
       const generatedAt = new Date();
       try {
-        await repositories.usage.record(
-          usageRecord({
-            runId,
-            ownerId,
-            prompt,
-            configuration,
-            result,
-            latencyMs: Date.now() - startedAt,
-            outcome: 'success',
-          }),
-        );
+        await recordUsage(repositories, {
+          runId,
+          ownerId,
+          pipelineId,
+          prompt,
+          configuration,
+          result,
+          latencyMs: Date.now() - startedAt,
+          outcome: 'success',
+        });
         report('persistence');
         if (shouldPersist) {
           await repositories.persistInitialGeneration(
@@ -351,6 +353,7 @@ export function createRoadmapPlanningService({
               generatedAt,
               sourceUnderstanding,
               resourceEnrichment,
+              preparation,
               anonymousSessionId,
             }),
           );
@@ -392,6 +395,13 @@ export function createRoadmapPlanningService({
           generatedAt: generatedAt.toISOString(),
           generationTimeMs: result.latencyMs,
           learningContextVersion: context.contextVersion,
+          ...(preparation
+            ? {
+                pipelineVersion: preparation.pipelineVersion,
+                degraded: preparation.degraded,
+                warnings: preparation.notices ?? [],
+              }
+            : {}),
         }),
       });
     },

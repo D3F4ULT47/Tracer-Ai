@@ -1,7 +1,10 @@
 import { createPrivateKey, createPublicKey } from 'node:crypto';
 import { env } from '../../config/env.js';
 import { aiConfig, requireAiConfiguration } from '../../modules/ai/ai.config.js';
-import { getConfiguredAiProvider } from '../../modules/ai/providers/provider.factory.js';
+import {
+  checkConfiguredAiProviders,
+  getConfiguredAiProvider,
+} from '../../modules/ai/providers/provider.factory.js';
 import { getTemporaryFileStore } from '../../modules/uploads/index.js';
 
 function requireValue(name, value) {
@@ -35,8 +38,12 @@ function validateAuthenticationConfiguration() {
 
 async function validateAiConfiguration() {
   requireAiConfiguration('core');
-  const { provider } = getConfiguredAiProvider('core');
-  await provider.healthCheck({ models: Object.values(aiConfig.modelProfiles).filter(Boolean) });
+  for (const profile of ['core', 'fast']) {
+    if (aiConfig.modelChains[profile].length > 0) {
+      getConfiguredAiProvider(profile, { dataClass: 'general' });
+    }
+  }
+  await checkConfiguredAiProviders();
 }
 
 export async function validateRuntimeConfiguration() {

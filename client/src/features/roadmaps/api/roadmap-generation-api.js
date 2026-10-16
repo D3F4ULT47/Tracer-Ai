@@ -46,7 +46,11 @@ function emitStage(onStage, id, message, percentage) {
   onStage?.(message, { id, percentage });
 }
 
-async function generateRoadmapRequest(endpoint, body, onStage) {
+function pipelineHeaders(pipelineId) {
+  return pipelineId ? { 'x-tracer-pipeline-id': pipelineId } : undefined;
+}
+
+async function generateRoadmapRequest(endpoint, body, onStage, pipelineId) {
   const generationSessionId = crypto.randomUUID();
   let stopped = false;
   let polling = false;
@@ -71,6 +75,7 @@ async function generateRoadmapRequest(endpoint, body, onStage) {
   try {
     return await contractRequest(endpoint, {
       body: { ...body, generationSessionId },
+      headers: pipelineHeaders(pipelineId),
     });
   } finally {
     stopped = true;
@@ -78,7 +83,14 @@ async function generateRoadmapRequest(endpoint, body, onStage) {
   }
 }
 
-async function generateFromContext(context, sourceUnderstanding, mode, onStage, persist) {
+async function generateFromContext(
+  context,
+  sourceUnderstanding,
+  mode,
+  onStage,
+  persist,
+  pipelineId,
+) {
   if (mode !== 'quick') {
     emitStage(
       onStage,
@@ -95,6 +107,7 @@ async function generateFromContext(context, sourceUnderstanding, mode, onStage, 
         context,
         sourceUnderstanding,
         decision: clarification.data.decision,
+        pipelineId,
       };
     }
   }
@@ -112,6 +125,7 @@ async function generateFromContext(context, sourceUnderstanding, mode, onStage, 
       ...(anonymousSessionId ? { anonymousSessionId } : {}),
     },
     onStage,
+    pipelineId,
   );
   emitStage(onStage, 'workspace_ready', backendStageMessages.workspace_ready, 100);
   return {
@@ -133,6 +147,7 @@ export const roadmapGenerationApi = Object.freeze({
     persist = false,
     onStage,
   }) {
+    const pipelineId = crypto.randomUUID();
     emitStage(
       onStage,
       'input_analysis',
@@ -172,6 +187,7 @@ export const roadmapGenerationApi = Object.freeze({
     });
     const sourceUnderstanding = await contractRequest(SOURCE_UNDERSTANDING_ENDPOINTS.create, {
       body: { sources },
+      headers: pipelineHeaders(pipelineId),
     });
 
     emitStage(
@@ -182,6 +198,7 @@ export const roadmapGenerationApi = Object.freeze({
     );
     const assessment = await contractRequest(ASSESSMENT_ENDPOINTS.create, {
       body: { inputs: assessmentInputs(ingestion, fileIngestion, sources) },
+      headers: pipelineHeaders(pipelineId),
     });
 
     emitStage(
@@ -209,6 +226,7 @@ export const roadmapGenerationApi = Object.freeze({
       mode,
       onStage,
       persist,
+      pipelineId,
     );
   },
 
@@ -218,6 +236,7 @@ export const roadmapGenerationApi = Object.freeze({
     decision,
     answer,
     persist = false,
+    pipelineId = crypto.randomUUID(),
     onStage,
   }) {
     emitStage(onStage, 'learning_context', 'Updating your learning context with your answer.', 40);
@@ -237,6 +256,7 @@ export const roadmapGenerationApi = Object.freeze({
         ...(anonymousSessionId ? { anonymousSessionId } : {}),
       },
       onStage,
+      pipelineId,
     );
     emitStage(onStage, 'workspace_ready', backendStageMessages.workspace_ready, 100);
     return {

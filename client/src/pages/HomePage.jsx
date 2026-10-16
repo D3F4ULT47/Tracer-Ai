@@ -233,6 +233,7 @@ export function HomePage() {
         context: clarification.context,
         sourceUnderstanding: clarification.sourceUnderstanding,
         decision: clarification.decision,
+        pipelineId: clarification.pipelineId,
         answer,
         persist: isAuthenticated,
         onStage: (message, stage) =>

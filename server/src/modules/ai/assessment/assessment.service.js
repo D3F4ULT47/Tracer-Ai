@@ -6,9 +6,11 @@ import {
 } from '../../../infrastructure/feature-flags/feature-flag-service.js';
 import { logger } from '../../../infrastructure/logging/logger.js';
 import { AppError } from '../../../shared/app-error.js';
+import { buildUsageRecords } from '../accounting/usage-records.js';
 import { aiConfig } from '../ai.config.js';
 import { validateAiOutput } from '../json.validator.js';
 import { loadPrompt } from '../prompt.repository.js';
+import { DATA_CLASSES } from '../providers/model-chain.js';
 import { getConfiguredAiProvider } from '../providers/provider.factory.js';
 import { assessmentRepositories } from './assessment.repository.js';
 import { validateAssessmentEvidence } from './assessment.validator.js';
@@ -47,27 +49,8 @@ function safeAssessmentError(error, runId, log) {
   });
 }
 
-function usageRecord({ runId, ownerId, prompt, configuration, result, latencyMs, outcome }) {
-  const usage = result?.usage ?? {};
-  return {
-    runId,
-    ownerId,
-    provider: result?.provider ?? configuration.provider,
-    model: result?.model ?? configuration.model,
-    operation,
-    promptName: prompt.name,
-    promptVersion: prompt.version,
-    promptHash: prompt.hash,
-    outputSchemaVersion: AI_SCHEMA_VERSION,
-    inputTokens: usage.inputTokens ?? 0,
-    cachedInputTokens: usage.cachedInputTokens ?? 0,
-    outputTokens: usage.outputTokens ?? 0,
-    reasoningTokens: usage.reasoningTokens ?? 0,
-    totalTokens: usage.totalTokens ?? 0,
-    latencyMs: result?.latencyMs ?? latencyMs,
-    outcome,
-    providerRequestId: result?.providerRequestId ?? null,
-  };
+export function dataClassForAssessmentInputs(inputs) {
+  return inputs?.resumeText ? DATA_CLASSES.PERSONAL : DATA_CLASSES.GENERAL;
 }
 
 export function createAssessmentService({
@@ -79,7 +62,7 @@ export function createAssessmentService({
   log = logger,
 } = {}) {
   return Object.freeze({
-    async assess({ ownerId, requestId, inputs }) {
+    async assess({ ownerId, requestId, inputs, pipelineId = null, profile = 'core' }) {
       const enabled = await flags.isEnabled(reservedFlags.AI_LEARNER_ASSESSMENT, {
         userId: ownerId,
       });
@@ -92,14 +75,33 @@ export function createAssessmentService({
 
       const prepared = prepareAssessmentInputs(inputs);
       const prompt = await promptLoader(promptName, promptVersion);
-      const { provider, configuration } = providerResolver('core');
+      const { provider, configuration } = providerResolver(profile, {
+        operation,
+        dataClass: dataClassForAssessmentInputs(prepared.inputs),
+      });
       const runId = randomUUID();
+      const recordUsage = (fields) =>
+        Promise.all(
+          buildUsageRecords({
+            runId,
+            ownerId,
+            pipelineId,
+            operation,
+            prompt,
+            outputSchemaVersion: AI_SCHEMA_VERSION,
+            configuration,
+            latencyMs: Date.now() - startedAt,
+            failureOutcome,
+            ...fields,
+          }).map((record) => repositories.usage.record(record)),
+        );
 
       await repositories.prompts.ensure(prompt);
       await repositories.runs.create({
         runId,
         ownerId,
         requestId,
+        pipelineId,
         operation,
         inputHash: prepared.inputHash,
         inputType: determineInputType(prepared.inputs),
@@ -123,6 +125,11 @@ export function createAssessmentService({
           schemaDescription: 'Evidence-grounded analysis of a learner without roadmap content.',
           maxOutputTokens: aiConfig.assessmentMaxOutputTokens,
           metadata: { run_id: runId, operation },
+          validate: (data) =>
+            validateAssessmentEvidence(
+              validateAiOutput('learnerAssessment', data),
+              prepared.inputs,
+            ),
         });
 
         const validated = validateAiOutput('learnerAssessment', result.data);
@@ -132,17 +139,7 @@ export function createAssessmentService({
         const safeError = safeAssessmentError(error, runId, log);
 
         try {
-          await repositories.usage.record(
-            usageRecord({
-              runId,
-              ownerId,
-              prompt,
-              configuration,
-              result,
-              latencyMs: Date.now() - startedAt,
-              outcome: failureOutcome(safeError),
-            }),
-          );
+          await recordUsage({ result, error, outcome: failureOutcome(safeError) });
         } catch (usageError) {
           log.error({ err: usageError, runId }, 'Learner assessment usage record failed');
         }
@@ -156,17 +153,7 @@ export function createAssessmentService({
       }
 
       try {
-        await repositories.usage.record(
-          usageRecord({
-            runId,
-            ownerId,
-            prompt,
-            configuration,
-            result,
-            latencyMs: Date.now() - startedAt,
-            outcome: 'success',
-          }),
-        );
+        await recordUsage({ result, outcome: 'success' });
         await repositories.runs.complete(runId);
       } catch (error) {
         log.error({ err: error, runId }, 'Learner assessment accounting failed');

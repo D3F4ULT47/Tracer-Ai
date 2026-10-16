@@ -20,7 +20,7 @@ function toDraftSevenSchema(value) {
 const assessmentResponseSchema = toDraftSevenSchema(learnerAssessmentSchema);
 const assessmentDefinitions = toDraftSevenSchema(learnerAssessmentSchema.$defs);
 
-const inputProperties = {
+export const assessmentInputProperties = {
   naturalLanguage: { type: 'string', minLength: 1, maxLength: 20_000 },
   projectDescription: { type: 'string', minLength: 1, maxLength: 20_000 },
   resumeText: { type: 'string', minLength: 1, maxLength: 200_000 },
@@ -40,7 +40,7 @@ export const ASSESSMENT_ENDPOINTS = Object.freeze({
         inputs: {
           type: 'object',
           minProperties: 1,
-          properties: inputProperties,
+          properties: assessmentInputProperties,
           additionalProperties: false,
         },
       },

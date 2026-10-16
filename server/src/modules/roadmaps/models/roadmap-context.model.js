@@ -10,6 +10,8 @@ const roadmapContextSchema = new mongoose.Schema(
     learningContext: { type: mongoose.Schema.Types.Mixed, required: true, immutable: true },
     sourceUnderstanding: { type: mongoose.Schema.Types.Mixed, default: null, immutable: true },
     sourceAttributions: { type: [mongoose.Schema.Types.Mixed], default: [], immutable: true },
+    preparationDecision: { type: mongoose.Schema.Types.Mixed, default: null, immutable: true },
+    sourceStatuses: { type: [mongoose.Schema.Types.Mixed], default: [], immutable: true },
     schemaVersion: { type: String, default: '2.0.0', immutable: true },
   },
   { timestamps: true, collection: 'roadmap_contexts' },
