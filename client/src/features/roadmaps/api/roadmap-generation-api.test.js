@@ -1,5 +1,6 @@
 import {
   ASSESSMENT_ENDPOINTS,
+  CLARIFICATION_ENDPOINTS,
   INPUT_ENDPOINTS,
   LEARNING_CONTEXT_ENDPOINTS,
   ROADMAP_PLANNING_ENDPOINTS,
@@ -199,6 +200,36 @@ describe('roadmap generation input UX handoff', () => {
     expect(assessmentCalls).toHaveLength(2);
     expect(assessmentCalls[1][1].headers['Idempotency-Key']).toBe(
       assessmentCalls[0][1].headers['Idempotency-Key'],
+    );
+  });
+
+  it('retries a dropped clarification generation with the same idempotency key', async () => {
+    const fallback = contractRequest.getMockImplementation();
+    let dropped = false;
+    contractRequest.mockImplementation(async (endpoint, request) => {
+      if (endpoint === CLARIFICATION_ENDPOINTS.respond) {
+        return { data: { context: { contextVersion: 2 } } };
+      }
+      if (endpoint === ROADMAP_PLANNING_ENDPOINTS.preview && !dropped) {
+        dropped = true;
+        throw new TypeError('Failed to fetch');
+      }
+      return fallback(endpoint, request);
+    });
+
+    await roadmapGenerationApi.answerClarification({
+      context: { contextVersion: 1 },
+      sourceUnderstanding: null,
+      decision: {},
+      answer: {},
+    });
+
+    const previewCalls = contractRequest.mock.calls.filter(
+      ([endpoint]) => endpoint === ROADMAP_PLANNING_ENDPOINTS.preview,
+    );
+    expect(previewCalls).toHaveLength(2);
+    expect(previewCalls[1][1].headers['Idempotency-Key']).toBe(
+      previewCalls[0][1].headers['Idempotency-Key'],
     );
   });
 
