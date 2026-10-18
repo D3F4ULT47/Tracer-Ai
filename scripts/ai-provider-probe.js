@@ -26,6 +26,7 @@ const candidates = [
   { provider: 'aicredits', model: 'openai/gpt-5-mini', api: 'chat' },
   { provider: 'aicredits', model: 'openai/gpt-oss-120b', api: 'chat' },
   { provider: 'openrouter', model: 'nvidia/nemotron-3-super-120b-a12b:free', api: 'chat' },
+  { provider: 'openrouter', model: 'dots-studio/dots-3-note-preview:free', api: 'chat' },
 ];
 
 const schema = {

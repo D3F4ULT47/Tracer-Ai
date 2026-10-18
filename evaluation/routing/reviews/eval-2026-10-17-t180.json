@@ -1,0 +1,36 @@
+{
+  "evaluationId": "eval-2026-10-17-t180",
+  "instructions": "Owner review R1 (Plan 0002 section 6). Set each rating to \"acceptable\", \"acceptable_with_notes\" or \"unacceptable\" after reading the outputs in the runs file. This file is never filled in by a script.",
+  "reviewer": null,
+  "reviewedAt": null,
+  "items": [
+    {
+      "fixture": "F4",
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "criteria": ["C1", "C2", "C3", "C4", "C5", "C7"],
+      "rating": null,
+      "notes": ""
+    },
+    {
+      "fixture": "F5",
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "criteria": ["C1", "C2", "C3", "C4", "C5", "C7"],
+      "rating": null,
+      "notes": ""
+    },
+    {
+      "fixture": "F7",
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "criteria": ["C1", "C2", "C3", "C4", "C5", "C6", "C7"],
+      "rating": null,
+      "notes": ""
+    },
+    {
+      "fixture": "F9",
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "criteria": ["C1", "C6", "C7"],
+      "rating": null,
+      "notes": ""
+    }
+  ]
+}

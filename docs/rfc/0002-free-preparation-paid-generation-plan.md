@@ -253,6 +253,26 @@ Revision 2 counted 9 fixtures per model. The three case 1 fixtures make no prepa
 - Free-model failures from rate limits or availability below 20%.
 - R1: no fixture unacceptable. R2: no fixture judged worse than legacy.
 
+### 8.5 Owner decision of Oct 17 and first evaluation results
+
+**Decision (owner, Oct 17).** With ₹49 of AICredits credit, the legacy flow is not run at all. Its cost is predicted from the recorded call counts and prices (about ₹55 per roadmap), not measured, and the legacy-versus-routed output comparison (T-10, R2) is dropped for now. Approval is to come from track 1 plus review R1. The cheap paid fallback (gpt-oss-120b) is evaluated on the general and resume fixtures with `--allow-paid`.
+
+**Tooling (T-07).** `evaluation/routing/fixtures.json` (nine synthetic fixtures with labelled requirements), `scripts/ai-routing-evaluation.js` (one chain entry per run, privacy filter as in the application, GitHub served from the fixture file, blank R1 template) and `scripts/ai-routing-approve.js` (writes `approved` only when thresholds, complete runs and a reviewed R1 all pass). Runs are in `evaluation/routing/runs/`.
+
+**Results** (evaluation `eval-2026-10-17-r1`, production limits: 30 s per free attempt, 60 s free budget, 90 s paid budget, no retries):
+
+| Model                      | Fixtures           | Outcome                                                                                                                                                     |
+| -------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Nemotron 3 Super (free)    | F4, F5, F9         | 8 of 8 attempts timed out at 30 s; then the circuit breaker stopped further attempts                                                                        |
+| Dots 3 Note preview (free) | F4, F5             | 5 of 5 attempts timed out at 30 s                                                                                                                           |
+| gpt-oss-120b (AICredits)   | F4–F9, 3 runs each | 4 of 18 succeeded: 7 evidence failures, 6 timeouts at 90 s, 1 truncated JSON. Every success found all labelled critical requirements and the expected level |
+
+With a 180 s limit (evaluations `eval-2026-10-17-t180*`, one run each), Nemotron took 52 s and 105 s on F4 and F5 and both failed evidence validation, timed out on F7, and passed F9 once in 27 s; Dots used its whole 10,000-token output limit on F4 and returned truncated JSON. A second Nemotron F9 attempt recorded 620 s against a 180 s timer; it did not reproduce in the foreground and is attributed, unconfirmed, to the machine sleeping during the run.
+
+**Defect found and fixed.** AICredits' Chat Completions endpoint rejected every request from the chat adapter with HTTP 400 because the schemas use `type` arrays (`["string", "null"]`). The chat adapter now sends the equivalent `anyOf` form (`toChatProviderSchema`), covered by a unit test. Before the fix no AICredits chat model could have run preparation, so the paid fallback configured in the chain never worked.
+
+**Verdict.** No model meets the section 8.4 thresholds; `model-eligibility.json` is unchanged and the release gate in section 13.1 stays unmet. The free models fail on latency first, and on evidence grounding when given more time. Measured spend on Oct 17–18 (including the three-run diagnosis `diag-oss-2026-10-18` and two probes): about ₹1.4 from recorded tokens, plus at most about ₹0.7 if AICredits bills the five timed-out requests.
+
 ## 9. Behaviour and cost per path
 
 **Prices** (AICredits catalog, Oct 11 2026, INR per 1M tokens; to be re-read at probe time):

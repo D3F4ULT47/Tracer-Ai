@@ -26,6 +26,7 @@ import {
 } from '../source-understanding/source-understanding.service.js';
 import { sourceUnderstandingRepository } from '../source-understanding/source-understanding.repository.js';
 import { combinedPreparationSchema } from './combined-preparation.schema.js';
+import { sourceReuseHints } from '../reuse/reuse-scope.js';
 import { decidePreparation, isPlanningSource } from './preparation-router.js';
 import { SOURCE_EXCERPT_CHARACTERS } from './source-context.js';
 
@@ -141,6 +142,7 @@ export function createPreparationService({
   promptLoader = loadPrompt,
   repositories = sourceUnderstandingRepository,
   confidenceThreshold = aiConfig.assessmentConfidenceThreshold,
+  failurePolicy = aiConfig.preparation.failurePolicy,
   log = logger,
 } = {}) {
   async function combinedPreparation({
@@ -204,18 +206,18 @@ export function createPreparationService({
       mode: 'analysis',
     });
 
+    const learnerInput = {
+      normalizedInputs: prepared.inputs,
+      deterministicSignals: prepared.deterministicSignals,
+    };
+    const hints = sourceReuseHints(normalized.sources);
     let result;
     try {
       result = await provider.generateStructured({
         model: configuration.model,
         instructions: prompt.content,
-        input: JSON.stringify({
-          sources: normalized.sources,
-          learner: {
-            normalizedInputs: prepared.inputs,
-            deterministicSignals: prepared.deterministicSignals,
-          },
-        }),
+        input: JSON.stringify({ sources: normalized.sources, learner: learnerInput }),
+        reuse: { input: { sources: hints.stableSources, learner: learnerInput }, ids: hints.ids },
         schema: combinedPreparationSchema(),
         schemaName: 'combined_preparation',
         schemaDescription:
@@ -333,6 +335,7 @@ export function createPreparationService({
     let understanding = sourceState === ALREADY_AVAILABLE ? input.prior.understanding : null;
     let assessmentResult = null;
     let normalized = null;
+    let modelError = null;
     const executedOperations = [];
 
     if (sourceState === REQUIRED) {
@@ -374,6 +377,7 @@ export function createPreparationService({
         understanding = combined.understanding;
         assessmentResult = combined.assessment;
       } catch (error) {
+        modelError = error;
         sourceState = FAILED;
         learnerState = FAILED;
         errors.sourceUnderstanding = safeCode(error, 'PREPARATION_FAILED');
@@ -393,6 +397,7 @@ export function createPreparationService({
         });
         understanding = result.understanding;
       } catch (error) {
+        modelError = error;
         sourceState = FAILED;
         errors.sourceUnderstanding = safeCode(error, 'SOURCE_UNDERSTANDING_FAILED');
       }
@@ -409,9 +414,24 @@ export function createPreparationService({
         });
         assessmentResult = result.assessment;
       } catch (error) {
+        modelError = error;
         learnerState = FAILED;
         errors.learnerAssessment = safeCode(error, 'LEARNER_ASSESSMENT_FAILED');
       }
+    }
+
+    if (modelError && failurePolicy === 'fail') {
+      if (modelError instanceof AppError && [499, 503].includes(modelError.status)) {
+        throw modelError;
+      }
+      throw new AppError('Roadmap preparation failed on every available model', {
+        status: 502,
+        code: 'AI_PREPARATION_FAILED',
+        details: {
+          operation: executedOperations[0],
+          errorCode: errors.sourceUnderstanding ?? errors.learnerAssessment,
+        },
+      });
     }
 
     const context = await buildContext({

@@ -1,0 +1,3538 @@
+{
+  "evaluationId": "eval-2026-10-17-r1",
+  "fixturesVersion": 1,
+  "startedAt": "2026-10-17T18:37:14.287Z",
+  "settings": {
+    "openrouter:nvidia/nemotron-3-super-120b-a12b:free": {
+      "adapter": "chat",
+      "endpointClass": "free",
+      "retries": 0,
+      "freeAttemptTimeoutMs": 30000,
+      "freeBudgetMs": 60000,
+      "reasoningEffort": "low"
+    },
+    "openrouter:dots-studio/dots-3-note-preview:free": {
+      "adapter": "chat",
+      "endpointClass": "free",
+      "retries": 0,
+      "freeAttemptTimeoutMs": 30000,
+      "freeBudgetMs": 60000,
+      "reasoningEffort": "low"
+    },
+    "aicredits-chat:openai/gpt-oss-120b": {
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "retries": 0,
+      "freeAttemptTimeoutMs": 30000,
+      "freeBudgetMs": 60000,
+      "reasoningEffort": "low"
+    }
+  },
+  "runs": [
+    {
+      "fixture": "F1",
+      "run": 1,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "24d7a6fc-c4a0-415e-ad82-fa60ac40d145",
+      "elapsedMs": 28,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "router": {
+        "case": 1,
+        "caseMatches": true,
+        "sourceUnderstanding": "NOT_REQUIRED",
+        "learnerAssessment": "NOT_REQUIRED",
+        "executedOperations": []
+      },
+      "requirements": null,
+      "level": {
+        "assessed": null,
+        "resolved": "beginner",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [],
+      "output": {
+        "sourceUnderstanding": null,
+        "assessment": null
+      }
+    },
+    {
+      "fixture": "F2",
+      "run": 1,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "a3afc552-c75a-4ab8-a29f-d84e9adda0ee",
+      "elapsedMs": 1,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "router": {
+        "case": 1,
+        "caseMatches": true,
+        "sourceUnderstanding": "NOT_REQUIRED",
+        "learnerAssessment": "NOT_REQUIRED",
+        "executedOperations": []
+      },
+      "requirements": null,
+      "level": {
+        "assessed": null,
+        "resolved": "intermediate",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [],
+      "output": {
+        "sourceUnderstanding": null,
+        "assessment": null
+      }
+    },
+    {
+      "fixture": "F3",
+      "run": 1,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "cd1821ab-0f0e-458b-b7c8-a5200c211b95",
+      "elapsedMs": 1,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "router": {
+        "case": 1,
+        "caseMatches": true,
+        "sourceUnderstanding": "NOT_REQUIRED",
+        "learnerAssessment": "INSUFFICIENT_EVIDENCE",
+        "executedOperations": []
+      },
+      "requirements": null,
+      "level": {
+        "assessed": null,
+        "resolved": null,
+        "status": "unresolved",
+        "matches": true
+      },
+      "attempts": [],
+      "output": {
+        "sourceUnderstanding": null,
+        "assessment": null
+      }
+    },
+    {
+      "fixture": "F4",
+      "run": 1,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "a4a85095-eca2-44f7-a309-30a9a7da965a",
+      "elapsedMs": 30088,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 30051,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F4",
+      "run": 2,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "06e737a8-807c-491b-9785-c9f250231ba5",
+      "elapsedMs": 30060,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 30026,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F4",
+      "run": 3,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "22797d0f-c6b5-4bb8-8402-6780b2a53c89",
+      "elapsedMs": 30054,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 30026,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F5",
+      "run": 1,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "b2a43ae1-ccff-4edf-9283-b14efc3109b8",
+      "elapsedMs": 30053,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 30024,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F5",
+      "run": 2,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "1c37812a-1a64-4267-85cc-27dc66841a7d",
+      "elapsedMs": 30059,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 30029,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F6",
+      "run": 1,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "outcome": "skipped",
+      "reason": "personal data never goes to free endpoints (D-1)"
+    },
+    {
+      "fixture": "F6",
+      "run": 2,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "outcome": "skipped",
+      "reason": "personal data never goes to free endpoints (D-1)"
+    },
+    {
+      "fixture": "F6",
+      "run": 3,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "outcome": "skipped",
+      "reason": "personal data never goes to free endpoints (D-1)"
+    },
+    {
+      "fixture": "F8",
+      "run": 1,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "outcome": "skipped",
+      "reason": "personal data never goes to free endpoints (D-1)"
+    },
+    {
+      "fixture": "F8",
+      "run": 2,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "outcome": "skipped",
+      "reason": "personal data never goes to free endpoints (D-1)"
+    },
+    {
+      "fixture": "F8",
+      "run": 3,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "outcome": "skipped",
+      "reason": "personal data never goes to free endpoints (D-1)"
+    },
+    {
+      "fixture": "F1",
+      "run": 1,
+      "model": "openrouter:dots-studio/dots-3-note-preview:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "9d42396d-0943-4e8f-8bbb-5577ae3b00cb",
+      "elapsedMs": 748,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "router": {
+        "case": 1,
+        "caseMatches": true,
+        "sourceUnderstanding": "NOT_REQUIRED",
+        "learnerAssessment": "NOT_REQUIRED",
+        "executedOperations": []
+      },
+      "requirements": null,
+      "level": {
+        "assessed": null,
+        "resolved": "beginner",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [],
+      "output": {
+        "sourceUnderstanding": null,
+        "assessment": null
+      }
+    },
+    {
+      "fixture": "F2",
+      "run": 1,
+      "model": "openrouter:dots-studio/dots-3-note-preview:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "68502b8d-e8da-45dc-98d2-d9477e1f9554",
+      "elapsedMs": 5,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "router": {
+        "case": 1,
+        "caseMatches": true,
+        "sourceUnderstanding": "NOT_REQUIRED",
+        "learnerAssessment": "NOT_REQUIRED",
+        "executedOperations": []
+      },
+      "requirements": null,
+      "level": {
+        "assessed": null,
+        "resolved": "intermediate",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [],
+      "output": {
+        "sourceUnderstanding": null,
+        "assessment": null
+      }
+    },
+    {
+      "fixture": "F3",
+      "run": 1,
+      "model": "openrouter:dots-studio/dots-3-note-preview:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "2635222f-958f-49e0-8520-2d3a9bc0a171",
+      "elapsedMs": 2,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "router": {
+        "case": 1,
+        "caseMatches": true,
+        "sourceUnderstanding": "NOT_REQUIRED",
+        "learnerAssessment": "INSUFFICIENT_EVIDENCE",
+        "executedOperations": []
+      },
+      "requirements": null,
+      "level": {
+        "assessed": null,
+        "resolved": null,
+        "status": "unresolved",
+        "matches": true
+      },
+      "attempts": [],
+      "output": {
+        "sourceUnderstanding": null,
+        "assessment": null
+      }
+    },
+    {
+      "fixture": "F4",
+      "run": 1,
+      "model": "openrouter:dots-studio/dots-3-note-preview:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "4548c621-1df3-4a0c-acb1-76244bc17623",
+      "elapsedMs": 30322,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 30205,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F4",
+      "run": 2,
+      "model": "openrouter:dots-studio/dots-3-note-preview:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "6cc3d30c-a91a-434e-9288-70cc68478352",
+      "elapsedMs": 30113,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 30042,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F4",
+      "run": 3,
+      "model": "openrouter:dots-studio/dots-3-note-preview:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "192ca3ed-0bfb-4886-be61-47c6428c1328",
+      "elapsedMs": 30055,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 30024,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F5",
+      "run": 1,
+      "model": "openrouter:dots-studio/dots-3-note-preview:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "9f512e26-7287-4cef-bec1-4b18fbc90282",
+      "elapsedMs": 30045,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 30022,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F5",
+      "run": 2,
+      "model": "openrouter:dots-studio/dots-3-note-preview:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "f3e4a680-757b-4b3e-94d7-a7ecd903bd3c",
+      "elapsedMs": 30096,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 30042,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F9",
+      "run": 1,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "79a03425-83dc-45fb-9325-9007def2bd84",
+      "elapsedMs": 30225,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "learner_assessment",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 30058,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F9",
+      "run": 2,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "bc57bd12-d064-4434-aef4-4a70b11b56cd",
+      "elapsedMs": 30147,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "learner_assessment",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 30034,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F9",
+      "run": 3,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "ac9570f3-e202-4f7e-a46f-f32108afb1c8",
+      "elapsedMs": 30241,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "learner_assessment",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 30055,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F4",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "263bfaea-590b-47c8-96d2-a06eb4e5a984",
+      "elapsedMs": 75813,
+      "outcome": "failed",
+      "failureClass": "evidence",
+      "errorCode": "SOURCE_UNDERSTANDING_EVIDENCE_INVALID",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "invalid_output",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 1317,
+          "outputTokens": 2998,
+          "reasoningTokens": 1011,
+          "latencyMs": 75649,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F4",
+      "run": 2,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "f8194878-adda-4f15-84b9-635165240aa7",
+      "elapsedMs": 12314,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "errorMessage": null,
+      "router": {
+        "case": 2,
+        "caseMatches": true,
+        "sourceUnderstanding": "REQUIRED",
+        "learnerAssessment": "NOT_REQUIRED",
+        "executedOperations": ["source_understanding"]
+      },
+      "requirements": {
+        "critical": [
+          {
+            "label": "CRUD endpoints for items",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "JWT authentication",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "PostgreSQL with migrations",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Integration tests for every endpoint",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Starts with docker compose",
+            "found": true,
+            "criticality": "critical"
+          }
+        ],
+        "noncritical": [
+          {
+            "label": "Pagination at 20 items",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "OpenAPI documentation",
+            "found": true,
+            "criticality": "noncritical"
+          }
+        ],
+        "allMarkedNoncritical": false
+      },
+      "level": {
+        "assessed": null,
+        "resolved": "intermediate",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "success",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 2901,
+          "outputTokens": 4902,
+          "reasoningTokens": 860,
+          "latencyMs": 12196,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": {
+        "sourceUnderstanding": {
+          "schemaVersion": "1.1.0",
+          "understandingId": "dace74ae-0f2e-42a8-95da-b3fedf377cb9",
+          "generatedAt": "2026-10-18T07:45:25.724Z",
+          "mode": "mixed",
+          "summary": "The sources define a training project to build a warehouse inventory REST API service in JavaScript with a PostgreSQL backend. Core functional requirements include full CRUD endpoints under /api/items, JWT‑based authentication, pagination (20 items per page), schema migrations, integration tests, and Docker‑Compose based deployment. Optional enrichment is OpenAPI documentation. The repository supplies code skeleton, Docker compose file, migration script, and test stub. Deliverables, constraints, and acceptance criteria are explicitly listed, providing a clear set of requirements for implementation.",
+          "sourceAttributions": [
+            {
+              "sourceId": "3a23f89a-a9c8-4403-8bd8-b2f26ce29477",
+              "sourceType": "natural_prompt",
+              "identifier": "natural_prompt:12d2cf58a0d6e98b",
+              "title": "Natural prompt",
+              "url": null,
+              "creator": null,
+              "capturedAt": "2026-10-18T07:45:25.724Z",
+              "relevantLocations": []
+            },
+            {
+              "sourceId": "36e27f07-3954-476b-814b-cb4bf061274e",
+              "sourceType": "github_repository",
+              "identifier": "tracer-fixtures/inventory-service@main",
+              "title": "tracer-fixtures/inventory-service",
+              "url": "https://github.com/tracer-fixtures/inventory-service",
+              "creator": "tracer-fixtures",
+              "capturedAt": "2026-10-18T07:45:25.724Z",
+              "relevantLocations": [
+                {
+                  "kind": "branch",
+                  "value": "main"
+                },
+                {
+                  "kind": "path",
+                  "value": "package.json"
+                },
+                {
+                  "kind": "path",
+                  "value": "src/app.js"
+                },
+                {
+                  "kind": "path",
+                  "value": "src/routes/items.js"
+                },
+                {
+                  "kind": "path",
+                  "value": "src/middleware/auth.js"
+                },
+                {
+                  "kind": "path",
+                  "value": "migrations/001_init.sql"
+                },
+                {
+                  "kind": "path",
+                  "value": "test/items.test.js"
+                },
+                {
+                  "kind": "path",
+                  "value": "docker-compose.yml"
+                },
+                {
+                  "kind": "path",
+                  "value": "README.md"
+                }
+              ]
+            }
+          ],
+          "concepts": [
+            {
+              "name": "REST API",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "The repository states the goal is to build a REST API for warehouse inventory."
+            },
+            {
+              "name": "CRUD operations",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Requirements list create, read, update, delete endpoints."
+            },
+            {
+              "name": "JWT authentication",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Requirement to authenticate every request with JWT bearer tokens."
+            },
+            {
+              "name": "PostgreSQL persistence",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Data must be stored in PostgreSQL with migrations."
+            },
+            {
+              "name": "Database migrations",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Schema management via migrations is required."
+            },
+            {
+              "name": "Pagination",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "List endpoints must be paginated at 20 items per page."
+            },
+            {
+              "name": "Integration testing",
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "reasoning": "Acceptance criteria demand integration tests covering every endpoint."
+            },
+            {
+              "name": "Docker Compose deployment",
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "reasoning": "Service must start with `docker compose up`."
+            },
+            {
+              "name": "OpenAPI documentation",
+              "confidence": 0.9,
+              "evidenceIds": ["E4"],
+              "reasoning": "Listed as a nice‑to‑have feature."
+            }
+          ],
+          "technologies": [
+            {
+              "name": "JavaScript",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Language declared in repository metadata."
+            },
+            {
+              "name": "PLpgSQL",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Language for PostgreSQL migration scripts."
+            },
+            {
+              "name": "Node.js",
+              "confidence": 0.95,
+              "evidenceIds": ["E2"],
+              "reasoning": "Implied runtime for JavaScript server code."
+            },
+            {
+              "name": "PostgreSQL",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Explicit requirement to store data in PostgreSQL."
+            },
+            {
+              "name": "Docker",
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "reasoning": "Docker Compose file is part of the repo and required for startup."
+            },
+            {
+              "name": "Docker Compose",
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "reasoning": "Service must start with `docker compose up`."
+            },
+            {
+              "name": "JWT (JSON Web Token)",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Authentication method specified."
+            },
+            {
+              "name": "OpenAPI (Swagger)",
+              "confidence": 0.9,
+              "evidenceIds": ["E4"],
+              "reasoning": "Suggested for documentation under 'Nice to have'."
+            }
+          ],
+          "skills": [
+            {
+              "name": "Design and implement CRUD REST endpoints",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Core functional requirement."
+            },
+            {
+              "name": "Implement JWT‑based authentication middleware",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Requirement to authenticate every request."
+            },
+            {
+              "name": "Write PostgreSQL migration scripts (PLpgSQL)",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Schema must be managed with migrations."
+            },
+            {
+              "name": "Implement pagination logic (20 items per page)",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Explicit pagination requirement."
+            },
+            {
+              "name": "Create integration tests for REST APIs",
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "reasoning": "Integration tests must cover every endpoint."
+            },
+            {
+              "name": "Configure and run services with Docker Compose",
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "reasoning": "Service must start via `docker compose up`."
+            },
+            {
+              "name": "Produce OpenAPI specification documents",
+              "confidence": 0.9,
+              "evidenceIds": ["E4"],
+              "reasoning": "Nice‑to‑have item."
+            }
+          ],
+          "prerequisites": [
+            {
+              "name": "Familiarity with JavaScript (Node.js) server development",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Repository language is JavaScript."
+            },
+            {
+              "name": "Understanding of PostgreSQL and SQL migration patterns",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Data storage and migrations are required."
+            },
+            {
+              "name": "Basic knowledge of JWT authentication flow",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "All requests must be authenticated via JWT."
+            },
+            {
+              "name": "Experience with Docker and Docker Compose",
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "reasoning": "Service must be startable via Docker Compose."
+            },
+            {
+              "name": "Familiarity with a JavaScript testing framework (e.g., Jest, Mocha)",
+              "confidence": 0.95,
+              "evidenceIds": ["E3"],
+              "reasoning": "Integration tests are expected for each endpoint."
+            },
+            {
+              "name": "Optional: Knowledge of OpenAPI/Swagger specification format",
+              "confidence": 0.9,
+              "evidenceIds": ["E4"],
+              "reasoning": "OpenAPI documentation is listed as optional."
+            }
+          ],
+          "dependencies": [
+            {
+              "from": "JavaScript source code",
+              "to": "Node.js runtime",
+              "type": "prerequisite",
+              "confidence": 0.98,
+              "evidenceIds": ["E2"]
+            },
+            {
+              "from": "Database migrations",
+              "to": "PostgreSQL instance",
+              "type": "prerequisite",
+              "confidence": 1,
+              "evidenceIds": ["E2"]
+            },
+            {
+              "from": "Docker Compose file",
+              "to": "Docker Engine",
+              "type": "prerequisite",
+              "confidence": 1,
+              "evidenceIds": ["E3"]
+            },
+            {
+              "from": "Integration tests",
+              "to": "Testing framework (e.g., Jest)",
+              "type": "prerequisite",
+              "confidence": 0.95,
+              "evidenceIds": ["E3"]
+            },
+            {
+              "from": "OpenAPI docs (optional)",
+              "to": "Swagger UI or compatible viewer",
+              "type": "recommended",
+              "confidence": 0.9,
+              "evidenceIds": ["E4"]
+            }
+          ],
+          "milestones": [
+            {
+              "name": "Implement CRUD endpoints under /api/items",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Core requirement before any other feature."
+            },
+            {
+              "name": "Add JWT authentication middleware",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Authentication is required for every request."
+            },
+            {
+              "name": "Create PostgreSQL schema and migrations",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Data persistence must be handled via migrations."
+            },
+            {
+              "name": "Implement pagination (20 items per page)",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Explicit pagination requirement."
+            },
+            {
+              "name": "Write integration tests covering all endpoints",
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "reasoning": "Acceptance criteria demand test coverage."
+            },
+            {
+              "name": "Verify service starts with `docker compose up`",
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "reasoning": "Critical acceptance criterion."
+            },
+            {
+              "name": "Add OpenAPI documentation (optional)",
+              "confidence": 0.9,
+              "evidenceIds": ["E4"],
+              "reasoning": "Listed as a nice‑to‑have item."
+            }
+          ],
+          "creatorRecommendations": [
+            {
+              "name": "Implement OpenAPI documentation for the endpoints",
+              "confidence": 0.9,
+              "evidenceIds": ["E4"],
+              "reasoning": "Explicitly mentioned under 'Nice to have'."
+            }
+          ],
+          "preservedStructure": [
+            {
+              "sourceId": "36e27f07-3954-476b-814b-cb4bf061274e",
+              "order": 1,
+              "title": "Inventory Service",
+              "description": "A training project: build a REST API for warehouse inventory."
+            },
+            {
+              "sourceId": "36e27f07-3954-476b-814b-cb4bf061274e",
+              "order": 2,
+              "title": "Requirements",
+              "description": "- Expose create, read, update and delete endpoints for items under /api/items.  - Authenticate every request with JWT bearer tokens.  - Store data in PostgreSQL and manage the schema with migrations.  - Paginate list endpoints at 20 items per page."
+            },
+            {
+              "sourceId": "36e27f07-3954-476b-814b-cb4bf061274e",
+              "order": 3,
+              "title": "Acceptance criteria",
+              "description": "- Integration tests cover every endpoint.  - The whole service starts with `docker compose up`."
+            },
+            {
+              "sourceId": "36e27f07-3954-476b-814b-cb4bf061274e",
+              "order": 4,
+              "title": "Nice to have",
+              "description": "- OpenAPI documentation for the endpoints."
+            }
+          ],
+          "evidence": [
+            {
+              "evidenceId": "E1",
+              "sourceId": "3a23f89a-a9c8-4403-8bd8-b2f26ce29477",
+              "locator": "content",
+              "excerpt": "Build the inventory service from this repository"
+            },
+            {
+              "evidenceId": "E2",
+              "sourceId": "36e27f07-3954-476b-814b-cb4bf061274e",
+              "locator": "section:Requirements",
+              "excerpt": "- Expose create, read, update and delete endpoints for items under /api/items.  - Authenticate every request with JWT bearer tokens.  - Store data in PostgreSQL and manage the schema with migrations.  - Paginate list endpoints at 20 items per page."
+            },
+            {
+              "evidenceId": "E3",
+              "sourceId": "36e27f07-3954-476b-814b-cb4bf061274e",
+              "locator": "section:Acceptance criteria",
+              "excerpt": "- Integration tests cover every endpoint.  - The whole service starts with `docker compose up`."
+            },
+            {
+              "evidenceId": "E4",
+              "sourceId": "36e27f07-3954-476b-814b-cb4bf061274e",
+              "locator": "section:Nice to have",
+              "excerpt": "- OpenAPI documentation for the endpoints."
+            },
+            {
+              "evidenceId": "E5",
+              "sourceId": "36e27f07-3954-476b-814b-cb4bf061274e",
+              "locator": "metadata:languages",
+              "excerpt": "Languages: JavaScript, PLpgSQL"
+            }
+          ],
+          "assumptions": [
+            "The repository uses an Express‑style framework for routing (common for JavaScript REST services).",
+            "The test suite is based on Jest or a compatible JavaScript testing framework, as typical for Node.js projects.",
+            "A suitable JWT secret or public key will be provided via environment variables or Docker secrets.",
+            "Docker images for Node.js and PostgreSQL are referenced in the provided docker-compose.yml."
+          ],
+          "requirements": [
+            {
+              "id": "R1",
+              "statement": "Expose create, read, update and delete endpoints for items under /api/items.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E2"]
+            },
+            {
+              "id": "R2",
+              "statement": "Authenticate every request with JWT bearer tokens.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E2"]
+            },
+            {
+              "id": "R3",
+              "statement": "Store data in PostgreSQL and manage the schema with migrations.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E2"]
+            },
+            {
+              "id": "R4",
+              "statement": "Paginate list endpoints at 20 items per page.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E2"]
+            },
+            {
+              "id": "R5",
+              "statement": "Integration tests must cover every endpoint.",
+              "kind": "evaluation_criterion",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E3"]
+            },
+            {
+              "id": "R6",
+              "statement": "The whole service must start with `docker compose up`.",
+              "kind": "constraint",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E3"]
+            },
+            {
+              "id": "R7",
+              "statement": "Provide OpenAPI documentation for the endpoints.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "noncritical",
+              "evidenceIds": ["E4"]
+            },
+            {
+              "id": "R8",
+              "statement": "All source code, migration scripts, Docker compose file, and tests must be present in the repository.",
+              "kind": "deliverable",
+              "origin": "inference",
+              "criticality": "noncritical",
+              "evidenceIds": ["E2", "E3", "E5"]
+            }
+          ],
+          "sourceProcessing": [
+            {
+              "sourceType": "natural_prompt",
+              "identifier": null,
+              "status": "processed",
+              "errorCode": null
+            },
+            {
+              "sourceType": "github_repository",
+              "identifier": "https://github.com/tracer-fixtures/inventory-service",
+              "status": "processed",
+              "errorCode": null
+            }
+          ]
+        },
+        "assessment": null
+      }
+    },
+    {
+      "fixture": "F4",
+      "run": 3,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "bf84a116-5893-413f-ae53-420ffb0e180f",
+      "elapsedMs": 90413,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 90087,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F5",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "72ede2f1-e892-4573-a554-bcd9ecadff88",
+      "elapsedMs": 71713,
+      "outcome": "failed",
+      "failureClass": "schema",
+      "errorCode": "AI_INVALID_JSON",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 1816,
+          "outputTokens": 10000,
+          "reasoningTokens": 0,
+          "latencyMs": 71629,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F5",
+      "run": 2,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "a7ee589f-2a39-442d-a21f-7d15f59c1578",
+      "elapsedMs": 90476,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 90130,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F5",
+      "run": 3,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "95b8eb4b-0b34-43b2-95a5-f88c49a20db0",
+      "elapsedMs": 90282,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 90097,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F6",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "103763f5-cfa5-4616-b401-0f0541127fe3",
+      "elapsedMs": 15820,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "errorMessage": null,
+      "router": {
+        "case": 3,
+        "caseMatches": true,
+        "sourceUnderstanding": "REQUIRED",
+        "learnerAssessment": "REQUIRED",
+        "executedOperations": ["combined_preparation"]
+      },
+      "requirements": {
+        "critical": [
+          {
+            "label": "WCAG 2.2 AA accessibility",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Lighthouse performance at least 90",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Playwright end-to-end tests",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Automatic deployment to Vercel",
+            "found": true,
+            "criticality": "critical"
+          }
+        ],
+        "noncritical": [
+          {
+            "label": "Dark theme",
+            "found": true,
+            "criticality": "noncritical"
+          }
+        ],
+        "allMarkedNoncritical": false
+      },
+      "level": {
+        "assessed": "intermediate",
+        "resolved": "intermediate",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [
+        {
+          "operation": "combined_preparation",
+          "outcome": "success",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 4327,
+          "outputTokens": 7550,
+          "reasoningTokens": 1584,
+          "latencyMs": 15525,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": {
+        "sourceUnderstanding": {
+          "schemaVersion": "1.1.0",
+          "understandingId": "60fa636f-6482-4df6-ba6b-985cfc9c3dac",
+          "generatedAt": "2026-10-18T07:51:21.083Z",
+          "mode": "mixed",
+          "summary": "The portfolio repository is a Next.js project written in TypeScript and CSS intended as a showcase for senior frontend interviews. The repository defines four critical goals: WCAG 2.2 AA accessibility on every page, Lighthouse mobile performance score of at least 90, Playwright end‑to‑end tests covering main user journeys, and automated Vercel deployment from the main branch. A later optional goal adds a dark theme. The repository includes a package.json manifest and core source files for pages, components, and tests.",
+          "sourceAttributions": [
+            {
+              "sourceId": "96b7ddc7-45cd-4555-b447-0ded440d6024",
+              "sourceType": "natural_prompt",
+              "identifier": "natural_prompt:7570c95e0f1e7aa3",
+              "title": "Natural prompt",
+              "url": null,
+              "creator": null,
+              "capturedAt": "2026-10-18T07:51:21.083Z",
+              "relevantLocations": []
+            },
+            {
+              "sourceId": "5aa98a50-a409-4e48-a5c6-e6d992f84ce3",
+              "sourceType": "github_repository",
+              "identifier": "tracer-fixtures/portfolio-site@main",
+              "title": "tracer-fixtures/portfolio-site",
+              "url": "https://github.com/tracer-fixtures/portfolio-site",
+              "creator": "tracer-fixtures",
+              "capturedAt": "2026-10-18T07:51:21.083Z",
+              "relevantLocations": [
+                {
+                  "kind": "branch",
+                  "value": "main"
+                },
+                {
+                  "kind": "path",
+                  "value": "package.json"
+                },
+                {
+                  "kind": "path",
+                  "value": "app/page.tsx"
+                },
+                {
+                  "kind": "path",
+                  "value": "app/projects/page.tsx"
+                },
+                {
+                  "kind": "path",
+                  "value": "components/ProjectCard.tsx"
+                },
+                {
+                  "kind": "path",
+                  "value": "e2e/home.spec.ts"
+                },
+                {
+                  "kind": "path",
+                  "value": "README.md"
+                }
+              ]
+            }
+          ],
+          "concepts": [
+            {
+              "name": "Portfolio repository",
+              "confidence": 1,
+              "evidenceIds": ["e0"],
+              "reasoning": "The repository is described as a portfolio site used for frontend interview showcases."
+            },
+            {
+              "name": "Next.js application",
+              "confidence": 1,
+              "evidenceIds": ["e0"],
+              "reasoning": "The README states the project is a Next.js portfolio."
+            },
+            {
+              "name": "Accessibility compliance",
+              "confidence": 1,
+              "evidenceIds": ["e1"],
+              "reasoning": "Goal to meet WCAG 2.2 AA on every page."
+            },
+            {
+              "name": "Performance optimization",
+              "confidence": 1,
+              "evidenceIds": ["e2"],
+              "reasoning": "Goal to achieve Lighthouse mobile score ≥ 90."
+            },
+            {
+              "name": "End‑to‑end testing",
+              "confidence": 1,
+              "evidenceIds": ["e3"],
+              "reasoning": "Goal to cover main user journeys with Playwright tests."
+            },
+            {
+              "name": "Continuous deployment",
+              "confidence": 1,
+              "evidenceIds": ["e4"],
+              "reasoning": "Goal to deploy automatically to Vercel from the main branch."
+            },
+            {
+              "name": "Dark theme (optional)",
+              "confidence": 0.8,
+              "evidenceIds": ["e5"],
+              "reasoning": "Listed under the “Later” section as a future enhancement."
+            }
+          ],
+          "technologies": [
+            {
+              "name": "Next.js",
+              "confidence": 1,
+              "evidenceIds": ["e0"],
+              "reasoning": "The repository is explicitly a Next.js portfolio."
+            },
+            {
+              "name": "TypeScript",
+              "confidence": 1,
+              "evidenceIds": ["t0"],
+              "reasoning": "Languages list includes TypeScript."
+            },
+            {
+              "name": "CSS",
+              "confidence": 1,
+              "evidenceIds": ["t0"],
+              "reasoning": "Languages list includes CSS."
+            },
+            {
+              "name": "Playwright",
+              "confidence": 1,
+              "evidenceIds": ["e3"],
+              "reasoning": "Playwright is mentioned for end‑to‑end tests."
+            },
+            {
+              "name": "Lighthouse",
+              "confidence": 1,
+              "evidenceIds": ["e2"],
+              "reasoning": "Lighthouse is referenced for performance scoring."
+            },
+            {
+              "name": "Vercel",
+              "confidence": 1,
+              "evidenceIds": ["e4"],
+              "reasoning": "Vercel is the target deployment platform."
+            }
+          ],
+          "skills": [
+            {
+              "name": "Frontend development with React/Next.js",
+              "confidence": 1,
+              "evidenceIds": ["e0"],
+              "reasoning": "Core purpose of the repository is a React‑based Next.js portfolio."
+            },
+            {
+              "name": "Accessibility compliance (WCAG 2.2 AA)",
+              "confidence": 1,
+              "evidenceIds": ["e1"],
+              "reasoning": "Explicit goal to meet WCAG 2.2 AA."
+            },
+            {
+              "name": "Performance testing and optimization",
+              "confidence": 1,
+              "evidenceIds": ["e2"],
+              "reasoning": "Goal to achieve Lighthouse score ≥ 90."
+            },
+            {
+              "name": "End‑to‑end testing with Playwright",
+              "confidence": 1,
+              "evidenceIds": ["e3"],
+              "reasoning": "Goal to cover journeys using Playwright."
+            },
+            {
+              "name": "CI/CD and automated deployment",
+              "confidence": 1,
+              "evidenceIds": ["e4"],
+              "reasoning": "Goal to deploy automatically to Vercel."
+            },
+            {
+              "name": "Theming (dark mode)",
+              "confidence": 0.8,
+              "evidenceIds": ["e5"],
+              "reasoning": "Later goal mentions adding a dark theme."
+            }
+          ],
+          "prerequisites": [
+            {
+              "name": "Knowledge of Next.js and React",
+              "confidence": 1,
+              "evidenceIds": ["e0"],
+              "reasoning": "Project is built with Next.js, which requires React knowledge."
+            },
+            {
+              "name": "Understanding of WCAG 2.2 AA criteria",
+              "confidence": 1,
+              "evidenceIds": ["e1"],
+              "reasoning": "Goal explicitly requires WCAG 2.2 AA compliance."
+            },
+            {
+              "name": "Familiarity with Lighthouse performance metrics",
+              "confidence": 1,
+              "evidenceIds": ["e2"],
+              "reasoning": "Performance goal uses Lighthouse scores."
+            },
+            {
+              "name": "Experience with Playwright for e2e testing",
+              "confidence": 1,
+              "evidenceIds": ["e3"],
+              "reasoning": "Playwright specified for testing."
+            },
+            {
+              "name": "Vercel deployment workflow knowledge",
+              "confidence": 1,
+              "evidenceIds": ["e4"],
+              "reasoning": "Automated deployment to Vercel is required."
+            }
+          ],
+          "dependencies": [
+            {
+              "from": "package.json",
+              "to": "Next.js runtime",
+              "type": "component",
+              "confidence": 1,
+              "evidenceIds": ["t0"]
+            },
+            {
+              "from": "package.json",
+              "to": "Playwright",
+              "type": "component",
+              "confidence": 1,
+              "evidenceIds": ["e3"]
+            }
+          ],
+          "milestones": [
+            {
+              "name": "Accessibility compliance achieved",
+              "confidence": 1,
+              "evidenceIds": ["e1"],
+              "reasoning": "Goal listed under “Goals”."
+            },
+            {
+              "name": "Performance score ≥ 90",
+              "confidence": 1,
+              "evidenceIds": ["e2"],
+              "reasoning": "Goal listed under “Goals”."
+            },
+            {
+              "name": "Playwright end‑to‑end tests complete",
+              "confidence": 1,
+              "evidenceIds": ["e3"],
+              "reasoning": "Goal listed under “Goals”."
+            },
+            {
+              "name": "Automatic Vercel deployment set up",
+              "confidence": 1,
+              "evidenceIds": ["e4"],
+              "reasoning": "Goal listed under “Goals”."
+            },
+            {
+              "name": "Dark theme added (optional)",
+              "confidence": 0.8,
+              "evidenceIds": ["e5"],
+              "reasoning": "Listed under “Later”."
+            }
+          ],
+          "creatorRecommendations": [],
+          "preservedStructure": [
+            {
+              "sourceId": "5aa98a50-a409-4e48-a5c6-e6d992f84ce3",
+              "order": 1,
+              "title": "Portfolio Site",
+              "description": "# Portfolio Site"
+            },
+            {
+              "sourceId": "5aa98a50-a409-4e48-a5c6-e6d992f84ce3",
+              "order": 2,
+              "title": "Goals",
+              "description": "## Goals"
+            },
+            {
+              "sourceId": "5aa98a50-a409-4e48-a5c6-e6d992f84ce3",
+              "order": 3,
+              "title": "Later",
+              "description": "## Later"
+            }
+          ],
+          "evidence": [
+            {
+              "evidenceId": "e0",
+              "sourceId": "5aa98a50-a409-4e48-a5c6-e6d992f84ce3",
+              "locator": "README.md:1-2",
+              "excerpt": "A Next.js portfolio used to present projects in frontend interviews."
+            },
+            {
+              "evidenceId": "e1",
+              "sourceId": "5aa98a50-a409-4e48-a5c6-e6d992f84ce3",
+              "locator": "README.md:7",
+              "excerpt": "Meet WCAG 2.2 AA accessibility on every page."
+            },
+            {
+              "evidenceId": "e2",
+              "sourceId": "5aa98a50-a409-4e48-a5c6-e6d992f84ce3",
+              "locator": "README.md:8",
+              "excerpt": "Score at least 90 for performance in Lighthouse on mobile."
+            },
+            {
+              "evidenceId": "e3",
+              "sourceId": "5aa98a50-a409-4e48-a5c6-e6d992f84ce3",
+              "locator": "README.md:9",
+              "excerpt": "Cover the main user journeys with Playwright end-to-end tests."
+            },
+            {
+              "evidenceId": "e4",
+              "sourceId": "5aa98a50-a409-4e48-a5c6-e6d992f84ce3",
+              "locator": "README.md:10",
+              "excerpt": "Deploy automatically to Vercel from the main branch."
+            },
+            {
+              "evidenceId": "e5",
+              "sourceId": "5aa98a50-a409-4e48-a5c6-e6d992f84ce3",
+              "locator": "README.md:13",
+              "excerpt": "Add a dark theme."
+            },
+            {
+              "evidenceId": "t0",
+              "sourceId": "5aa98a50-a409-4e48-a5c6-e6d992f84ce3",
+              "locator": "metadata",
+              "excerpt": "Languages: TypeScript, CSS"
+            }
+          ],
+          "assumptions": [
+            "A Vercel account and appropriate domain are available for deployment.",
+            "The repository already contains a functional Next.js project scaffold."
+          ],
+          "requirements": [
+            {
+              "id": "R1",
+              "statement": "Meet WCAG 2.2 AA accessibility on every page.",
+              "kind": "evaluation_criterion",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["e1"]
+            },
+            {
+              "id": "R2",
+              "statement": "Score at least 90 for performance in Lighthouse on mobile.",
+              "kind": "evaluation_criterion",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["e2"]
+            },
+            {
+              "id": "R3",
+              "statement": "Cover the main user journeys with Playwright end-to-end tests.",
+              "kind": "evaluation_criterion",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["e3"]
+            },
+            {
+              "id": "R4",
+              "statement": "Deploy automatically to Vercel from the main branch.",
+              "kind": "evaluation_criterion",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["e4"]
+            },
+            {
+              "id": "R5",
+              "statement": "Add a dark theme (optional future enhancement).",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "noncritical",
+              "evidenceIds": ["e5"]
+            }
+          ],
+          "sourceProcessing": [
+            {
+              "sourceType": "natural_prompt",
+              "identifier": null,
+              "status": "processed",
+              "errorCode": null
+            },
+            {
+              "sourceType": "github_repository",
+              "identifier": "https://github.com/tracer-fixtures/portfolio-site",
+              "status": "processed",
+              "errorCode": null
+            }
+          ]
+        },
+        "assessment": {
+          "schemaVersion": "1.0.0",
+          "currentLevel": "intermediate",
+          "confidence": 0.88,
+          "reasoning": "The candidate has three years of professional experience building React applications with TypeScript, CSS, and testing using Jest. This depth aligns with an intermediate level for frontend development, though no evidence of senior‑level responsibilities or advanced specializations such as accessibility, performance engineering, or CI/CD pipelines is present.",
+          "proficiencyEvidence": [
+            {
+              "source": "resumeText",
+              "excerpt": "Built React dashboards in TypeScript used by internal sales teams."
+            },
+            {
+              "source": "resumeText",
+              "excerpt": "Wrote unit tests with Jest and React Testing Library."
+            }
+          ],
+          "knownSkills": [
+            {
+              "name": "React",
+              "category": "programming",
+              "confidence": 1,
+              "reasoning": "Explicitly listed in the SKILLS section and referenced in work experience.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "TypeScript",
+              "category": "programming",
+              "confidence": 1,
+              "reasoning": "Mentioned in SKILLS and used to build dashboards.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                },
+                {
+                  "source": "resumeText",
+                  "excerpt": "Built React dashboards in TypeScript used by internal sales teams."
+                }
+              ]
+            },
+            {
+              "name": "CSS",
+              "category": "design",
+              "confidence": 1,
+              "reasoning": "Listed among SKILLS.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "Jest",
+              "category": "testing",
+              "confidence": 1,
+              "reasoning": "Listed in SKILLS and mentioned for unit testing.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                },
+                {
+                  "source": "resumeText",
+                  "excerpt": "Wrote unit tests with Jest and React Testing Library."
+                }
+              ]
+            },
+            {
+              "name": "Git",
+              "category": "devops",
+              "confidence": 1,
+              "reasoning": "Included in SKILLS list.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            }
+          ],
+          "missingSkills": [
+            {
+              "name": "Next.js",
+              "category": "programming",
+              "confidence": 1,
+              "reasoning": "Required for the portfolio repository but not mentioned in resume.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "WCAG 2.2 AA accessibility",
+              "category": "design",
+              "confidence": 1,
+              "reasoning": "Accessibility compliance is a critical goal; no evidence of related experience.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "Lighthouse performance testing",
+              "category": "testing",
+              "confidence": 1,
+              "reasoning": "Performance scoring is required; resume does not reference Lighthouse or similar tools.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "Playwright end-to-end testing",
+              "category": "testing",
+              "confidence": 1,
+              "reasoning": "Playwright is specified for e2e tests; not listed in candidate’s skill set.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "Vercel deployment workflow",
+              "category": "devops",
+              "confidence": 1,
+              "reasoning": "Automatic Vercel deployment is a requirement; no mention of Vercel or similar CI/CD experience.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "Dark theme implementation",
+              "category": "design",
+              "confidence": 0.8,
+              "reasoning": "Optional future goal; candidate does not show experience with theming.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            }
+          ],
+          "suggestedSkills": [
+            {
+              "name": "Next.js",
+              "category": "programming",
+              "confidence": 1,
+              "reasoning": "Essential for the portfolio project; learning it will enable the candidate to meet the primary repository requirements.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "WCAG 2.2 AA accessibility",
+              "category": "design",
+              "confidence": 1,
+              "reasoning": "Critical for meeting the accessibility evaluation criterion.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "Lighthouse performance testing",
+              "category": "testing",
+              "confidence": 1,
+              "reasoning": "Needed to achieve the performance score requirement.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "Playwright",
+              "category": "testing",
+              "confidence": 1,
+              "reasoning": "Required for end‑to‑end test coverage.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "Vercel CI/CD",
+              "category": "devops",
+              "confidence": 1,
+              "reasoning": "Necessary for automated deployment from the main branch.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "Dark theme implementation",
+              "category": "design",
+              "confidence": 0.8,
+              "reasoning": "Optional enhancement that would improve the portfolio’s visual appeal.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            }
+          ],
+          "experienceSignals": [
+            {
+              "value": "3 years of frontend development",
+              "confidence": 1,
+              "reasoning": "Resume summary states three years of experience.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "Frontend developer with three years of experience building React applications."
+                }
+              ]
+            }
+          ],
+          "educationSignals": [
+            {
+              "value": "B.Sc. Computer Science",
+              "confidence": 1,
+              "reasoning": "Education entry lists a Bachelor of Science in Computer Science.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "B.Sc. Computer Science, Example University (2022)"
+                }
+              ]
+            }
+          ],
+          "technologyStack": [
+            {
+              "name": "React",
+              "category": "programming",
+              "confidence": 1,
+              "reasoning": "Central framework used in professional work.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "TypeScript",
+              "category": "programming",
+              "confidence": 1,
+              "reasoning": "Explicitly listed and used in dashboards.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "Built React dashboards in TypeScript used by internal sales teams."
+                }
+              ]
+            },
+            {
+              "name": "CSS",
+              "category": "design",
+              "confidence": 1,
+              "reasoning": "Listed among skills.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "Jest",
+              "category": "testing",
+              "confidence": 1,
+              "reasoning": "Used for unit testing in professional role.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "Wrote unit tests with Jest and React Testing Library."
+                }
+              ]
+            },
+            {
+              "name": "Git",
+              "category": "devops",
+              "confidence": 1,
+              "reasoning": "Included in SKILLS list.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            }
+          ],
+          "careerDirection": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "No explicit statement about future career direction is present in the provided inputs.",
+            "evidence": []
+          },
+          "projectComplexity": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "The inputs do not contain any description of project complexity preferences.",
+            "evidence": []
+          },
+          "experienceSummary": {
+            "inferred": true,
+            "value": "Three years as a frontend developer building React applications with TypeScript, CSS, and Jest testing.",
+            "confidence": 0.95,
+            "reasoning": "Synthesised from summary and experience entries in the resume.",
+            "evidence": [
+              {
+                "source": "resumeText",
+                "excerpt": "Frontend developer with three years of experience building React applications."
+              },
+              {
+                "source": "resumeText",
+                "excerpt": "Built React dashboards in TypeScript used by internal sales teams."
+              }
+            ]
+          },
+          "educationSummary": {
+            "inferred": true,
+            "value": "Bachelor of Science in Computer Science obtained in 2022 from Example University.",
+            "confidence": 0.98,
+            "reasoning": "Derived from the education entry line.",
+            "evidence": [
+              {
+                "source": "resumeText",
+                "excerpt": "B.Sc. Computer Science, Example University (2022)"
+              }
+            ]
+          },
+          "technologySummary": {
+            "inferred": true,
+            "value": "Proficient with React, TypeScript, CSS, Jest, and Git.",
+            "confidence": 0.97,
+            "reasoning": "Based on the SKILLS list and described work.",
+            "evidence": [
+              {
+                "source": "resumeText",
+                "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+              }
+            ]
+          },
+          "clarificationRequired": false
+        }
+      }
+    },
+    {
+      "fixture": "F6",
+      "run": 2,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "826c75de-af94-4be0-802b-2654cff07d3d",
+      "elapsedMs": 90810,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "combined_preparation",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 90214,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F6",
+      "run": 3,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "db5d699a-2ac5-4393-b462-16bb661d8e0b",
+      "elapsedMs": 51717,
+      "outcome": "failed",
+      "failureClass": "evidence",
+      "errorCode": "SOURCE_UNDERSTANDING_EVIDENCE_INVALID",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "combined_preparation",
+          "outcome": "invalid_output",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 1718,
+          "outputTokens": 6852,
+          "reasoningTokens": 0,
+          "latencyMs": 51567,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F7",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "43de8c34-a071-4ba1-a47b-e97ac296068e",
+      "elapsedMs": 12830,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "errorMessage": null,
+      "router": {
+        "case": 3,
+        "caseMatches": true,
+        "sourceUnderstanding": "REQUIRED",
+        "learnerAssessment": "REQUIRED",
+        "executedOperations": ["combined_preparation"]
+      },
+      "requirements": {
+        "critical": [
+          {
+            "label": "Real-time messaging over WebSockets",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Messages persisted in MongoDB",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Rate limit of 20 messages per minute",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "End-to-end tests",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Kubernetes deployment with two replicas",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Delivery within 6 weeks",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Latency under 300 ms at 1,000 users",
+            "found": true,
+            "criticality": "critical"
+          }
+        ],
+        "noncritical": [
+          {
+            "label": "Typing indicators",
+            "found": true,
+            "criticality": "noncritical"
+          }
+        ],
+        "allMarkedNoncritical": false
+      },
+      "level": {
+        "assessed": "intermediate",
+        "resolved": "intermediate",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [
+        {
+          "operation": "combined_preparation",
+          "outcome": "success",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 4143,
+          "outputTokens": 6705,
+          "reasoningTokens": 1572,
+          "latencyMs": 12739,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": {
+        "sourceUnderstanding": {
+          "schemaVersion": "1.1.0",
+          "understandingId": "a2cd8740-e20b-4a2b-93ae-db6c40cb56ca",
+          "generatedAt": "2026-10-18T07:53:59.500Z",
+          "mode": "mixed",
+          "summary": "The project is a real-time team chat service built with Node.js. Core functional requirements include WebSocket-based messaging, MongoDB persistence, rate limiting, end‑to‑end testing, and deployment on Kubernetes with at least two replicas. Delivery must occur within 6 weeks and meet a latency target of ≤300 ms for 1,000 concurrent users. Optional typing indicators may be added. The source materials also reveal the learner’s background as a 3‑year Node.js backend developer.",
+          "sourceAttributions": [
+            {
+              "sourceId": "48b6e865-bfc9-467c-85c3-4b6968257fe9",
+              "sourceType": "natural_prompt",
+              "identifier": "natural_prompt:d4fcc8a62cd9a2b7",
+              "title": "Natural prompt",
+              "url": null,
+              "creator": null,
+              "capturedAt": "2026-10-18T07:53:59.500Z",
+              "relevantLocations": []
+            },
+            {
+              "sourceId": "b3d97246-ce88-4018-97f7-f8ff90c10daa",
+              "sourceType": "pdf",
+              "identifier": "chat-problem-statement.pdf",
+              "title": "chat-problem-statement.pdf",
+              "url": null,
+              "creator": null,
+              "capturedAt": "2026-10-18T07:53:59.500Z",
+              "relevantLocations": [
+                {
+                  "kind": "page",
+                  "value": "1"
+                },
+                {
+                  "kind": "section",
+                  "value": "PROBLEM STATEMENT: TEAM CHAT SERVICE"
+                },
+                {
+                  "kind": "section",
+                  "value": "REQUIREMENTS"
+                },
+                {
+                  "kind": "section",
+                  "value": "CONSTRAINTS"
+                },
+                {
+                  "kind": "section",
+                  "value": "OPTIONAL"
+                }
+              ]
+            }
+          ],
+          "concepts": [
+            {
+              "name": "real‑time chat service",
+              "confidence": 1,
+              "evidenceIds": ["E2", "E3", "E4", "E5", "E6"],
+              "reasoning": "All functional requirements describe components of a real‑time chat system."
+            },
+            {
+              "name": "rate limiting",
+              "confidence": 1,
+              "evidenceIds": ["E4"],
+              "reasoning": "Requirement 3 explicitly limits message frequency."
+            },
+            {
+              "name": "message persistence",
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "reasoning": "Requirement 2 stores messages in MongoDB for later retrieval."
+            },
+            {
+              "name": "container orchestration",
+              "confidence": 1,
+              "evidenceIds": ["E6"],
+              "reasoning": "Requirement 5 mandates deployment to Kubernetes."
+            },
+            {
+              "name": "performance latency",
+              "confidence": 1,
+              "evidenceIds": ["E8"],
+              "reasoning": "Constraint 2 defines a latency ceiling."
+            }
+          ],
+          "technologies": [
+            {
+              "name": "WebSockets",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Real‑time messaging requirement specifies WebSockets."
+            },
+            {
+              "name": "MongoDB",
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "reasoning": "Persistence requirement mentions MongoDB."
+            },
+            {
+              "name": "Kubernetes",
+              "confidence": 1,
+              "evidenceIds": ["E6"],
+              "reasoning": "Deployment requirement mentions Kubernetes."
+            },
+            {
+              "name": "Node.js",
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "reasoning": "Learner states experience with Node.js."
+            }
+          ],
+          "skills": [
+            {
+              "name": "backend development",
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "reasoning": "Learner describes 3 years as a Node.js backend developer."
+            },
+            {
+              "name": "real‑time communication",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "WebSocket based messaging is required."
+            },
+            {
+              "name": "database integration",
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "reasoning": "Messages must be stored in MongoDB."
+            },
+            {
+              "name": "container orchestration",
+              "confidence": 1,
+              "evidenceIds": ["E6"],
+              "reasoning": "Kubernetes deployment is required."
+            },
+            {
+              "name": "rate limiting implementation",
+              "confidence": 1,
+              "evidenceIds": ["E4"],
+              "reasoning": "Explicit per‑user message cap."
+            },
+            {
+              "name": "end‑to‑end testing",
+              "confidence": 1,
+              "evidenceIds": ["E5"],
+              "reasoning": "Requirement 4 calls for comprehensive E2E tests."
+            },
+            {
+              "name": "performance testing",
+              "confidence": 1,
+              "evidenceIds": ["E8"],
+              "reasoning": "Latency constraint demands performance verification."
+            }
+          ],
+          "prerequisites": [
+            {
+              "name": "Node.js proficiency",
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "reasoning": "Learner already possesses this skill."
+            },
+            {
+              "name": "WebSocket programming",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Required for real‑time messaging."
+            },
+            {
+              "name": "MongoDB usage",
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "reasoning": "Required for persistence."
+            },
+            {
+              "name": "Kubernetes basics",
+              "confidence": 1,
+              "evidenceIds": ["E6"],
+              "reasoning": "Required for deployment."
+            },
+            {
+              "name": "Rate‑limiting concepts",
+              "confidence": 1,
+              "evidenceIds": ["E4"],
+              "reasoning": "Needed to enforce message caps."
+            },
+            {
+              "name": "E2E testing frameworks",
+              "confidence": 1,
+              "evidenceIds": ["E5"],
+              "reasoning": "Necessary for requirement 4."
+            },
+            {
+              "name": "Performance testing tools",
+              "confidence": 1,
+              "evidenceIds": ["E8"],
+              "reasoning": "Needed to verify latency constraint."
+            }
+          ],
+          "dependencies": [
+            {
+              "from": "WebSockets",
+              "to": "real‑time messaging requirement",
+              "type": "prerequisite",
+              "confidence": 1,
+              "evidenceIds": ["E2"]
+            },
+            {
+              "from": "MongoDB",
+              "to": "message persistence requirement",
+              "type": "prerequisite",
+              "confidence": 1,
+              "evidenceIds": ["E3"]
+            },
+            {
+              "from": "Kubernetes",
+              "to": "deployment requirement",
+              "type": "prerequisite",
+              "confidence": 1,
+              "evidenceIds": ["E6"]
+            },
+            {
+              "from": "Rate limiting logic",
+              "to": "message‑rate constraint",
+              "type": "prerequisite",
+              "confidence": 1,
+              "evidenceIds": ["E4"]
+            }
+          ],
+          "milestones": [],
+          "creatorRecommendations": [],
+          "preservedStructure": [
+            {
+              "sourceId": "b3d97246-ce88-4018-97f7-f8ff90c10daa",
+              "order": 1,
+              "title": "PROBLEM STATEMENT: TEAM CHAT SERVICE",
+              "description": "Build a real-time team chat service."
+            },
+            {
+              "sourceId": "b3d97246-ce88-4018-97f7-f8ff90c10daa",
+              "order": 2,
+              "title": "REQUIREMENTS",
+              "description": "1. Users exchange messages in real time over WebSockets. 2. Every message is stored in MongoDB and loaded when a user reconnects. 3. Each user can send at most 20 messages per minute; extra messages are rejected. 4. End-to-end tests cover sending, receiving and reconnecting. 5. The service is deployed to Kubernetes with at least two replicas."
+            },
+            {
+              "sourceId": "b3d97246-ce88-4018-97f7-f8ff90c10daa",
+              "order": 3,
+              "title": "CONSTRAINTS",
+              "description": "- Deliver within 6 weeks. - Message delivery latency must stay under 300 milliseconds at 1,000 concurrent users."
+            },
+            {
+              "sourceId": "b3d97246-ce88-4018-97f7-f8ff90c10daa",
+              "order": 4,
+              "title": "OPTIONAL",
+              "description": "- Typing indicators."
+            }
+          ],
+          "evidence": [
+            {
+              "evidenceId": "E1",
+              "sourceId": "48b6e865-bfc9-467c-85c3-4b6968257fe9",
+              "locator": "natural_prompt",
+              "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+            },
+            {
+              "evidenceId": "E2",
+              "sourceId": "b3d97246-ce88-4018-97f7-f8ff90c10daa",
+              "locator": "section:REQUIREMENTS",
+              "excerpt": "Users exchange messages in real time over WebSockets."
+            },
+            {
+              "evidenceId": "E3",
+              "sourceId": "b3d97246-ce88-4018-97f7-f8ff90c10daa",
+              "locator": "section:REQUIREMENTS",
+              "excerpt": "Every message is stored in MongoDB and loaded when a user reconnects."
+            },
+            {
+              "evidenceId": "E4",
+              "sourceId": "b3d97246-ce88-4018-97f7-f8ff90c10daa",
+              "locator": "section:REQUIREMENTS",
+              "excerpt": "Each user can send at most 20 messages per minute; extra messages are rejected."
+            },
+            {
+              "evidenceId": "E5",
+              "sourceId": "b3d97246-ce88-4018-97f7-f8ff90c10daa",
+              "locator": "section:REQUIREMENTS",
+              "excerpt": "End-to-end tests cover sending, receiving and reconnecting."
+            },
+            {
+              "evidenceId": "E6",
+              "sourceId": "b3d97246-ce88-4018-97f7-f8ff90c10daa",
+              "locator": "section:REQUIREMENTS",
+              "excerpt": "The service is deployed to Kubernetes with at least two replicas."
+            },
+            {
+              "evidenceId": "E7",
+              "sourceId": "b3d97246-ce88-4018-97f7-f8ff90c10daa",
+              "locator": "section:CONSTRAINTS",
+              "excerpt": "Deliver within 6 weeks."
+            },
+            {
+              "evidenceId": "E8",
+              "sourceId": "b3d97246-ce88-4018-97f7-f8ff90c10daa",
+              "locator": "section:CONSTRAINTS",
+              "excerpt": "Message delivery latency must stay under 300 milliseconds at 1,000 concurrent users."
+            },
+            {
+              "evidenceId": "E9",
+              "sourceId": "b3d97246-ce88-4018-97f7-f8ff90c10daa",
+              "locator": "section:OPTIONAL",
+              "excerpt": "Typing indicators."
+            }
+          ],
+          "assumptions": [
+            "The learner's Node.js experience includes familiarity with Express or similar HTTP frameworks, but this is not explicitly stated.",
+            "No explicit mention of prior experience with WebSockets, MongoDB, or Kubernetes; assume these are new to the learner."
+          ],
+          "requirements": [
+            {
+              "id": "R1",
+              "statement": "Users exchange messages in real time over WebSockets.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E2"]
+            },
+            {
+              "id": "R2",
+              "statement": "Every message is stored in MongoDB and loaded when a user reconnects.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E3"]
+            },
+            {
+              "id": "R3",
+              "statement": "Each user can send at most 20 messages per minute; extra messages are rejected.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E4"]
+            },
+            {
+              "id": "R4",
+              "statement": "End-to-end tests cover sending, receiving and reconnecting.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E5"]
+            },
+            {
+              "id": "R5",
+              "statement": "The service is deployed to Kubernetes with at least two replicas.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E6"]
+            },
+            {
+              "id": "R6",
+              "statement": "Deliver within 6 weeks.",
+              "kind": "constraint",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E7"]
+            },
+            {
+              "id": "R7",
+              "statement": "Message delivery latency must stay under 300 milliseconds at 1,000 concurrent users.",
+              "kind": "constraint",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E8"]
+            },
+            {
+              "id": "R8",
+              "statement": "Typing indicators (optional).",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "noncritical",
+              "evidenceIds": ["E9"]
+            }
+          ],
+          "sourceProcessing": [
+            {
+              "sourceType": "natural_prompt",
+              "identifier": null,
+              "status": "processed",
+              "errorCode": null
+            },
+            {
+              "sourceType": "pdf",
+              "identifier": "chat-problem-statement.pdf",
+              "status": "processed",
+              "errorCode": null
+            }
+          ]
+        },
+        "assessment": {
+          "schemaVersion": "1.0.0",
+          "currentLevel": "intermediate",
+          "confidence": 0.86,
+          "reasoning": "The learner has 3 years of Node.js backend experience, which indicates solid proficiency but no evidence of high‑complexity, large‑scale system work or specialization in the required ancillary technologies, thus fitting an intermediate level.",
+          "proficiencyEvidence": [
+            {
+              "source": "naturalLanguage",
+              "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+            }
+          ],
+          "knownSkills": [
+            {
+              "name": "Node.js",
+              "category": "programming",
+              "confidence": 0.96,
+              "reasoning": "Explicitly mentioned by the learner.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+                }
+              ]
+            },
+            {
+              "name": "backend development",
+              "category": "programming",
+              "confidence": 0.94,
+              "reasoning": "Learner states role as backend developer.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+                }
+              ]
+            }
+          ],
+          "missingSkills": [
+            {
+              "name": "WebSockets",
+              "category": "programming",
+              "confidence": 0.8,
+              "reasoning": "Required for real‑time messaging but not cited in learner input.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+                }
+              ]
+            },
+            {
+              "name": "MongoDB",
+              "category": "data",
+              "confidence": 0.8,
+              "reasoning": "Required for message persistence; not mentioned by learner.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+                }
+              ]
+            },
+            {
+              "name": "Kubernetes",
+              "category": "cloud",
+              "confidence": 0.8,
+              "reasoning": "Needed for deployment; not referenced in learner profile.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+                }
+              ]
+            },
+            {
+              "name": "rate limiting",
+              "category": "security",
+              "confidence": 0.78,
+              "reasoning": "A functional requirement; learner does not indicate experience.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+                }
+              ]
+            },
+            {
+              "name": "end‑to‑end testing",
+              "category": "testing",
+              "confidence": 0.78,
+              "reasoning": "Required for the project; not mentioned by learner.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+                }
+              ]
+            },
+            {
+              "name": "performance testing",
+              "category": "testing",
+              "confidence": 0.75,
+              "reasoning": "Needed to meet latency constraint; not cited by learner.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+                }
+              ]
+            }
+          ],
+          "suggestedSkills": [
+            {
+              "name": "WebSockets",
+              "category": "programming",
+              "confidence": 0.8,
+              "reasoning": "Directly required for real‑time messaging functionality.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+                }
+              ]
+            },
+            {
+              "name": "MongoDB",
+              "category": "data",
+              "confidence": 0.8,
+              "reasoning": "Necessary for persisting chat messages.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+                }
+              ]
+            },
+            {
+              "name": "Kubernetes",
+              "category": "cloud",
+              "confidence": 0.8,
+              "reasoning": "Required for scalable deployment of the service.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+                }
+              ]
+            }
+          ],
+          "experienceSignals": [
+            {
+              "value": "3 years as a Node.js backend developer",
+              "confidence": 0.99,
+              "reasoning": "Explicitly stated in learner input.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+                }
+              ]
+            }
+          ],
+          "educationSignals": [],
+          "technologyStack": [
+            {
+              "name": "Node.js",
+              "category": "programming",
+              "confidence": 0.96,
+              "reasoning": "Identified in learner statement.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+                }
+              ]
+            }
+          ],
+          "careerDirection": {
+            "inferred": true,
+            "value": "develop a real‑time team chat system",
+            "confidence": 0.92,
+            "reasoning": "Learner explicitly wishes to build this chat system.",
+            "evidence": [
+              {
+                "source": "naturalLanguage",
+                "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+              }
+            ]
+          },
+          "projectComplexity": {
+            "inferred": true,
+            "value": "moderate‑to‑high",
+            "confidence": 0.84,
+            "reasoning": "The project involves real‑time communication, persistence, rate limiting, testing, and Kubernetes deployment within strict latency and delivery constraints.",
+            "evidence": [
+              {
+                "source": "naturalLanguage",
+                "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+              }
+            ]
+          },
+          "experienceSummary": {
+            "inferred": true,
+            "value": "3 years of Node.js backend development, but no demonstrated experience with required ancillary technologies.",
+            "confidence": 0.88,
+            "reasoning": "Derived from the sole learner statement.",
+            "evidence": [
+              {
+                "source": "naturalLanguage",
+                "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+              }
+            ]
+          },
+          "educationSummary": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "No education data supplied.",
+            "evidence": []
+          },
+          "technologySummary": {
+            "inferred": true,
+            "value": "Node.js",
+            "confidence": 0.96,
+            "reasoning": "Only technology explicitly mentioned by the learner.",
+            "evidence": [
+              {
+                "source": "naturalLanguage",
+                "excerpt": "I've worked 3 years as a Node.js backend developer and want to build this chat system"
+              }
+            ]
+          },
+          "clarificationRequired": false
+        }
+      }
+    },
+    {
+      "fixture": "F7",
+      "run": 2,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "c8737f52-60ee-46cb-aafb-7c55495ba96f",
+      "elapsedMs": 32859,
+      "outcome": "failed",
+      "failureClass": "evidence",
+      "errorCode": "SOURCE_UNDERSTANDING_EVIDENCE_INVALID",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "combined_preparation",
+          "outcome": "invalid_output",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 1526,
+          "outputTokens": 6094,
+          "reasoningTokens": 964,
+          "latencyMs": 32807,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F7",
+      "run": 3,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "e41891dd-3218-4034-8e28-92d0e4d91d6a",
+      "elapsedMs": 90124,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "combined_preparation",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 90042,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F8",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "1576db6c-a45b-4fa5-a54c-417acde5321f",
+      "elapsedMs": 46894,
+      "outcome": "failed",
+      "failureClass": "evidence",
+      "errorCode": "AI_EVIDENCE_VALIDATION_FAILED",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "learner_assessment",
+          "outcome": "invalid_output",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 623,
+          "outputTokens": 2490,
+          "reasoningTokens": 492,
+          "latencyMs": 46743,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F8",
+      "run": 2,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "cf4567da-fad4-4715-9618-dd5c76889f79",
+      "elapsedMs": 56770,
+      "outcome": "failed",
+      "failureClass": "evidence",
+      "errorCode": "AI_EVIDENCE_VALIDATION_FAILED",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "learner_assessment",
+          "outcome": "invalid_output",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 623,
+          "outputTokens": 3283,
+          "reasoningTokens": 695,
+          "latencyMs": 56539,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F8",
+      "run": 3,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "20e5efe9-8bf0-4606-9217-61acd9025edd",
+      "elapsedMs": 75355,
+      "outcome": "failed",
+      "failureClass": "evidence",
+      "errorCode": "AI_EVIDENCE_VALIDATION_FAILED",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "learner_assessment",
+          "outcome": "invalid_output",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 623,
+          "outputTokens": 3123,
+          "reasoningTokens": 447,
+          "latencyMs": 75194,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F9",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "03dba628-abc1-4993-aac0-357dab3f1931",
+      "elapsedMs": 29089,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "errorMessage": null,
+      "router": {
+        "case": 4,
+        "caseMatches": true,
+        "sourceUnderstanding": "NOT_REQUIRED",
+        "learnerAssessment": "REQUIRED",
+        "executedOperations": ["learner_assessment"]
+      },
+      "requirements": null,
+      "level": {
+        "assessed": "intermediate",
+        "resolved": "intermediate",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [
+        {
+          "operation": "learner_assessment",
+          "outcome": "success",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 502,
+          "outputTokens": 1516,
+          "reasoningTokens": 474,
+          "latencyMs": 28948,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": {
+        "sourceUnderstanding": null,
+        "assessment": {
+          "schemaVersion": "1.0.0",
+          "currentLevel": "intermediate",
+          "confidence": 0.85,
+          "reasoning": "The learner states they have \"2 years of SQL\" and \"Excel experience\" as a data analyst, indicating practical use over multiple years, which aligns with an intermediate proficiency. No evidence of advanced or expert work is provided.",
+          "proficiencyEvidence": [
+            {
+              "source": "naturalLanguage",
+              "excerpt": "2 years of SQL"
+            },
+            {
+              "source": "naturalLanguage",
+              "excerpt": "Excel experience"
+            },
+            {
+              "source": "naturalLanguage",
+              "excerpt": "data analyst"
+            }
+          ],
+          "knownSkills": [
+            {
+              "name": "SQL",
+              "category": "data",
+              "confidence": 0.9,
+              "reasoning": "Explicitly mentioned with 2 years of experience.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "2 years of SQL"
+                }
+              ]
+            },
+            {
+              "name": "Excel",
+              "category": "product",
+              "confidence": 0.9,
+              "reasoning": "Explicitly mentioned as part of experience.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "Excel experience"
+                }
+              ]
+            },
+            {
+              "name": "Data analysis",
+              "category": "domain",
+              "confidence": 0.85,
+              "reasoning": "Self‑identified job title indicates practice in this domain.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "data analyst"
+                }
+              ]
+            }
+          ],
+          "missingSkills": [
+            {
+              "name": "machine learning",
+              "category": "domain",
+              "confidence": 0,
+              "reasoning": "Learner explicitly states a desire to learn this skill but provides no evidence of prior exposure.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I want to learn machine learning"
+                }
+              ]
+            }
+          ],
+          "suggestedSkills": [],
+          "experienceSignals": [
+            {
+              "value": "2 years",
+              "confidence": 0.95,
+              "reasoning": "Mentions two years of experience with SQL and Excel.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "2 years of SQL"
+                }
+              ]
+            }
+          ],
+          "educationSignals": [],
+          "technologyStack": [
+            {
+              "name": "SQL",
+              "category": "data",
+              "confidence": 0.9,
+              "reasoning": "Explicitly mentioned as a skill.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "2 years of SQL"
+                }
+              ]
+            },
+            {
+              "name": "Excel",
+              "category": "product",
+              "confidence": 0.9,
+              "reasoning": "Explicitly mentioned as a skill.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "Excel experience"
+                }
+              ]
+            }
+          ],
+          "careerDirection": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "",
+            "evidence": []
+          },
+          "projectComplexity": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "",
+            "evidence": []
+          },
+          "experienceSummary": {
+            "inferred": true,
+            "value": "2 years as a data analyst working with SQL and Excel.",
+            "confidence": 0.9,
+            "reasoning": "Direct statement of role and duration.",
+            "evidence": [
+              {
+                "source": "naturalLanguage",
+                "excerpt": "I'm a data analyst with 2 years of SQL and Excel experience"
+              }
+            ]
+          },
+          "educationSummary": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "",
+            "evidence": []
+          },
+          "technologySummary": {
+            "inferred": true,
+            "value": "SQL, Excel",
+            "confidence": 0.95,
+            "reasoning": "Both technologies are explicitly mentioned.",
+            "evidence": [
+              {
+                "source": "naturalLanguage",
+                "excerpt": "SQL"
+              },
+              {
+                "source": "naturalLanguage",
+                "excerpt": "Excel"
+              }
+            ]
+          },
+          "clarificationRequired": false
+        }
+      }
+    },
+    {
+      "fixture": "F9",
+      "run": 2,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "b36aaed0-4496-471a-b201-f35eb64f3421",
+      "elapsedMs": 43850,
+      "outcome": "failed",
+      "failureClass": "evidence",
+      "errorCode": "AI_EVIDENCE_VALIDATION_FAILED",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "learner_assessment",
+          "outcome": "invalid_output",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 502,
+          "outputTokens": 2095,
+          "reasoningTokens": 621,
+          "latencyMs": 43791,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F9",
+      "run": 3,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "42da062e-a5cb-4b3a-a413-059ec2e985e8",
+      "elapsedMs": 48006,
+      "outcome": "failed",
+      "failureClass": "evidence",
+      "errorCode": "AI_EVIDENCE_VALIDATION_FAILED",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "learner_assessment",
+          "outcome": "invalid_output",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 502,
+          "outputTokens": 1544,
+          "reasoningTokens": 531,
+          "latencyMs": 47905,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    }
+  ],
+  "updatedAt": "2026-10-18T08:01:15.412Z",
+  "summary": [
+    {
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "operation": "source_understanding",
+      "fixtures": ["F4", "F5"],
+      "runs": 5,
+      "schemaPassRate": null,
+      "evidencePassRate": null,
+      "criticalRecall": null,
+      "levelMatchRate": null,
+      "availabilityFailureRate": 1,
+      "failuresByClass": {
+        "availability": 5
+      },
+      "latencyMs": {
+        "p50": null,
+        "p95": null
+      },
+      "cost": 0
+    },
+    {
+      "model": "openrouter:dots-studio/dots-3-note-preview:free",
+      "operation": "source_understanding",
+      "fixtures": ["F4", "F5"],
+      "runs": 5,
+      "schemaPassRate": null,
+      "evidencePassRate": null,
+      "criticalRecall": null,
+      "levelMatchRate": null,
+      "availabilityFailureRate": 1,
+      "failuresByClass": {
+        "availability": 5
+      },
+      "latencyMs": {
+        "p50": null,
+        "p95": null
+      },
+      "cost": 0
+    },
+    {
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "operation": "learner_assessment",
+      "fixtures": ["F9"],
+      "runs": 3,
+      "schemaPassRate": null,
+      "evidencePassRate": null,
+      "criticalRecall": null,
+      "levelMatchRate": null,
+      "availabilityFailureRate": 1,
+      "failuresByClass": {
+        "availability": 3
+      },
+      "latencyMs": {
+        "p50": null,
+        "p95": null
+      },
+      "cost": 0
+    },
+    {
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "operation": "source_understanding",
+      "fixtures": ["F4", "F5"],
+      "runs": 6,
+      "schemaPassRate": 0.6667,
+      "evidencePassRate": 0.5,
+      "criticalRecall": 1,
+      "levelMatchRate": 1,
+      "availabilityFailureRate": 0.5,
+      "failuresByClass": {
+        "evidence": 1,
+        "availability": 3,
+        "schema": 1
+      },
+      "latencyMs": {
+        "p50": 12196,
+        "p95": 12196
+      },
+      "cost": 0
+    },
+    {
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "operation": "combined_preparation",
+      "fixtures": ["F6", "F7"],
+      "runs": 6,
+      "schemaPassRate": 1,
+      "evidencePassRate": 0.5,
+      "criticalRecall": 1,
+      "levelMatchRate": 1,
+      "availabilityFailureRate": 0.3333,
+      "failuresByClass": {
+        "availability": 2,
+        "evidence": 2
+      },
+      "latencyMs": {
+        "p50": 12739,
+        "p95": 15525
+      },
+      "cost": 0
+    },
+    {
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "operation": "learner_assessment",
+      "fixtures": ["F8", "F9"],
+      "runs": 6,
+      "schemaPassRate": 1,
+      "evidencePassRate": 0.1667,
+      "criticalRecall": null,
+      "levelMatchRate": 1,
+      "availabilityFailureRate": 0,
+      "failuresByClass": {
+        "evidence": 5
+      },
+      "latencyMs": {
+        "p50": 28948,
+        "p95": 28948
+      },
+      "cost": 0
+    }
+  ],
+  "notes": [
+    "18 gpt-oss-120b runs made before the chat-schema fix were removed: AICredits rejected every request with HTTP 400 because of type arrays in the schema; no model output was produced."
+  ]
+}

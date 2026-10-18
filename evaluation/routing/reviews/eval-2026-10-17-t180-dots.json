@@ -1,0 +1,15 @@
+{
+  "evaluationId": "eval-2026-10-17-t180-dots",
+  "instructions": "Owner review R1 (Plan 0002 section 6). Set each rating to \"acceptable\", \"acceptable_with_notes\" or \"unacceptable\" after reading the outputs in the runs file. This file is never filled in by a script.",
+  "reviewer": null,
+  "reviewedAt": null,
+  "items": [
+    {
+      "fixture": "F4",
+      "model": "openrouter:dots-studio/dots-3-note-preview:free",
+      "criteria": ["C1", "C2", "C3", "C4", "C5", "C7"],
+      "rating": null,
+      "notes": ""
+    }
+  ]
+}

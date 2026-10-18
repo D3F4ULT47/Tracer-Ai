@@ -3,7 +3,12 @@ import test from 'node:test';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import { preparationSchema } from '@tracer-ai/shared/contracts';
+import { AppError } from '../src/shared/app-error.js';
+import { createAiResultStore } from '../src/infrastructure/cache/ai-result-store.js';
+import { createAssessmentService } from '../src/modules/ai/assessment/assessment.service.js';
 import { createPreparationService } from '../src/modules/ai/preparation/preparation.service.js';
+import { createReuseLayer } from '../src/modules/ai/reuse/reusable-provider.js';
+import { learnerScope } from '../src/modules/ai/reuse/reuse-scope.js';
 import { SourceHandlerRegistry } from '../src/modules/ai/source-understanding/source-handler.registry.js';
 import { registerDefaultSourceHandlers } from '../src/modules/ai/source-understanding/source.handlers.js';
 import { createSourceUnderstandingService } from '../src/modules/ai/source-understanding/source-understanding.service.js';
@@ -146,6 +151,8 @@ function harness({
   combined = 'success',
   understanding = 'success',
   assessment = 'success',
+  reuseLayer = null,
+  failurePolicy = 'degraded',
 } = {}) {
   const calls = { resolver: [], providerInputs: [], understand: [], assess: [], contexts: [] };
   const storage = repositories();
@@ -163,30 +170,40 @@ function harness({
   };
   const resolver = (profile, options) => {
     calls.resolver.push({ profile, ...options });
+    const provider = {
+      async generateStructured({ input }) {
+        const parsed = JSON.parse(input);
+        calls.providerInputs.push({ operation: options.operation, parsed });
+        if (options.operation === 'combined_preparation' && combined === 'invalid') {
+          return respond('success', {
+            sourceUnderstanding: understandingData(parsed.sources),
+            learnerAssessment: assessmentData('Text that is not in any input'),
+          });
+        }
+        if (options.operation === 'combined_preparation') {
+          return respond(combined, {
+            sourceUnderstanding: understandingData(parsed.sources),
+            learnerAssessment: assessmentData(
+              'Built a React dashboard',
+              parsed.learner.normalizedInputs.resumeText ? 'resumeText' : 'naturalLanguage',
+            ),
+          });
+        }
+        return respond(understanding, understandingData(parsed.sources));
+      },
+    };
     return {
       configuration: { provider: 'aicredits', model: 'test-model' },
-      provider: {
-        async generateStructured({ input }) {
-          const parsed = JSON.parse(input);
-          calls.providerInputs.push({ operation: options.operation, parsed });
-          if (options.operation === 'combined_preparation' && combined === 'invalid') {
-            return respond('success', {
-              sourceUnderstanding: understandingData(parsed.sources),
-              learnerAssessment: assessmentData('Text that is not in any input'),
-            });
-          }
-          if (options.operation === 'combined_preparation') {
-            return respond(combined, {
-              sourceUnderstanding: understandingData(parsed.sources),
-              learnerAssessment: assessmentData(
-                'Built a React dashboard',
-                parsed.learner.normalizedInputs.resumeText ? 'resumeText' : 'naturalLanguage',
-              ),
-            });
-          }
-          return respond(understanding, understandingData(parsed.sources));
-        },
-      },
+      provider:
+        reuseLayer && options.reuse?.scope
+          ? reuseLayer.wrap(provider, {
+              operation: options.operation,
+              scope: options.reuse.scope,
+              dataClass: options.dataClass,
+              models: ['aicredits:test-model'],
+              cacheTtlSeconds: options.reuse.cacheTtlSeconds,
+            })
+          : provider,
     };
   };
   const sourceUnderstanding = createSourceUnderstandingService({
@@ -229,6 +246,12 @@ function harness({
     assessment: {
       async assess(args) {
         calls.assess.push({ profile: args.profile ?? 'core', inputs: args.inputs });
+        if (assessment === 'quota') {
+          throw new AppError('Free AI preparation is temporarily unavailable', {
+            status: 503,
+            code: 'AI_FREE_PREPARATION_UNAVAILABLE',
+          });
+        }
         if (assessment !== 'success') {
           throw Object.assign(new Error('failed'), { code: 'AI_PROVIDER_ERROR' });
         }
@@ -244,16 +267,18 @@ function harness({
     providerResolver: resolver,
     promptLoader: async (name, version) => prompt(name, version),
     repositories: storage,
+    failurePolicy,
     log: { info() {}, error() {}, warn() {} },
   });
   return { service, calls, storage };
 }
 
-function prepare(service, input) {
+function prepare(service, input, learner = null) {
   return service.prepare({
     ownerId: null,
     requestId: 'request-1',
     pipelineId: '22222222-2222-4222-8222-222222222222',
+    learner,
     input: { mode: 'quick', questionnaire: {}, ...input },
   });
 }
@@ -418,6 +443,54 @@ test('case 4 failure keeps generating with the default level', async () => {
   assert.equal(calls.contexts[0].assessment, null);
 });
 
+const selfDescribedGoal = {
+  sources: [{ type: 'natural_prompt', content: selfDescription }],
+  assessmentInputs: { naturalLanguage: selfDescription },
+  explicitInput: { primaryGoal: selfDescription },
+};
+
+test('fail policy: a combined preparation failure stops the request with 502', async () => {
+  const { service, calls } = harness({ combined: 'fail', failurePolicy: 'fail' });
+  await assert.rejects(
+    prepare(service, {
+      sources: [{ type: 'natural_prompt', content: selfDescription }, pdfSource],
+      assessmentInputs: { naturalLanguage: selfDescription },
+      explicitInput: { primaryGoal: selfDescription },
+    }),
+    (error) =>
+      error.status === 502 &&
+      error.code === 'AI_PREPARATION_FAILED' &&
+      error.details.operation === 'combined_preparation',
+  );
+  assert.equal(calls.contexts.length, 0, 'no learning context, so no generation');
+});
+
+test('fail policy: an assessment failure stops the request with 502', async () => {
+  const { service } = harness({ assessment: 'fail', failurePolicy: 'fail' });
+  await assert.rejects(prepare(service, selfDescribedGoal), { code: 'AI_PREPARATION_FAILED' });
+});
+
+test('fail policy: an exhausted free quota is returned as 503 for the client', async () => {
+  const { service } = harness({ assessment: 'quota', failurePolicy: 'fail' });
+  await assert.rejects(prepare(service, selfDescribedGoal), {
+    status: 503,
+    code: 'AI_FREE_PREPARATION_UNAVAILABLE',
+  });
+});
+
+test('fail policy: an unreachable source is not a model failure and still continues', async () => {
+  const { service } = harness({ failurePolicy: 'fail' });
+  const result = await prepare(service, {
+    sources: [{ type: 'natural_prompt', content: goal }, githubSource],
+    assessmentInputs: { naturalLanguage: goal },
+    explicitInput: { primaryGoal: goal, experienceLevel: 'beginner' },
+  });
+  assert.equal(
+    result.preparation.sourceUnderstanding.errorCode,
+    'ALL_PLANNING_SOURCES_UNAVAILABLE',
+  );
+});
+
 test('a disabled assessment flag routes learner evidence to insufficient evidence', async () => {
   const { service, calls } = harness({ flags: [flagNames.routed] });
   const result = await prepare(service, {
@@ -463,5 +536,145 @@ test('fails clearly when no source can be read and there is no goal text', async
       explicitInput: { primaryGoal: '' },
     }),
     { code: 'PREPARATION_NO_USABLE_INPUT' },
+  );
+});
+
+const reuseConfig = Object.freeze({
+  dedupEnabled: true,
+  resultCacheEnabled: true,
+  publicTtlSeconds: 604_800,
+  ownerTtlSeconds: 3_600,
+});
+const learnerA = learnerScope({ anonymousSessionId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' });
+const learnerB = learnerScope({ anonymousSessionId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' });
+
+function reuseHarness() {
+  const reuseLayer = createReuseLayer({
+    store: createAiResultStore({ redisReady: () => false }),
+    config: reuseConfig,
+    log: { warn() {} },
+  });
+  return harness({ reuseLayer });
+}
+
+/**
+ * Provider calls per RFC 0001 preparation case, with caching on: the first request, a repeat by
+ * the same learner, and the same input from a different learner.
+ */
+const caseInputs = {
+  1: {
+    sources: [{ type: 'natural_prompt', content: 'Learn React from scratch' }],
+    assessmentInputs: { naturalLanguage: 'Learn React from scratch' },
+    explicitInput: { primaryGoal: 'Learn React from scratch', experienceLevel: 'beginner' },
+  },
+  2: {
+    sources: [{ type: 'natural_prompt', content: goal }, pdfSource],
+    assessmentInputs: { naturalLanguage: goal },
+    explicitInput: { primaryGoal: goal, experienceLevel: 'intermediate' },
+  },
+  3: {
+    sources: [{ type: 'natural_prompt', content: goal }, pdfSource, resumeSource],
+    assessmentInputs: { naturalLanguage: goal, resumeText: resumeSource.content },
+    explicitInput: { primaryGoal: goal },
+  },
+};
+
+for (const [caseNumber, expected] of [
+  ['1', { first: 0, repeat: 0, otherLearner: 0 }],
+  ['2', { first: 1, repeat: 0, otherLearner: 1 }],
+  ['3', { first: 1, repeat: 0, otherLearner: 1 }],
+]) {
+  test(`case ${caseNumber} request count: first ${expected.first}, same-learner repeat ${expected.repeat}, other learner ${expected.otherLearner}`, async () => {
+    const { service, calls, storage } = reuseHarness();
+    const counted = () => calls.providerInputs.length;
+
+    const first = await prepare(service, caseInputs[caseNumber], learnerA);
+    const afterFirst = counted();
+    const repeat = await prepare(service, caseInputs[caseNumber], learnerA);
+    const afterRepeat = counted();
+    await prepare(service, caseInputs[caseNumber], learnerB);
+
+    assert.equal(first.preparation.case, Number(caseNumber));
+    assert.equal(afterFirst, expected.first, 'first request');
+    assert.equal(afterRepeat - afterFirst, expected.repeat, 'repeat by the same learner');
+    assert.equal(counted() - afterRepeat, expected.otherLearner, 'same input, other learner');
+    assert.equal(repeat.sourceUnderstanding?.summary, first.sourceUnderstanding?.summary);
+    if (repeat.sourceUnderstanding) {
+      const currentIds = new Set(
+        repeat.sourceUnderstanding.sourceAttributions.map(({ sourceId }) => sourceId),
+      );
+      for (const evidence of repeat.sourceUnderstanding.evidence) {
+        assert.ok(currentIds.has(evidence.sourceId), 'reused evidence cites this request');
+      }
+    }
+    if (expected.first > 0) {
+      const reused = storage.state.usage.filter((record) => record.reuseOutcome === 'cache_hit');
+      assert.equal(reused.length, 1, 'the repeat is recorded as a cache hit');
+      assert.equal(reused[0].totalTokens, 0);
+    }
+  });
+}
+
+test('without a learner scope, every repeat is a new provider call', async () => {
+  const { service, calls } = reuseHarness();
+  await prepare(service, caseInputs[2]);
+  await prepare(service, caseInputs[2]);
+  assert.equal(calls.providerInputs.length, 2);
+});
+
+test('case 4 request count: first 1, same-learner repeat 0, other learner 1', async () => {
+  const reuseLayer = createReuseLayer({
+    store: createAiResultStore({ redisReady: () => false }),
+    config: reuseConfig,
+    log: { warn() {} },
+  });
+  const storage = repositories();
+  let providerCalls = 0;
+  const provider = {
+    async generateStructured() {
+      providerCalls += 1;
+      return {
+        data: assessmentData('Built a React dashboard'),
+        provider: 'aicredits',
+        model: 'test-model',
+        latencyMs: 5,
+        usage: { inputTokens: 10, cachedInputTokens: 0, outputTokens: 5, totalTokens: 15 },
+      };
+    },
+  };
+  const service = createAssessmentService({
+    flags: { isEnabled: async () => true },
+    providerResolver: (_profile, options) => ({
+      configuration: { provider: 'aicredits', model: 'test-model' },
+      provider: reuseLayer.wrap(provider, {
+        operation: options.operation,
+        scope: options.reuse.scope,
+        dataClass: options.dataClass,
+        models: ['aicredits:test-model'],
+        cacheTtlSeconds: options.reuse.cacheTtlSeconds,
+      }),
+    }),
+    promptLoader: async (name, version) => prompt(name, version),
+    repositories: storage,
+    log: { error() {}, warn() {} },
+  });
+  const assess = (learner) =>
+    service.assess({
+      ownerId: null,
+      requestId: 'request-1',
+      inputs: { naturalLanguage: selfDescription },
+      profile: 'fast',
+      learner,
+    });
+
+  const first = await assess(learnerA);
+  await assess(learnerA);
+  assert.equal(providerCalls, 1);
+  await assess(learnerB);
+  assert.equal(providerCalls, 2);
+  assert.equal(first.assessment.currentLevel, 'intermediate');
+  assert.equal(
+    storage.state.usage.filter((record) => record.reuseOutcome === 'cache_hit').length,
+    1,
   );
 });

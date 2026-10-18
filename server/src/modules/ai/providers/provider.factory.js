@@ -48,6 +48,23 @@ function initializeProviders() {
   initialized = true;
 }
 
+/**
+ * Time budgets, the paid attempt cap and the free-quota policy apply to preparation only
+ * (Plan 0002 D-2, D-7, D-8); generation keeps its single-model retry behaviour.
+ */
+export function chainLimits(profile, preparation = aiConfig.preparation) {
+  if (profile !== 'fast') return {};
+  return {
+    budget: {
+      freeBudgetMs: preparation.freeBudgetMs,
+      freeAttemptTimeoutMs: preparation.freeAttemptTimeoutMs,
+      paidBudgetMs: preparation.paidBudgetMs,
+    },
+    paidAttemptLimit: preparation.paidAttemptLimit,
+    freeUnavailablePolicy: preparation.freeUnavailablePolicy,
+  };
+}
+
 function registeredEntries(chain) {
   const registered = new Set(aiProviderRegistry.list());
   return chain.filter((entry) => registered.has(entry.provider));
@@ -82,6 +99,7 @@ export function getConfiguredAiProvider(
     maxRetries: configuration.maxRetries,
     reasoningEffort: configuration.reasoningEffort,
     log: logger,
+    ...chainLimits(profile),
   });
   const provider = reuse?.scope
     ? aiReuseLayer.wrap(chain, {

@@ -12,6 +12,9 @@ import {
   filterChainForDataClass,
 } from '../src/modules/ai/providers/model-chain.js';
 import { createOpenAiCompatibleProvider } from '../src/modules/ai/providers/openai-compatible.provider.js';
+import { chainLimits } from '../src/modules/ai/providers/provider.factory.js';
+import { toChatProviderSchema } from '../src/modules/ai/providers/provider-support.js';
+import Ajv from 'ajv';
 
 const intent = {
   intent: 'learning_goal',
@@ -105,6 +108,22 @@ const request = {
   schema: aiSchemas.intent,
   schemaName: 'intent',
 };
+
+test('preparation chains get the budgets, paid cap and quota policy; generation does not', () => {
+  const preparation = {
+    freeBudgetMs: 60_000,
+    freeAttemptTimeoutMs: 30_000,
+    paidBudgetMs: 90_000,
+    paidAttemptLimit: 2,
+    freeUnavailablePolicy: 'reject',
+  };
+  assert.deepEqual(chainLimits('fast', preparation), {
+    budget: { freeBudgetMs: 60_000, freeAttemptTimeoutMs: 30_000, paidBudgetMs: 90_000 },
+    paidAttemptLimit: 2,
+    freeUnavailablePolicy: 'reject',
+  });
+  assert.deepEqual(chainLimits('core', preparation), {});
+});
 
 test('model chains parse provider prefixes without splitting model IDs that contain colons', () => {
   const chain = parseModelChain(chainSpec, 'aicredits');
@@ -220,6 +239,42 @@ test('non-transient failures such as exhausted credit do not retry the same mode
     (error) => error.code === 'AI_CREDITS_EXHAUSTED' && error.aiAttempts.length === 1,
   );
   assert.equal(requests.length, 1);
+});
+
+test('chat schemas replace type arrays with equivalent anyOf branches', () => {
+  const typeArrays = (node) =>
+    Array.isArray(node)
+      ? node.flatMap(typeArrays)
+      : node && typeof node === 'object'
+        ? [
+            ...(Array.isArray(node.type) ? [node.type] : []),
+            ...Object.values(node).flatMap(typeArrays),
+          ]
+        : [];
+  for (const [name, schema] of Object.entries(aiSchemas)) {
+    assert.deepEqual(typeArrays(toChatProviderSchema(schema)), [], name);
+  }
+
+  const nullableLevel = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['level', 'note'],
+    properties: {
+      level: { type: ['string', 'null'], enum: ['beginner', 'expert', null] },
+      note: { type: ['string', 'null'], description: 'optional' },
+    },
+  };
+  const original = new Ajv({ strict: false }).compile(nullableLevel);
+  const converted = new Ajv({ strict: false }).compile(toChatProviderSchema(nullableLevel));
+  for (const value of [
+    { level: 'beginner', note: null },
+    { level: null, note: 'text' },
+    { level: 'novice', note: null },
+    { level: 3, note: null },
+    { level: null, note: 4 },
+  ]) {
+    assert.equal(converted(value), original(value), JSON.stringify(value));
+  }
 });
 
 test('chat adapter sends strict JSON schema output and maps chat usage', async () => {

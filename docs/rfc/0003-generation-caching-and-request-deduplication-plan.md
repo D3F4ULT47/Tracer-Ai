@@ -4,12 +4,12 @@
 
 **Implementation status (Oct 16):**
 
-| Task               | State                                                                                                                                |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
-| C-02 to C-09, C-12 | Implemented and unit-tested (`server/test/ai-reuse.test.js`). Not yet exercised against a real Redis server.                         |
-| C-01               | Script written (`scripts/ai-duplicate-report.js`). The local database has no AI runs, so the duplicate rate is **not measured** yet. |
-| C-10               | Blocked: every AICredits call returns 402, so `prompt_cache_key` cannot be probed.                                                   |
-| C-11               | Not done: Docker and Redis are not installed locally. Everything runs on the in-process fallback until `REDIS_ENABLED=true`.         |
+| Task               | State                                                                                                                                                                  |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| C-02 to C-09, C-12 | Implemented and tested offline (`ai-reuse.test.js`, `ai-request-count.test.js`, section 6.1). Not yet run against real providers (section 6.2) or a real Redis server. |
+| C-01               | Script written (`scripts/ai-duplicate-report.js`). The local database has no AI runs, so the duplicate rate is **not measured** yet.                                   |
+| C-10               | Blocked: every AICredits call returns 402, so `prompt_cache_key` cannot be probed.                                                                                     |
+| C-11               | Not done: Docker and Redis are not installed locally. Everything runs on the in-process fallback until `REDIS_ENABLED=true`.                                           |
 
 Differences from revision 1: reuse is recorded on `ai_usage_records` (`reuseOutcome`, `sourceRunId`) rather than on `ai_runs`; the idempotency store keeps the full success response for 24 hours, scoped to the requester; the result cache also works in memory when Redis is off. Shared (`public`) source caching applies only when every source is GitHub, YouTube or a public Google Doc; the current client always sends the goal text as a source, so in practice its results stay private to the learner.
 **Depends on:** RFC 0001 revision 3 (approved), Plan 0002 revision 3.
@@ -186,6 +186,34 @@ Suggested order: C-01 first (it tells us how big the problem is), then C-02 to C
 | AT-C-8  | Deleting an account removes its cache entries.                                                      |
 | AT-C-9  | A cache hit records an `ai_runs` entry with `cacheOutcome: 'hit'` and zero cost.                    |
 | AT-C-10 | Cancelling one of two deduplicated requests does not abort the shared provider call.                |
+
+### 6.1 Request-count tests (no credits needed)
+
+`server/test/ai-request-count.test.js` sends real HTTP requests through the real idempotency middleware, reuse layer and scope rules, with a provider stub that counts calls. Several learners are simulated with separate anonymous session IDs. `server/test/preparation.test.js` adds the same counts per preparation case (prompt only, prompt with public sources, prompt with resume, and the assessment).
+
+| Scenario                           | Provider calls expected |
+| ---------------------------------- | ----------------------- |
+| First roadmap for a learner        | 3                       |
+| Network retry with the same key    | 0 (replayed)            |
+| Same learner asks again            | 1 (generation only)     |
+| Two tabs at the same moment        | 1 shared call           |
+| Three learners, same goal          | 9 (nothing shared)      |
+| Three learners, public-only source | 1 understanding call    |
+| Resume next to public sources      | never shared            |
+| Same key, different body           | 0 (rejected with 422)   |
+
+These tests found one real bug, now fixed: source understanding and the combined preparation call never hit the cache, because each request carries a new random `sourceId` and `capturedAt`. The fingerprint now ignores those fields, and a cached result has its source IDs rewritten to the current request's IDs.
+
+### 6.2 Live check (spends credit)
+
+`scripts/ai-reuse-live-check.js` runs the same scenarios against the running API and real providers, and counts what actually happened from `ai_usage_records`. Before running it:
+
+1. Top up AICredits.
+2. Set `FEATURE_FLAGS={"ai-learner-assessment":true,"ai-roadmap-generation":true}`; with `{}` both endpoints return 404 before any model is called.
+3. Set `AI_RATE_LIMIT_ANONYMOUS_PER_HOUR=50` (the default of 10 is used up by about three roadmaps).
+4. Restart the API.
+
+`--skip-generation` checks only preparation (cheap). Without it the run makes four generation calls. `--with-public-source=<GitHub URL>` adds the cross-learner public-source check.
 
 ## 7. Cheaper generation model
 

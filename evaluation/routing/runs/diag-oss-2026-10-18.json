@@ -1,0 +1,313 @@
+{
+  "evaluationId": "diag-oss-2026-10-18",
+  "fixturesVersion": 1,
+  "startedAt": "2026-10-18T08:04:09.111Z",
+  "settings": {
+    "aicredits-chat:openai/gpt-oss-120b": {
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "retries": 0,
+      "freeAttemptTimeoutMs": 30000,
+      "freeBudgetMs": 60000,
+      "reasoningEffort": "low"
+    }
+  },
+  "runs": [
+    {
+      "fixture": "F4",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "32c3b6af-d293-4c80-8db5-784651e8585c",
+      "elapsedMs": 76274,
+      "outcome": "failed",
+      "failureClass": "evidence",
+      "errorCode": "SOURCE_UNDERSTANDING_EVIDENCE_INVALID",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "failureDetails": [
+        {
+          "code": "SOURCE_UNDERSTANDING_EVIDENCE_INVALID",
+          "details": null,
+          "attempts": [null]
+        }
+      ],
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "invalid_output",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 1328,
+          "outputTokens": 5031,
+          "reasoningTokens": 677,
+          "latencyMs": 75769,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F8",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "c5cd33c0-4a1f-481d-a889-446eb34ca2a1",
+      "elapsedMs": 64250,
+      "outcome": "failed",
+      "failureClass": "schema",
+      "errorCode": "AI_INVALID_JSON",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "failureDetails": [
+        {
+          "code": "AI_INVALID_JSON",
+          "details": null,
+          "attempts": [null]
+        }
+      ],
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "learner_assessment",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 623,
+          "outputTokens": 8000,
+          "reasoningTokens": 0,
+          "latencyMs": 64167,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F9",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "cca084e2-5a04-4685-9a7a-e7211064156f",
+      "elapsedMs": 40195,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "errorMessage": null,
+      "failureDetails": [],
+      "router": {
+        "case": 4,
+        "caseMatches": true,
+        "sourceUnderstanding": "NOT_REQUIRED",
+        "learnerAssessment": "REQUIRED",
+        "executedOperations": ["learner_assessment"]
+      },
+      "requirements": null,
+      "level": {
+        "assessed": "intermediate",
+        "resolved": "intermediate",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [
+        {
+          "operation": "learner_assessment",
+          "outcome": "success",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 502,
+          "outputTokens": 1433,
+          "reasoningTokens": 525,
+          "latencyMs": 40058,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": {
+        "sourceUnderstanding": null,
+        "assessment": {
+          "schemaVersion": "1.0.0",
+          "currentLevel": "intermediate",
+          "confidence": 0.85,
+          "reasoning": "Two years of hands‑on work with SQL and Excel, combined with the job title of data analyst, indicate a solid, working‑level proficiency but not yet expert depth.",
+          "proficiencyEvidence": [
+            {
+              "source": "naturalLanguage",
+              "excerpt": "2 years of SQL and Excel experience"
+            },
+            {
+              "source": "naturalLanguage",
+              "excerpt": "I'm a data analyst"
+            }
+          ],
+          "knownSkills": [
+            {
+              "name": "SQL",
+              "category": "data",
+              "confidence": 0.9,
+              "reasoning": "Explicitly mentioned with two years of experience.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "2 years of SQL and Excel experience"
+                }
+              ]
+            },
+            {
+              "name": "Excel",
+              "category": "product",
+              "confidence": 0.9,
+              "reasoning": "Explicitly mentioned with two years of experience.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "2 years of SQL and Excel experience"
+                }
+              ]
+            }
+          ],
+          "missingSkills": [
+            {
+              "name": "Machine Learning",
+              "category": "data",
+              "confidence": 0,
+              "reasoning": "Learner explicitly states a desire to learn machine learning.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I want to learn machine learning"
+                }
+              ]
+            }
+          ],
+          "suggestedSkills": [
+            {
+              "name": "Python (pandas, scikit‑learn)",
+              "category": "programming",
+              "confidence": 0,
+              "reasoning": "Common prerequisite for machine‑learning work; aligns with the learner's stated goal.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I want to learn machine learning"
+                }
+              ]
+            }
+          ],
+          "experienceSignals": [
+            {
+              "value": "2 years",
+              "confidence": 0.9,
+              "reasoning": "Duration explicitly stated.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "2 years of SQL and Excel experience"
+                }
+              ]
+            }
+          ],
+          "educationSignals": [],
+          "technologyStack": [
+            {
+              "name": "SQL",
+              "category": "data",
+              "confidence": 0.9,
+              "reasoning": "Explicitly listed in deterministic signals and natural language.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "2 years of SQL and Excel experience"
+                }
+              ]
+            }
+          ],
+          "careerDirection": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "No explicit career direction beyond the expressed learning goal.",
+            "evidence": []
+          },
+          "projectComplexity": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "No project description provided.",
+            "evidence": []
+          },
+          "experienceSummary": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "No additional structured experience entries were supplied.",
+            "evidence": []
+          },
+          "educationSummary": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "No education information was supplied.",
+            "evidence": []
+          },
+          "technologySummary": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "Only SQL and Excel are mentioned; no further technology stack provided.",
+            "evidence": []
+          },
+          "clarificationRequired": false
+        }
+      }
+    }
+  ],
+  "updatedAt": "2026-10-18T08:07:10.313Z",
+  "summary": [
+    {
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "operation": "source_understanding",
+      "fixtures": ["F4"],
+      "runs": 1,
+      "schemaPassRate": 1,
+      "evidencePassRate": 0,
+      "criticalRecall": null,
+      "levelMatchRate": null,
+      "availabilityFailureRate": 0,
+      "failuresByClass": {
+        "evidence": 1
+      },
+      "latencyMs": {
+        "p50": null,
+        "p95": null
+      },
+      "cost": 0
+    },
+    {
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "operation": "learner_assessment",
+      "fixtures": ["F8", "F9"],
+      "runs": 2,
+      "schemaPassRate": 0.5,
+      "evidencePassRate": 1,
+      "criticalRecall": null,
+      "levelMatchRate": 1,
+      "availabilityFailureRate": 0,
+      "failuresByClass": {
+        "schema": 1
+      },
+      "latencyMs": {
+        "p50": 40058,
+        "p95": 40058
+      },
+      "cost": 0
+    }
+  ]
+}

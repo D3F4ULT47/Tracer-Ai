@@ -8,7 +8,7 @@ import {
   parseStructuredText,
   refusalError,
   sendWithRetries,
-  toProviderSchema,
+  toChatProviderSchema,
 } from './provider-support.js';
 
 function normalizeUsage(usage = {}) {
@@ -161,7 +161,7 @@ export function createChatCompletionsProvider({
           type: 'json_schema',
           json_schema: {
             name: schemaName,
-            schema: toProviderSchema(schema),
+            schema: toChatProviderSchema(schema),
             strict: true,
             ...(schemaDescription ? { description: schemaDescription } : {}),
           },

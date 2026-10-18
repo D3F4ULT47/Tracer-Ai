@@ -12,6 +12,43 @@ export function toProviderSchema(schema) {
   );
 }
 
+const valueMatchesType = {
+  null: (value) => value === null,
+  string: (value) => typeof value === 'string',
+  number: (value) => typeof value === 'number',
+  integer: (value) => Number.isInteger(value),
+  boolean: (value) => typeof value === 'boolean',
+};
+
+function withSingleTypes(schema) {
+  if (Array.isArray(schema)) return schema.map(withSingleTypes);
+  if (!schema || typeof schema !== 'object') return schema;
+  const node = Object.fromEntries(
+    Object.entries(schema).map(([key, value]) => [key, withSingleTypes(value)]),
+  );
+  if (!Array.isArray(node.type)) return node;
+  if (node.type.length === 1) return { ...node, type: node.type[0] };
+
+  const { type: types, description, ...keywords } = node;
+  const branches = types.map((type) => {
+    if (type === 'null') return { type: 'null' };
+    const branch = { ...keywords, type };
+    if (Array.isArray(keywords.enum)) {
+      branch.enum = keywords.enum.filter((value) => valueMatchesType[type]?.(value) ?? true);
+    }
+    return branch;
+  });
+  return { ...(description ? { description } : {}), anyOf: branches };
+}
+
+/**
+ * Chat Completions gateways such as AICredits reject `type` arrays (`["string", "null"]`) in a
+ * strict JSON schema, so each union becomes the equivalent `anyOf` of single-type branches.
+ */
+export function toChatProviderSchema(schema) {
+  return withSingleTypes(toProviderSchema(schema));
+}
+
 export function catalogEntries(payload) {
   const models = Array.isArray(payload) ? payload : (payload?.data ?? payload?.models ?? []);
   return models

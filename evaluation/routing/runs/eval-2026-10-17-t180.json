@@ -1,0 +1,381 @@
+{
+  "evaluationId": "eval-2026-10-17-t180",
+  "fixturesVersion": 1,
+  "startedAt": "2026-10-17T19:15:50.431Z",
+  "settings": {
+    "openrouter:nvidia/nemotron-3-super-120b-a12b:free": {
+      "adapter": "chat",
+      "endpointClass": "free",
+      "retries": 0,
+      "freeAttemptTimeoutMs": 180000,
+      "freeBudgetMs": 180000,
+      "reasoningEffort": "low"
+    }
+  },
+  "runs": [
+    {
+      "fixture": "F4",
+      "run": 1,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "9b4ad5d1-6f6c-4cda-b2df-9a66b62d1a35",
+      "elapsedMs": 52736,
+      "outcome": "failed",
+      "failureClass": "evidence",
+      "errorCode": "SOURCE_UNDERSTANDING_EVIDENCE_INVALID",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "invalid_output",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 1438,
+          "outputTokens": 2300,
+          "reasoningTokens": 1088,
+          "latencyMs": 52261,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F5",
+      "run": 1,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "987b6afc-9a03-44bb-8e6e-4352c08d9e86",
+      "elapsedMs": 105364,
+      "outcome": "failed",
+      "failureClass": "evidence",
+      "errorCode": "SOURCE_UNDERSTANDING_EVIDENCE_INVALID",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "invalid_output",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 1926,
+          "outputTokens": 4922,
+          "reasoningTokens": 2843,
+          "latencyMs": 105112,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F7",
+      "run": 1,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "7fae2928-4be6-4322-89c3-e4e29e87e2d2",
+      "elapsedMs": 180500,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "combined_preparation",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 180214,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F9",
+      "run": 1,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "7f0ce4b6-70c0-486e-b6aa-5799192d96a9",
+      "elapsedMs": 619589,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "learner_assessment",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 619178,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F9",
+      "run": 2,
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "48539045-da4e-4de0-869a-68235781bf3f",
+      "elapsedMs": 27149,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "router": {
+        "case": 4,
+        "caseMatches": true,
+        "sourceUnderstanding": "NOT_REQUIRED",
+        "learnerAssessment": "REQUIRED",
+        "executedOperations": ["learner_assessment"]
+      },
+      "requirements": null,
+      "level": {
+        "assessed": "beginner",
+        "resolved": "beginner",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [
+        {
+          "operation": "learner_assessment",
+          "outcome": "success",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 471,
+          "outputTokens": 1268,
+          "reasoningTokens": 503,
+          "latencyMs": 26959,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": {
+        "sourceUnderstanding": null,
+        "assessment": {
+          "schemaVersion": "1.0.0",
+          "currentLevel": "beginner",
+          "confidence": 0.9,
+          "reasoning": "Learner has 2 years of SQL and Excel experience as a data analyst but no demonstrated machine learning work; therefore proficiency in ML is at beginner level.",
+          "proficiencyEvidence": [
+            {
+              "source": "naturalLanguage",
+              "excerpt": "2 years of SQL and Excel experience"
+            }
+          ],
+          "knownSkills": [
+            {
+              "name": "SQL",
+              "category": "data",
+              "confidence": 0.95,
+              "reasoning": "Explicitly mentioned as 2 years of experience.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "2 years of SQL and Excel experience"
+                }
+              ]
+            },
+            {
+              "name": "Excel",
+              "category": "data",
+              "confidence": 0.95,
+              "reasoning": "Explicitly mentioned as 2 years of experience.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "2 years of SQL and Excel experience"
+                }
+              ]
+            },
+            {
+              "name": "data analysis",
+              "category": "data",
+              "confidence": 0.9,
+              "reasoning": "Self‑identified role as data analyst with SQL/Excel background.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I'm a data analyst"
+                }
+              ]
+            }
+          ],
+          "missingSkills": [
+            {
+              "name": "machine learning",
+              "category": "data",
+              "confidence": 0.98,
+              "reasoning": "Learner explicitly wants to learn machine learning.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I want to learn machine learning"
+                }
+              ]
+            }
+          ],
+          "suggestedSkills": [
+            {
+              "name": "Python",
+              "category": "data",
+              "confidence": 0.9,
+              "reasoning": "Primary language for machine learning libraries and typical next step after SQL/Excel.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I want to learn machine learning"
+                }
+              ]
+            },
+            {
+              "name": "statistics",
+              "category": "data",
+              "confidence": 0.85,
+              "reasoning": "Foundational for understanding ML algorithms.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I want to learn machine learning"
+                }
+              ]
+            },
+            {
+              "name": "scikit-learn",
+              "category": "data",
+              "confidence": 0.8,
+              "reasoning": "Common Python library for implementing ML models.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "I want to learn machine learning"
+                }
+              ]
+            }
+          ],
+          "experienceSignals": [],
+          "educationSignals": [],
+          "technologyStack": [],
+          "careerDirection": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "",
+            "evidence": []
+          },
+          "projectComplexity": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "",
+            "evidence": []
+          },
+          "experienceSummary": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "",
+            "evidence": []
+          },
+          "educationSummary": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "",
+            "evidence": []
+          },
+          "technologySummary": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "",
+            "evidence": []
+          },
+          "clarificationRequired": false
+        }
+      }
+    }
+  ],
+  "updatedAt": "2026-10-17T20:09:35.973Z",
+  "summary": [
+    {
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "operation": "source_understanding",
+      "fixtures": ["F4", "F5"],
+      "runs": 2,
+      "schemaPassRate": 1,
+      "evidencePassRate": 0,
+      "criticalRecall": null,
+      "levelMatchRate": null,
+      "availabilityFailureRate": 0,
+      "failuresByClass": {
+        "evidence": 2
+      },
+      "latencyMs": {
+        "p50": null,
+        "p95": null
+      },
+      "cost": 0
+    },
+    {
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "operation": "combined_preparation",
+      "fixtures": ["F7"],
+      "runs": 1,
+      "schemaPassRate": null,
+      "evidencePassRate": null,
+      "criticalRecall": null,
+      "levelMatchRate": null,
+      "availabilityFailureRate": 1,
+      "failuresByClass": {
+        "availability": 1
+      },
+      "latencyMs": {
+        "p50": null,
+        "p95": null
+      },
+      "cost": 0
+    },
+    {
+      "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
+      "operation": "learner_assessment",
+      "fixtures": ["F9"],
+      "runs": 2,
+      "schemaPassRate": 1,
+      "evidencePassRate": 1,
+      "criticalRecall": null,
+      "levelMatchRate": 1,
+      "availabilityFailureRate": 0.5,
+      "failuresByClass": {
+        "availability": 1
+      },
+      "latencyMs": {
+        "p50": 26959,
+        "p95": 26959
+      },
+      "cost": 0
+    }
+  ]
+}

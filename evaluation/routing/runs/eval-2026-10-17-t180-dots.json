@@ -1,0 +1,69 @@
+{
+  "evaluationId": "eval-2026-10-17-t180-dots",
+  "fixturesVersion": 1,
+  "startedAt": "2026-10-17T19:15:50.432Z",
+  "settings": {
+    "openrouter:dots-studio/dots-3-note-preview:free": {
+      "adapter": "chat",
+      "endpointClass": "free",
+      "retries": 0,
+      "freeAttemptTimeoutMs": 180000,
+      "freeBudgetMs": 180000,
+      "reasoningEffort": "low"
+    }
+  },
+  "runs": [
+    {
+      "fixture": "F4",
+      "run": 1,
+      "model": "openrouter:dots-studio/dots-3-note-preview:free",
+      "adapter": "chat",
+      "endpointClass": "free",
+      "pipelineId": "4be3fe07-6804-4177-9335-6e7ed220ab68",
+      "elapsedMs": 111619,
+      "outcome": "failed",
+      "failureClass": "schema",
+      "errorCode": "AI_INVALID_JSON",
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 1360,
+          "outputTokens": 10000,
+          "reasoningTokens": 6141,
+          "latencyMs": 111452,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    }
+  ],
+  "updatedAt": "2026-10-17T19:17:42.333Z",
+  "summary": [
+    {
+      "model": "openrouter:dots-studio/dots-3-note-preview:free",
+      "operation": "source_understanding",
+      "fixtures": ["F4"],
+      "runs": 1,
+      "schemaPassRate": 0,
+      "evidencePassRate": null,
+      "criticalRecall": null,
+      "levelMatchRate": null,
+      "availabilityFailureRate": 0,
+      "failuresByClass": {
+        "schema": 1
+      },
+      "latencyMs": {
+        "p50": null,
+        "p95": null
+      },
+      "cost": 0
+    }
+  ]
+}

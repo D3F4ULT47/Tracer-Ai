@@ -8,7 +8,7 @@ import { validateAiOutput } from '../json.validator.js';
 import { loadPrompt } from '../prompt.repository.js';
 import { DATA_CLASSES } from '../providers/model-chain.js';
 import { getConfiguredAiProvider } from '../providers/provider.factory.js';
-import { sourceScope } from '../reuse/reuse-scope.js';
+import { sourceReuseHints, sourceScope } from '../reuse/reuse-scope.js';
 import { SourceHandlerRegistry } from './source-handler.registry.js';
 import { registerDefaultSourceHandlers } from './source.handlers.js';
 import { validateSourceUnderstandingInput } from './source-input.js';
@@ -192,12 +192,14 @@ export function createSourceUnderstandingService({
       mode: 'analysis',
     });
 
+    const hints = sourceReuseHints(sources);
     let result;
     try {
       result = await provider.generateStructured({
         model: configuration.model,
         instructions: prompt.content,
         input: JSON.stringify({ sources }),
+        reuse: { input: { sources: hints.stableSources }, ids: hints.ids },
         schema: sourceUnderstandingProviderSchema(promptVersion),
         schemaName: 'source_understanding',
         schemaDescription: 'Evidence-grounded understanding of one or more roadmap sources.',

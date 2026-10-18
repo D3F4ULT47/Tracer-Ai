@@ -3,6 +3,7 @@ import { EventEmitter } from 'node:events';
 import test from 'node:test';
 import express from 'express';
 import request from 'supertest';
+import { memoryIdempotencyRepository } from './support/memory-idempotency-repository.js';
 import { errorHandler } from '../src/middlewares/error-handler.js';
 import { createAiResultStore } from '../src/infrastructure/cache/ai-result-store.js';
 import { canonicalJson } from '../src/modules/ai/accounting/fingerprint.js';
@@ -162,6 +163,39 @@ test('a cached result is reused with zero tokens and its source run recorded', a
   assert.equal(record.reuseOutcome, 'cache_hit');
   assert.equal(record.sourceRunId, 'run-1');
   assert.equal(record.calculatedCost, 0);
+});
+
+test('a cached result is rebound only where a value is exactly a source ID', async () => {
+  const layer = createReuseLayer({
+    store: createAiResultStore({ redisReady: () => false }),
+    config,
+    log: silent,
+  });
+  const provider = fakeProvider({
+    data: {
+      evidence: [{ sourceId: 'source-a' }, { sourceId: 'source-b' }],
+      note: 'cites source-a inline',
+      label: 'source-a-suffix',
+    },
+  });
+  const chain = wrapped(layer, provider);
+  const request = { ...baseRequest, schema: undefined, validate() {} };
+
+  await chain.generateStructured({
+    ...request,
+    reuse: { input: 'stable', ids: ['source-a', 'source-b'] },
+  });
+  const second = await chain.generateStructured({
+    ...request,
+    reuse: { input: 'stable', ids: ['source-b', 'source-c'] },
+  });
+
+  assert.equal(provider.calls.length, 1);
+  assert.deepEqual(second.data, {
+    evidence: [{ sourceId: 'source-b' }, { sourceId: 'source-c' }],
+    note: 'cites source-a inline',
+    label: 'source-a-suffix',
+  });
 });
 
 test('changing prompt, schema, model or input misses the cache', async () => {
@@ -423,49 +457,6 @@ test('deleting an account purges only that learner', async () => {
   assert.equal(provider.calls.length, 3);
   assert.deepEqual(deletedScopes, ['owner:64b7f0c2a1b2c3d4e5f60718']);
 });
-
-function memoryIdempotencyRepository() {
-  const records = new Map();
-  let nextId = 1;
-  const id = ({ scope, endpoint, key }) => `${scope}|${endpoint}|${key}`;
-  const byId = (recordId) => [...records.values()].find((record) => record._id === recordId);
-  return {
-    records,
-    async claim(data) {
-      const existing = records.get(id(data));
-      if (existing) return { record: { ...existing }, created: false };
-      const record = { ...data, _id: nextId++, status: 'processing', updatedAt: new Date() };
-      records.set(id(data), record);
-      return { record: { ...record }, created: true };
-    },
-    async find(lookup) {
-      const record = records.get(id(lookup));
-      return record ? { ...record } : null;
-    },
-    async reclaimFailed(recordId) {
-      const record = byId(recordId);
-      if (record?.status !== 'failed') return false;
-      record.status = 'processing';
-      return true;
-    },
-    async reclaimStale(recordId, staleBefore) {
-      const record = byId(recordId);
-      if (record?.status !== 'processing' || !(record.updatedAt < staleBefore)) return false;
-      record.updatedAt = new Date();
-      return true;
-    },
-    async complete(recordId, responseStatus, body) {
-      Object.assign(byId(recordId), {
-        status: 'completed',
-        responseStatus,
-        responseBody: JSON.stringify(body),
-      });
-    },
-    async fail(recordId) {
-      byId(recordId).status = 'failed';
-    },
-  };
-}
 
 function idempotentApp({ repository, handler }) {
   const app = express();

@@ -37,9 +37,30 @@ function schemaValidator(schema, log) {
   return schemaValidators.get(key);
 }
 
-function storedValue(result, request) {
+/**
+ * Inputs may carry per-request identifiers (for example a fresh `sourceId` per source) that the
+ * model echoes in its output. Callers pass `reuse.input` without them for the fingerprint and
+ * `reuse.ids` in a stable order; a cached output is rebound to the current identifiers.
+ */
+function rebind(value, ids) {
+  const previous = value.ids ?? [];
+  if (previous.length !== ids.length) return null;
+  const mapping = new Map(previous.map((id, index) => [id, ids[index]]));
+  const replace = (node) => {
+    if (typeof node === 'string') return mapping.get(node) ?? node;
+    if (Array.isArray(node)) return node.map(replace);
+    if (node && typeof node === 'object') {
+      return Object.fromEntries(Object.entries(node).map(([key, item]) => [key, replace(item)]));
+    }
+    return node;
+  };
+  return { ...value, ids, data: replace(value.data) };
+}
+
+function storedValue(result, request, ids) {
   return {
     data: result.data,
+    ids,
     provider: result.provider ?? null,
     model: result.model ?? null,
     endpointClass: result.endpointClass ?? null,
@@ -155,8 +176,9 @@ export function createReuseLayer({
 
     return Object.freeze({
       ...provider,
-      async generateStructured(request) {
+      async generateStructured({ reuse: reuseHints = null, ...request }) {
         const startedAt = now();
+        const ids = reuseHints?.ids ?? [];
         const fingerprint = aiCallFingerprint({
           operation,
           scope: scoped,
@@ -164,23 +186,26 @@ export function createReuseLayer({
           models,
           instructions: request.instructions,
           schema: request.schema,
-          input: request.input,
+          input: reuseHints?.input ?? request.input,
         });
         const cacheKey = `ai:cache:${scoped}:${fingerprint}`;
         const sharedKey = `ai:shared:${scoped}:${fingerprint}`;
         const lockKey = `ai:inflight:${scoped}:${fingerprint}`;
 
         if (cacheTtlMs > 0) {
-          const cached = await store.get(cacheKey);
+          const stored = await store.get(cacheKey);
+          const cached = stored ? rebind(stored, ids) : null;
           if (cached && accepts(cached, request)) {
             return reused(cached, REUSE_OUTCOMES.HIT, startedAt);
           }
-          if (cached) await store.delete(cacheKey);
+          if (stored) await store.delete(cacheKey);
         }
 
         const call = async (signal) => {
           const result = await provider.generateStructured({ ...request, signal });
-          if (cacheTtlMs > 0) await store.set(cacheKey, storedValue(result, request), cacheTtlMs);
+          if (cacheTtlMs > 0) {
+            await store.set(cacheKey, storedValue(result, request, ids), cacheTtlMs);
+          }
           return result;
         };
         if (!config.dedupEnabled) return call(request.signal);
@@ -190,7 +215,9 @@ export function createReuseLayer({
           join(existing, request.signal);
           try {
             const outcome = await untilAborted(existing.promise, request.signal);
-            return reused(outcome.value, REUSE_OUTCOMES.SHARED, startedAt);
+            const shared = rebind(outcome.value, ids);
+            if (!shared) throw new Error('A shared AI result could not be rebound to this request');
+            return reused(shared, REUSE_OUTCOMES.SHARED, startedAt);
           } catch (error) {
             if (error?.code === 'AI_REQUEST_CANCELLED') throw error;
             throw rebuildError(sanitizedError(error));
@@ -210,12 +237,13 @@ export function createReuseLayer({
               if (!locked) {
                 const remote = await waitForRemote({ sharedKey, lockKey, signal: request.signal });
                 if (remote?.error) throw rebuildError(remote.error);
-                if (remote?.value) return { value: remote.value, result: null };
+                const value = remote?.value ? rebind(remote.value, ids) : null;
+                if (value) return { value, result: null };
               }
             }
             try {
               const result = await call(entry.controller.signal);
-              const value = storedValue(result, request);
+              const value = storedValue(result, request, ids);
               if (distributed) await store.set(sharedKey, { value }, SHARED_RESULT_TTL_MS);
               return { value, result };
             } catch (error) {

@@ -38,6 +38,24 @@ export function requestScope(request) {
 }
 
 /**
+ * Normalised sources get a fresh `sourceId` and `capturedAt` on every request, and the model
+ * cites the `sourceId`s. The fingerprint uses the sources without them, and a reused output is
+ * rebound to the current `sourceId`s in the same order.
+ */
+export function sourceReuseHints(sources) {
+  return {
+    ids: sources.map((source) => source.sourceId).filter(Boolean),
+    stableSources: sources.map(({ sourceId, attribution, ...source }) => ({
+      ...source,
+      ...(attribution
+        ? { attribution: { ...attribution, sourceId: undefined, capturedAt: undefined } }
+        : {}),
+      sourceId: sourceId ? 'source' : undefined,
+    })),
+  };
+}
+
+/**
  * Source understanding is shareable only when every source is public and nothing personal is
  * present; otherwise it stays with the learner who supplied it.
  */

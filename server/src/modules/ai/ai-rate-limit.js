@@ -4,7 +4,8 @@ import { RedisRateLimitStore } from '../../infrastructure/redis/redis-rate-limit
 
 export const aiGenerationRateLimit = rateLimit({
   windowMs: 60 * 60 * 1000,
-  limit: (request) => (request.auth?.userId ? 60 : 10),
+  limit: (request) =>
+    request.auth?.userId ? env.AI_RATE_LIMIT_USER_PER_HOUR : env.AI_RATE_LIMIT_ANONYMOUS_PER_HOUR,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   ...(env.REDIS_ENABLED
