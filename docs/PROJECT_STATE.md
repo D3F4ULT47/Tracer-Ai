@@ -11,6 +11,8 @@ This document compares four things for every area the work touched: what the pro
 > - Local `.env` now enables `ai-routed-preparation` and `ai-learner-assessment`, sets the anonymous AI limit to 50 per hour and points `AI_MODEL_FAST` at the free-first chain.
 > - AICredits now has credit (₹49), so the 402 note below no longer applies.
 >
+> The current state, with the four cases, models and the preparation quality comparison, is in `NEW_STATE.md`.
+>
 > The first evaluation ran on Oct 17–18 and approved no model. It also found and fixed a defect: AICredits rejected every chat-adapter schema. Results and spend are in Plan 0002 section 8.5.
 
 ## 1. The short version
@@ -104,7 +106,7 @@ The plan document still says "revision 3, not approved". Decisions D-1, D-2, D-3
 | T-11 | Set `AI_MODEL_FAST` to the RFC chain in `.env`       | Not done (yours to change)                                                      |
 | T-12 | Full regression run                                  | Passing: 227 of 229 server tests (2 live tests skipped), 34 client tests        |
 | T-13 | Accounting fixes per attempt                         | Partial: fallback reason and reasoning effort are not stored on usage records   |
-| T-14 | Operation policy; gpt-5.5 baseline limited to legacy | Done                                                                            |
+| T-14 | Operation policy; gpt-5.5 baseline limited to legacy | Written but not wired (see `NEW_STATE.md` section 3.3)                          |
 | T-15 | Paid preparation cap                                 | Done                                                                            |
 | T-16 | More free models, each with an eligibility record    | Not done; Apodex free left the OpenRouter catalog on Oct 16                     |
 | T-17 | Time budgets, abort signals, cancel on disconnect    | Partial: budgets and timeouts done; disconnect not wired                        |
