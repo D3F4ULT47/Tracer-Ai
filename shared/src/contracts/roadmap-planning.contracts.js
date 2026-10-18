@@ -60,6 +60,18 @@ const anonymousSessionId = { type: 'string', format: 'uuid' };
 const shortString = { type: 'string', maxLength: 500 };
 const preparationStates = Object.values(PREPARATION_STATES);
 const preparationOperation = { enum: Object.values(PREPARATION_OPERATIONS) };
+const requirementIds = { type: 'array', maxItems: 200, items: { type: 'string', maxLength: 10 } };
+const evidenceSalvageReport = {
+  type: 'object',
+  required: ['droppedEvidence', 'droppedItems', 'demotedRequirements', 'repairedRequirements'],
+  properties: {
+    droppedEvidence: { type: 'integer', minimum: 0 },
+    droppedItems: { type: 'integer', minimum: 0 },
+    demotedRequirements: requirementIds,
+    repairedRequirements: requirementIds,
+  },
+  additionalProperties: false,
+};
 const stageDecision = {
   type: 'object',
   required: ['state', 'reason'],
@@ -125,6 +137,15 @@ export const preparationSchema = {
     },
     degraded: { type: 'boolean' },
     notices: { type: 'array', maxItems: 20, items: shortString },
+    evidenceSalvage: {
+      type: 'object',
+      required: ['sourceUnderstanding', 'learnerAssessment'],
+      properties: {
+        sourceUnderstanding: { oneOf: [{ type: 'null' }, evidenceSalvageReport] },
+        learnerAssessment: { oneOf: [{ type: 'null' }, evidenceSalvageReport] },
+      },
+      additionalProperties: false,
+    },
   },
   additionalProperties: false,
 };

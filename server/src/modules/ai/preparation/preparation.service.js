@@ -10,9 +10,10 @@ import { AppError } from '../../../shared/app-error.js';
 import { buildUsageRecords } from '../accounting/usage-records.js';
 import { aiConfig } from '../ai.config.js';
 import { assessmentService as defaultAssessmentService } from '../assessment/assessment.service.js';
-import { validateAssessmentEvidence } from '../assessment/assessment.validator.js';
 import { prepareAssessmentInputs } from '../assessment/deterministic-signal.extractor.js';
 import { finalizeProficiencyAssessment } from '../assessment/proficiency.analyzer.js';
+import { repairRequirementEvidence } from '../evidence/repair.js';
+import { salvageAndValidateAssessment } from '../evidence/salvage.js';
 import { validateAiOutput } from '../json.validator.js';
 import { learningContextService as defaultLearningContextService } from '../learning-context/learning-context.service.js';
 import { loadPrompt } from '../prompt.repository.js';
@@ -20,7 +21,7 @@ import { DATA_CLASSES } from '../providers/model-chain.js';
 import { getConfiguredAiProvider } from '../providers/provider.factory.js';
 import {
   ROUTED_SOURCE_PROMPT_VERSION,
-  finalizeUnderstanding,
+  finalizeSalvagedUnderstanding,
   sourceUnderstandingOutcome,
   sourceUnderstandingService as defaultSourceUnderstandingService,
 } from '../source-understanding/source-understanding.service.js';
@@ -133,6 +134,16 @@ function notices(statuses, { sourceState, learnerState }) {
   return messages;
 }
 
+function unconfirmedRequirementNotices(understanding, salvageReport) {
+  const demoted = new Set(salvageReport?.demotedRequirements ?? []);
+  return (understanding?.requirements ?? [])
+    .filter(({ id }) => demoted.has(id))
+    .map(({ statement }) => {
+      const label = statement.length > 120 ? `${statement.slice(0, 117)}...` : statement;
+      return `We couldn't confirm "${label}" in your sources, so the roadmap treats it as optional.`;
+    });
+}
+
 export function createPreparationService({
   flags = featureFlags,
   sourceUnderstanding = defaultSourceUnderstandingService,
@@ -162,19 +173,17 @@ export function createPreparationService({
     });
     const runId = randomUUID();
     const startedAt = Date.now();
-    const finalize = (data) => {
-      const understanding = finalizeUnderstanding(
+    const finalize = (data) => ({
+      source: finalizeSalvagedUnderstanding(
         data.sourceUnderstanding,
         normalized,
         ROUTED_SOURCE_PROMPT_VERSION,
-      );
-      const validated = validateAiOutput('learnerAssessment', data.learnerAssessment);
-      validateAssessmentEvidence(validated, prepared.inputs);
-      return {
-        understanding,
-        assessment: finalizeProficiencyAssessment(validated, confidenceThreshold),
-      };
-    };
+      ),
+      learner: salvageAndValidateAssessment(
+        validateAiOutput('learnerAssessment', data.learnerAssessment),
+        prepared.inputs,
+      ),
+    });
     const recordUsage = (fields) =>
       Promise.all(
         buildUsageRecords({
@@ -227,10 +236,30 @@ export function createPreparationService({
         metadata: { run_id: runId, operation: combinedOperation },
         validate: finalize,
       });
-      const finalized = finalize(result.data);
+      const { source, learner } = finalize(result.data);
       await recordUsage({ result, outcome: 'success' });
+      const repaired = await repairRequirementEvidence({
+        finalized: source,
+        sources: normalized.sources,
+        reuseHints: hints,
+        provider,
+        configuration,
+        promptLoader,
+        repositories,
+        recordUsage,
+        metadata: { run_id: runId, operation: combinedOperation },
+        timeoutMs: aiConfig.preparation.evidenceRepairTimeoutMs,
+        log,
+      });
       await repositories.runs.complete(runId);
-      return finalized;
+      return {
+        understanding: repaired.understanding,
+        assessment: finalizeProficiencyAssessment(learner.assessment, confidenceThreshold),
+        evidenceSalvage: {
+          sourceUnderstanding: repaired.report,
+          learnerAssessment: learner.report,
+        },
+      };
     } catch (error) {
       try {
         await recordUsage({ result, error, outcome: combinedOutcome(error) });
@@ -337,6 +366,7 @@ export function createPreparationService({
     let normalized = null;
     let modelError = null;
     const executedOperations = [];
+    const evidenceSalvage = { sourceUnderstanding: null, learnerAssessment: null };
 
     if (sourceState === REQUIRED) {
       normalized = await sourceUnderstanding.normalize(input.sources.filter(isPlanningSource));
@@ -376,6 +406,7 @@ export function createPreparationService({
         });
         understanding = combined.understanding;
         assessmentResult = combined.assessment;
+        Object.assign(evidenceSalvage, combined.evidenceSalvage);
       } catch (error) {
         modelError = error;
         sourceState = FAILED;
@@ -396,6 +427,7 @@ export function createPreparationService({
           learner,
         });
         understanding = result.understanding;
+        evidenceSalvage.sourceUnderstanding = result.evidenceSalvage ?? null;
       } catch (error) {
         modelError = error;
         sourceState = FAILED;
@@ -413,6 +445,7 @@ export function createPreparationService({
           learner,
         });
         assessmentResult = result.assessment;
+        evidenceSalvage.learnerAssessment = result.evidenceSalvage ?? null;
       } catch (error) {
         modelError = error;
         learnerState = FAILED;
@@ -484,7 +517,13 @@ export function createPreparationService({
       sourceStatuses: statuses,
       sourceExcerpts,
       degraded,
-      notices: notices(statuses, { sourceState, learnerState }),
+      notices: [
+        ...notices(statuses, { sourceState, learnerState }),
+        ...unconfirmedRequirementNotices(understanding, evidenceSalvage.sourceUnderstanding),
+      ],
+      ...(evidenceSalvage.sourceUnderstanding || evidenceSalvage.learnerAssessment
+        ? { evidenceSalvage }
+        : {}),
     };
     log.info(
       {
@@ -494,6 +533,7 @@ export function createPreparationService({
         learnerState,
         executedOperations,
         degraded,
+        salvaged: Boolean(preparation.evidenceSalvage),
       },
       'Roadmap preparation routed',
     );

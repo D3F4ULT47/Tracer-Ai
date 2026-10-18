@@ -74,6 +74,7 @@ export const aiConfig = Object.freeze({
     paidAttemptLimit: env.AI_PAID_PREPARATION_LIMIT,
     freeUnavailablePolicy: env.AI_FREE_UNAVAILABLE_POLICY,
     failurePolicy: env.AI_PREPARATION_FAILURE_POLICY,
+    evidenceRepairTimeoutMs: env.AI_EVIDENCE_REPAIR_TIMEOUT_MS,
   }),
   reuse: Object.freeze({
     idempotencyEnabled: env.AI_IDEMPOTENCY_ENABLED,

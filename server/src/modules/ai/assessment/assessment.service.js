@@ -12,6 +12,7 @@ import { validateAiOutput } from '../json.validator.js';
 import { loadPrompt } from '../prompt.repository.js';
 import { DATA_CLASSES } from '../providers/model-chain.js';
 import { getConfiguredAiProvider } from '../providers/provider.factory.js';
+import { salvageAndValidateAssessment } from '../evidence/salvage.js';
 import { assessmentRepositories } from './assessment.repository.js';
 import { validateAssessmentEvidence } from './assessment.validator.js';
 import { prepareAssessmentInputs } from './deterministic-signal.extractor.js';
@@ -117,8 +118,15 @@ export function createAssessmentService({
       });
 
       const startedAt = Date.now();
+      const finalize = (data) => {
+        const validated = validateAiOutput('learnerAssessment', data);
+        return profile === 'fast'
+          ? salvageAndValidateAssessment(validated, prepared.inputs)
+          : { assessment: validateAssessmentEvidence(validated, prepared.inputs), report: null };
+      };
       let result;
       let assessment;
+      let evidenceSalvage;
 
       try {
         result = await provider.generateStructured({
@@ -133,16 +141,12 @@ export function createAssessmentService({
           schemaDescription: 'Evidence-grounded analysis of a learner without roadmap content.',
           maxOutputTokens: aiConfig.assessmentMaxOutputTokens,
           metadata: { run_id: runId, operation },
-          validate: (data) =>
-            validateAssessmentEvidence(
-              validateAiOutput('learnerAssessment', data),
-              prepared.inputs,
-            ),
+          validate: finalize,
         });
 
-        const validated = validateAiOutput('learnerAssessment', result.data);
-        validateAssessmentEvidence(validated, prepared.inputs);
-        assessment = finalizeProficiencyAssessment(validated, confidenceThreshold);
+        const finalized = finalize(result.data);
+        evidenceSalvage = finalized.report;
+        assessment = finalizeProficiencyAssessment(finalized.assessment, confidenceThreshold);
       } catch (error) {
         const safeError = safeAssessmentError(error, runId, log);
 
@@ -177,7 +181,7 @@ export function createAssessmentService({
         throw accountingError;
       }
 
-      return Object.freeze({ assessment, runId });
+      return Object.freeze({ assessment, runId, evidenceSalvage });
     },
   });
 }

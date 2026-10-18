@@ -46,7 +46,7 @@ The old pipeline makes 3 calls in every case (section 5).
 - **Failure (D-3).** If every preparation model fails, the request ends with HTTP 502 and no roadmap is generated from bad input. An unreadable source is not a model failure: preparation continues with the goal text and reports the source as failed.
 - **Free quota exhausted (D-7).** When OpenRouter's daily free limit is used up, preparation stops with HTTP 503 ("Server down") instead of silently paying.
 - **Limits.** Each free attempt gets at most 30 s, all free attempts together 60 s, all paid attempts together 90 s, and at most 2 paid attempts (D-2).
-- **Evidence check.** Every evidence quote must appear in the source or learner text, and every evidence reference must exist. Output that fails is rejected and the next model is tried. This check is what stops invented requirements from reaching the roadmap.
+- **Evidence check.** Every evidence quote must appear in the source or learner text, and every evidence reference must exist. This check is what stops invented requirements from reaching the roadmap. In the old pipeline, output that fails is rejected and the next model is tried. The new flow salvages first (section 3.4).
 
 **Measured on the router alone:** inputs F1–F3 (goal only) routed to case 1 and made 0 calls. Every other input routed to its expected case (section 7).
 
@@ -83,6 +83,35 @@ So **the paid model used in place of the free models is gpt-5.5**, the same mode
 - In production, preparation has no allowed model until one is approved.
 
 The old pipeline and generation are unaffected.
+
+### 3.4 Changes made to help a cheaper model pass (Oct 18, untested live)
+
+Both changes apply only to the new flow. The old pipeline keeps its prompts and rejects invalid output exactly as before.
+
+**Bounded preparation prompts:**
+
+- `source-understanding/1.2.0`, `preparation-combined/1.1.0` and `learner-assessment/1.1.0`.
+- Caps on every list except requirements, and one-sentence descriptions.
+- Quotes of at most 150 characters (source) or 120 characters (learner), copied exactly from one line.
+- One milestone per numbered step or week.
+- The learner's level is judged on the skill the goal needs.
+- The cause they target: failed outputs were 2,500–6,100 tokens long, and timeouts were the main failure.
+
+**Salvage, then repair only for a critical requirement:**
+
+- A quote that isn't in the text is deleted, together with anything that rested only on it.
+- A requirement that loses all its quotes is kept, but becomes "inferred, not critical".
+- If that requirement was critical, one short repair call (at most 20 s, `AI_EVIDENCE_REPAIR_TIMEOUT_MS`) asks for its exact quote.
+  - An exact quote of at least 12 characters restores the requirement to critical.
+  - Otherwise it stays optional, and the learner sees a notice naming it.
+- An output with less than half of its quotes grounded, or an assessment with no grounded proficiency quote, is still rejected.
+- Every salvage and repair is reported:
+  - in `preparation.evidenceSalvage`;
+  - in a usage record with `stage: evidence_repair`;
+  - in the evaluation summary: `salvagedRuns`, `repairCalls`, `repairedRequirements`, and `evidencePassRateWithoutSalvage`.
+- The evaluation's critical recall now counts a requirement only if it is found and marked critical. This doesn't change any earlier result.
+
+Whether these changes raise the valid-output rate is not known until the evaluation is re-run.
 
 ## 4. The legacy pipeline
 
@@ -204,12 +233,12 @@ Observations from reading the outputs:
 
 ## 8. Open items
 
-| Item                                                                                 | Why it matters                                                             |
-| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
-| Wire the operation policy and pass the profile to the eligibility gate (section 3.3) | Plan rules are not enforced; decide the preparation model at the same time |
-| Client switch to `/prepare` (T-06)                                                   | Until then users never get the new flow                                    |
-| gpt-5.5 reference outputs on F4 and F9 (about ₹11–15)                                | Turns the gpt-5.5 comparison from a prediction into a measurement          |
-| Prompt 2.0.0 with requirement coverage and repair (T-05)                             | Planned quality safeguard; not built                                       |
-| Shorter preparation output for free models, or a newer free model                    | The free models fail on time first, then on evidence                       |
-| Live checks for other learners, simultaneous requests, generation                    | Only replay and same-learner cache were checked live                       |
-| Rotate the API keys pasted in chat                                                   | Security                                                                   |
+| Item                                                               | Why it matters                                                       |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| Re-run the evaluation on the new prompts and salvage (section 3.4) | Shows whether a cheaper model now passes; about ₹1–3 on gpt-oss-120b |
+| Client switch to `/prepare` (T-06)                                 | Until then users never get the new flow                              |
+| gpt-5.5 reference outputs on F4 and F9 (about ₹11–15)              | Turns the gpt-5.5 comparison from a prediction into a measurement    |
+| Prompt 2.0.0 with requirement coverage and repair (T-05)           | Planned quality safeguard; not built                                 |
+| Shorter preparation output for free models, or a newer free model  | The free models fail on time first, then on evidence                 |
+| Live checks for other learners, simultaneous requests, generation  | Only replay and same-learner cache were checked live                 |
+| Rotate the API keys pasted in chat                                 | Security                                                             |

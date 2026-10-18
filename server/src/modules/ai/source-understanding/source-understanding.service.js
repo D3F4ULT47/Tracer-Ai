@@ -4,6 +4,8 @@ import { logger } from '../../../infrastructure/logging/logger.js';
 import { AppError } from '../../../shared/app-error.js';
 import { buildUsageRecords } from '../accounting/usage-records.js';
 import { aiConfig } from '../ai.config.js';
+import { repairRequirementEvidence } from '../evidence/repair.js';
+import { salvageSourceEvidence } from '../evidence/salvage.js';
 import { validateAiOutput } from '../json.validator.js';
 import { loadPrompt } from '../prompt.repository.js';
 import { DATA_CLASSES } from '../providers/model-chain.js';
@@ -82,10 +84,7 @@ export function dataClassForSources(sources) {
     : DATA_CLASSES.GENERAL;
 }
 
-/**
- * Turns model output into a validated understanding for already-normalized sources.
- */
-export function finalizeUnderstanding(data, normalized, promptVersion) {
+function schemaValidUnderstanding(data, normalized, promptVersion) {
   const understanding = {
     ...data,
     schemaVersion: promptVersion,
@@ -95,9 +94,39 @@ export function finalizeUnderstanding(data, normalized, promptVersion) {
     sourceAttributions: normalized.sources.map((source) => source.attribution),
     sourceProcessing: normalized.sourceProcessing,
   };
-  validateAiOutput('sourceUnderstanding', understanding);
+  return validateAiOutput('sourceUnderstanding', understanding);
+}
+
+/**
+ * Turns model output into a validated understanding for already-normalized sources.
+ */
+export function finalizeUnderstanding(data, normalized, promptVersion) {
+  const understanding = schemaValidUnderstanding(data, normalized, promptVersion);
   validateSourceEvidence(understanding, normalized.sources);
   return normalizeRequirementCriticality(understanding);
+}
+
+/**
+ * Like `finalizeUnderstanding`, but ungrounded evidence is removed instead of failing the output
+ * (routed preparation). `salvaged` is the understanding before criticality is normalized, which
+ * an evidence repair builds on; `report` is null when nothing was removed.
+ */
+export function finalizeSalvagedUnderstanding(data, normalized, promptVersion) {
+  const understanding = schemaValidUnderstanding(data, normalized, promptVersion);
+  const salvage = salvageSourceEvidence(understanding, normalized.sources);
+  if (!salvage) {
+    validateSourceEvidence(understanding, normalized.sources);
+    throw new AppError('Source understanding contains too little grounded evidence', {
+      status: 422,
+      code: 'SOURCE_UNDERSTANDING_EVIDENCE_INVALID',
+    });
+  }
+  const salvaged = validateSourceEvidence(salvage.understanding, normalized.sources);
+  return {
+    understanding: normalizeRequirementCriticality(salvaged),
+    salvaged,
+    report: salvage.report,
+  };
 }
 
 function defaultRegistry() {
@@ -193,6 +222,11 @@ export function createSourceUnderstandingService({
     });
 
     const hints = sourceReuseHints(sources);
+    const salvage = profile === 'fast';
+    const finalize = (data) =>
+      salvage
+        ? finalizeSalvagedUnderstanding(data, normalized, promptVersion)
+        : { understanding: finalizeUnderstanding(data, normalized, promptVersion), report: null };
     let result;
     try {
       result = await provider.generateStructured({
@@ -205,12 +239,29 @@ export function createSourceUnderstandingService({
         schemaDescription: 'Evidence-grounded understanding of one or more roadmap sources.',
         maxOutputTokens: aiConfig.sourceUnderstandingMaxOutputTokens,
         metadata: { run_id: runId, operation },
-        validate: (data) => finalizeUnderstanding(data, normalized, promptVersion),
+        validate: finalize,
       });
-      const understanding = finalizeUnderstanding(result.data, normalized, promptVersion);
+      const accepted = finalize(result.data);
       await recordUsage({ result, outcome: 'success' });
+      const finalized = await repairRequirementEvidence({
+        finalized: accepted,
+        sources,
+        reuseHints: hints,
+        provider,
+        configuration,
+        promptLoader,
+        repositories,
+        recordUsage,
+        metadata: { run_id: runId, operation },
+        timeoutMs: aiConfig.preparation.evidenceRepairTimeoutMs,
+        log,
+      });
       await repositories.runs.complete(runId);
-      return Object.freeze({ understanding: Object.freeze(understanding), runId });
+      return Object.freeze({
+        understanding: Object.freeze(finalized.understanding),
+        runId,
+        evidenceSalvage: finalized.report,
+      });
     } catch (error) {
       const safe = safeError(error, runId, log);
       try {

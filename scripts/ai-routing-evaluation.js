@@ -277,6 +277,7 @@ async function runOnce(fixture, run) {
           .slice(0, 500)
       : null,
     failureDetails: captured.failures,
+    evidenceSalvage: result?.preparation.evidenceSalvage ?? null,
     router: result
       ? {
           case: result.preparation.case,
@@ -300,6 +301,7 @@ async function runOnce(fixture, run) {
       : null,
     attempts: attempts.map((record) => ({
       operation: record.operation,
+      stage: record.stage ?? null,
       outcome: record.outcome,
       chainIndex: record.chainIndex,
       eligibility: record.eligibility,
@@ -341,9 +343,10 @@ function summarize(runs) {
     const critical = group.flatMap((run) => run.requirements?.critical ?? []);
     const latencies = group.flatMap((run) =>
       run.attempts
-        .filter((attempt) => attempt.outcome === 'success')
+        .filter((attempt) => attempt.outcome === 'success' && !attempt.stage)
         .map((attempt) => attempt.latencyMs),
     );
+    const salvaged = evidenceValid.filter((run) => run.evidenceSalvage);
     const cost = group
       .flatMap((run) => run.attempts)
       .reduce((sum, attempt) => sum + (attempt.calculatedCost ?? 0), 0);
@@ -354,7 +357,24 @@ function summarize(runs) {
       runs: group.length,
       schemaPassRate: rate(schemaValid.length, answered.length),
       evidencePassRate: rate(evidenceValid.length, schemaValid.length),
+      evidencePassRateWithoutSalvage: rate(
+        evidenceValid.length - salvaged.length,
+        schemaValid.length,
+      ),
+      salvagedRuns: salvaged.length,
+      repairCalls: group.flatMap((run) => run.attempts).filter(({ stage }) => stage).length,
+      repairedRequirements: salvaged.reduce(
+        (sum, run) =>
+          sum + (run.evidenceSalvage.sourceUnderstanding?.repairedRequirements.length ?? 0),
+        0,
+      ),
       criticalRecall: critical.length
+        ? rate(
+            critical.filter((item) => item.found && item.criticality === 'critical').length,
+            critical.length,
+          )
+        : null,
+      criticalFoundAnyCriticality: critical.length
         ? rate(critical.filter((item) => item.found).length, critical.length)
         : null,
       levelMatchRate: rate(

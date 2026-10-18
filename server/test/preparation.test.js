@@ -63,6 +63,19 @@ function prompt(name, version) {
   return { name, version, hash: `${name}-hash`, content: `Prompt ${name}` };
 }
 
+function rewordedUnderstandingData(sources) {
+  const data = understandingData(sources);
+  const { sourceId } = data.evidence[0];
+  data.evidence = [
+    { ...data.evidence[0], excerpt: 'Build a REST API that has authentication.' },
+    { evidenceId: 'E2', sourceId, locator: 'Milestones', excerpt: 'Ship an MVP.' },
+  ];
+  data.milestones = [
+    { name: 'MVP', confidence: 0.8, evidenceIds: ['E2'], reasoning: 'The brief asks for an MVP.' },
+  ];
+  return data;
+}
+
 function understandingData(sources) {
   const source = sources.find((entry) => entry.type !== 'natural_prompt') ?? sources[0];
   return {
@@ -153,6 +166,8 @@ function harness({
   assessment = 'success',
   reuseLayer = null,
   failurePolicy = 'degraded',
+  evidence = 'exact',
+  repair = 'found',
 } = {}) {
   const calls = {
     resolver: [],
@@ -182,9 +197,20 @@ function harness({
   const resolver = (profile, options) => {
     calls.resolver.push({ profile, ...options });
     const provider = {
-      async generateStructured({ input }) {
+      async generateStructured({ input, schemaName }) {
         const parsed = JSON.parse(input);
-        calls.providerInputs.push({ operation: options.operation, parsed });
+        calls.providerInputs.push({ operation: options.operation, schemaName, parsed });
+        if (schemaName === 'evidence_repair') {
+          if (repair === 'fail') throw Object.assign(new Error('timeout'), { status: 504 });
+          return respond('success', {
+            quotes: parsed.requirements.map(({ id }) => ({
+              requirementId: id,
+              sourceId: parsed.sources.find(({ type }) => type === 'pdf').sourceId,
+              excerpt: 'Build a REST API with authentication.',
+            })),
+          });
+        }
+        const sourceData = evidence === 'reworded' ? rewordedUnderstandingData : understandingData;
         if (options.operation === 'combined_preparation' && combined === 'invalid') {
           return respond('success', {
             sourceUnderstanding: understandingData(parsed.sources),
@@ -193,14 +219,14 @@ function harness({
         }
         if (options.operation === 'combined_preparation') {
           return respond(combined, {
-            sourceUnderstanding: understandingData(parsed.sources),
+            sourceUnderstanding: sourceData(parsed.sources),
             learnerAssessment: assessmentData(
               'Built a React dashboard',
               parsed.learner.normalizedInputs.resumeText ? 'resumeText' : 'naturalLanguage',
             ),
           });
         }
-        return respond(understanding, understandingData(parsed.sources));
+        return respond(understanding, sourceData(parsed.sources));
       },
     };
     return {
@@ -360,6 +386,96 @@ test('case 2: a planning source runs source understanding 1.2.0 on the fast prof
     ],
   );
   assert.ok(validatePreparation(result.preparation), JSON.stringify(validatePreparation.errors));
+});
+
+test('case 2: a reworded critical quote is salvaged, then repaired by one bounded call', async () => {
+  const { service, calls, storage } = harness({ evidence: 'reworded' });
+  const result = await prepare(service, {
+    sources: [{ type: 'natural_prompt', content: goal }, pdfSource],
+    assessmentInputs: { naturalLanguage: goal },
+    explicitInput: { primaryGoal: goal, experienceLevel: 'intermediate' },
+  });
+
+  assert.deepEqual(
+    calls.providerInputs.map(({ schemaName }) => schemaName),
+    ['source_understanding', 'evidence_repair'],
+  );
+  assert.deepEqual(calls.prompts, ['source-understanding@1.2.0', 'evidence-repair@1.0.0']);
+  const [requirement] = result.sourceUnderstanding.requirements;
+  assert.equal(requirement.criticality, 'critical');
+  assert.deepEqual(result.preparation.evidenceSalvage.sourceUnderstanding, {
+    droppedEvidence: 1,
+    droppedItems: 1,
+    demotedRequirements: [],
+    repairedRequirements: ['R1'],
+  });
+  assert.equal(result.preparation.degraded, false);
+  assert.deepEqual(result.preparation.notices, []);
+  assert.deepEqual(
+    storage.state.usage.map(({ stage, outcome }) => [stage ?? null, outcome]),
+    [
+      [null, 'success'],
+      ['evidence_repair', 'success'],
+    ],
+  );
+  assert.ok(validatePreparation(result.preparation), JSON.stringify(validatePreparation.errors));
+});
+
+test('case 3: when the repair fails the requirement stays optional and the learner is told', async () => {
+  const { service } = harness({ evidence: 'reworded', repair: 'fail' });
+  const result = await prepare(service, {
+    sources: [{ type: 'natural_prompt', content: selfDescription }, pdfSource],
+    assessmentInputs: { naturalLanguage: selfDescription },
+    explicitInput: { primaryGoal: selfDescription },
+  });
+
+  assert.equal(result.preparation.case, 3);
+  const [requirement] = result.sourceUnderstanding.requirements;
+  assert.equal(requirement.criticality, 'noncritical');
+  assert.equal(requirement.origin, 'inference');
+  assert.deepEqual(result.preparation.evidenceSalvage.sourceUnderstanding.demotedRequirements, [
+    'R1',
+  ]);
+  assert.equal(result.preparation.evidenceSalvage.learnerAssessment, null);
+  assert.match(result.preparation.notices.at(-1), /couldn't confirm "Build a REST API/);
+  assert.ok(validatePreparation(result.preparation), JSON.stringify(validatePreparation.errors));
+});
+
+test('the legacy profile still rejects a reworded quote instead of salvaging it', async () => {
+  const storage = repositories();
+  const service = createSourceUnderstandingService({
+    registry: registerDefaultSourceHandlers(new SourceHandlerRegistry(), {
+      fetcher: async () => {
+        throw new Error('network disabled in tests');
+      },
+      githubToken: null,
+      youtubeApiKey: null,
+    }),
+    providerResolver: () => ({
+      configuration: { provider: 'aicredits', model: 'test-model' },
+      provider: {
+        async generateStructured({ input }) {
+          return {
+            data: rewordedUnderstandingData(JSON.parse(input).sources),
+            provider: 'aicredits',
+            model: 'test-model',
+            latencyMs: 5,
+            usage: { inputTokens: 10, cachedInputTokens: 0, outputTokens: 5, totalTokens: 15 },
+          };
+        },
+      },
+    }),
+    promptLoader: async (name, version) => prompt(name, version),
+    repositories: storage,
+    now: () => fixedNow,
+    log: { error() {}, warn() {} },
+  });
+  await assert.rejects(
+    service.understand({ ownerId: null, requestId: 'request-1', sources: [pdfSource] }),
+    (error) => error.code === 'SOURCE_UNDERSTANDING_EVIDENCE_INVALID',
+  );
+  assert.equal(storage.state.usage[0].outcome, 'invalid_output');
+  assert.equal(storage.state.usage.length, 1);
 });
 
 test('case 3: one combined call, kept on paid models when a resume is present', async () => {

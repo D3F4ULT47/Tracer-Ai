@@ -4,6 +4,10 @@ function normalized(value) {
   return value.normalize('NFKC').replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
+export function isGroundedExcerpt(excerpt, content) {
+  return normalized(content).includes(normalized(excerpt));
+}
+
 export function validateSourceEvidence(understanding, sources) {
   const sourcesById = new Map(sources.map((source) => [source.sourceId, source]));
   const evidenceIds = new Set();
@@ -17,7 +21,7 @@ export function validateSourceEvidence(understanding, sources) {
       });
     }
     evidenceIds.add(evidence.evidenceId);
-    if (!normalized(source.content).includes(normalized(evidence.excerpt))) {
+    if (!isGroundedExcerpt(evidence.excerpt, source.content)) {
       throw new AppError('Source understanding evidence is not grounded in source content', {
         status: 422,
         code: 'SOURCE_UNDERSTANDING_EVIDENCE_INVALID',

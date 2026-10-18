@@ -83,6 +83,7 @@ const environmentSchema = z
     AI_PAID_PREPARATION_LIMIT: z.coerce.number().int().min(0).max(10).default(2),
     AI_FREE_UNAVAILABLE_POLICY: z.enum(['reject', 'continue']).default('reject'),
     AI_PREPARATION_FAILURE_POLICY: z.enum(['fail', 'degraded']).default('fail'),
+    AI_EVIDENCE_REPAIR_TIMEOUT_MS: z.coerce.number().int().min(1_000).max(120_000).default(20_000),
     AI_RATE_LIMIT_USER_PER_HOUR: z.coerce.number().int().min(1).max(10_000).default(60),
     AI_RATE_LIMIT_ANONYMOUS_PER_HOUR: z.coerce.number().int().min(1).max(10_000).default(10),
     AI_IDEMPOTENCY_ENABLED: z

@@ -1,6 +1,6 @@
 import { AppError } from '../../../shared/app-error.js';
 
-const optionalInferenceFields = Object.freeze([
+export const optionalInferenceFields = Object.freeze([
   'careerDirection',
   'projectComplexity',
   'experienceSummary',
@@ -28,20 +28,20 @@ function collectEvidence(value, evidence = []) {
   return evidence;
 }
 
+export function isGroundedLearnerEvidence(evidence, sourceInputs) {
+  const source = sourceInputs[evidence.source];
+  const excerpt = comparable(evidence.excerpt);
+  return Boolean(source) && excerpt.length >= 2 && excerpt.length <= 500
+    ? comparable(source).includes(excerpt)
+    : false;
+}
+
 export function validateAssessmentEvidence(assessment, sourceInputs) {
   const issues = [];
   const allEvidence = [...assessment.proficiencyEvidence, ...collectEvidence(assessment)];
 
   for (const evidence of allEvidence) {
-    const source = sourceInputs[evidence.source];
-    const excerpt = comparable(evidence.excerpt);
-
-    if (
-      !source ||
-      excerpt.length < 2 ||
-      excerpt.length > 500 ||
-      !comparable(source).includes(excerpt)
-    ) {
+    if (!isGroundedLearnerEvidence(evidence, sourceInputs)) {
       issues.push({ source: evidence.source, excerpt: evidence.excerpt.slice(0, 100) });
     }
   }

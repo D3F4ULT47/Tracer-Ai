@@ -32,11 +32,13 @@ export function buildUsageRecords({
   latencyMs,
   outcome,
   failureOutcome,
+  stage = null,
 }) {
   const base = {
     runId,
     ownerId,
     operation,
+    ...(stage ? { stage } : {}),
     promptName: prompt.name,
     promptVersion: prompt.version,
     promptHash: prompt.hash,
