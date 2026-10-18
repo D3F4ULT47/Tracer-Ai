@@ -12,7 +12,7 @@ import {
   filterChainForDataClass,
 } from '../src/modules/ai/providers/model-chain.js';
 import { createOpenAiCompatibleProvider } from '../src/modules/ai/providers/openai-compatible.provider.js';
-import { chainLimits } from '../src/modules/ai/providers/provider.factory.js';
+import { chainLimits, resolveChainEntries } from '../src/modules/ai/providers/provider.factory.js';
 import { toChatProviderSchema } from '../src/modules/ai/providers/provider-support.js';
 import Ajv from 'ajv';
 
@@ -239,6 +239,68 @@ test('non-transient failures such as exhausted credit do not retry the same mode
     (error) => error.code === 'AI_CREDITS_EXHAUSTED' && error.aiAttempts.length === 1,
   );
   assert.equal(requests.length, 1);
+});
+
+test('the configured chain applies the operation policy and per-profile eligibility', () => {
+  const legacyBaseline = [
+    {
+      provider: 'aicredits',
+      model: 'openai/gpt-5.5',
+      adapter: 'responses',
+      operations: ['learner_assessment', 'roadmap_generation'],
+      status: 'legacy_baseline',
+    },
+  ];
+  const generationChain = parseModelChain('aicredits:openai/gpt-5.5', 'aicredits');
+  const resolve = (profile, specification, { operation, production = true } = {}) =>
+    resolveChainEntries({
+      profile,
+      chain: parseModelChain(specification, 'aicredits'),
+      generationChain,
+      dataClass: DATA_CLASSES.GENERAL,
+      operation,
+      records: legacyBaseline,
+      adapterOf: (entry) => (entry.provider === 'aicredits' ? 'responses' : 'chat'),
+      production,
+    });
+  const models = (entries) => entries.map(({ model }) => model);
+
+  const preparation = 'aicredits:openai/gpt-5.5,aicredits-chat:openai/gpt-oss-120b';
+  assert.deepEqual(
+    models(resolve('fast', preparation, { operation: 'learner_assessment', production: false })),
+    ['openai/gpt-oss-120b'],
+    'preparation never runs on a generation-chain model',
+  );
+  assert.deepEqual(
+    models(resolve('fast', preparation, { operation: 'learner_assessment' })),
+    [],
+    'in production nothing unapproved is left for preparation',
+  );
+
+  const generation = resolve('core', 'aicredits:openai/gpt-5.5,openrouter:free/model:free', {
+    operation: 'roadmap_generation',
+  });
+  assert.deepEqual(models(generation), ['openai/gpt-5.5']);
+  assert.equal(generation[0].eligibility, 'legacy_baseline');
+});
+
+test('the legacy baseline counts only for the generation profile', () => {
+  const [entry] = applyEligibility(parseModelChain('aicredits:openai/gpt-5.5', 'aicredits'), {
+    operation: 'learner_assessment',
+    records: [
+      {
+        provider: 'aicredits',
+        model: 'openai/gpt-5.5',
+        adapter: 'responses',
+        operations: ['learner_assessment'],
+        status: 'legacy_baseline',
+      },
+    ],
+    adapterOf: () => 'responses',
+    production: false,
+    profile: 'fast',
+  });
+  assert.equal(entry.eligibility, 'unapproved');
 });
 
 test('chat schemas replace type arrays with equivalent anyOf branches', () => {

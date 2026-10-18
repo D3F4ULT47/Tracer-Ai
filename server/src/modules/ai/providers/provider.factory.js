@@ -5,6 +5,7 @@ import { createChatCompletionsProvider } from './chat-completions.provider.js';
 import {
   DATA_CLASSES,
   applyEligibility,
+  applyOperationPolicy,
   createModelChain,
   filterChainForDataClass,
 } from './model-chain.js';
@@ -65,6 +66,25 @@ export function chainLimits(profile, preparation = aiConfig.preparation) {
   };
 }
 
+/**
+ * Applies the privacy gate, the operation policy (generation never on a free endpoint,
+ * preparation never on a generation-chain model) and the eligibility gate, in that order.
+ */
+export function resolveChainEntries({
+  profile,
+  chain,
+  generationChain,
+  dataClass,
+  operation,
+  records,
+  adapterOf,
+  production,
+}) {
+  const privacyFiltered = filterChainForDataClass(chain, dataClass);
+  const policyFiltered = applyOperationPolicy(privacyFiltered, { profile, generationChain });
+  return applyEligibility(policyFiltered, { operation, records, adapterOf, production, profile });
+}
+
 function registeredEntries(chain) {
   const registered = new Set(aiProviderRegistry.list());
   return chain.filter((entry) => registered.has(entry.provider));
@@ -83,11 +103,11 @@ export function getConfiguredAiProvider(
   initializeProviders();
   eligibilityRecords ??= loadModelEligibility();
 
-  const privacyFiltered = filterChainForDataClass(
-    registeredEntries(configuration.chain),
+  const entries = resolveChainEntries({
+    profile,
+    chain: registeredEntries(configuration.chain),
+    generationChain: aiConfig.modelChains.core,
     dataClass,
-  );
-  const entries = applyEligibility(privacyFiltered, {
     operation,
     records: eligibilityRecords,
     adapterOf: (entry) => aiProviderRegistry.get(entry.provider).api,

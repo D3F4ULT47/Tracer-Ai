@@ -76,7 +76,13 @@ So **the paid model used in place of the free models is gpt-5.5**, the same mode
 1. **The rule that keeps generation models out of preparation is not applied.** `applyOperationPolicy` in `model-chain.js` is written but never called. Plan 0002 says preparation must never use a model of the generation chain. Because it isn't enforced, gpt-5.5 can run preparation today. `PROJECT_STATE.md` lists this task (T-14) as done; it is not.
 2. **gpt-5.5's approval leaks into preparation.** gpt-5.5 has a grandfathered "legacy baseline" record meant only for the old pipeline. The eligibility gate is supposed to treat it as unapproved in preparation, but the factory doesn't pass the profile to the gate. So in production gpt-5.5 would be allowed in preparation, while every free and cheap model would be removed as unapproved.
 
-Both gaps are what currently lets gpt-5.5 run preparation. If they are fixed as written, the new flow has no allowed preparation model in production until one is approved. They should be fixed together with a decision on which model preparation uses.
+**Fixed on Oct 18.** The factory now applies the privacy gate, then the operation policy, then the eligibility gate with the profile (`resolveChainEntries`). As a result:
+
+- gpt-5.5 is removed from every preparation chain while it is the generation model.
+- With `AI_MODEL_FAST=aicredits:openai/gpt-5.5`, preparation in the new flow returns 503 `AI_NO_ELIGIBLE_MODEL`.
+- In production, preparation has no allowed model until one is approved.
+
+The old pipeline and generation are unaffected.
 
 ## 4. The legacy pipeline
 
