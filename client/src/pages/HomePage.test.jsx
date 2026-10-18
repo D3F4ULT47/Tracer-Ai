@@ -243,6 +243,27 @@ describe('Home roadmap generation flow', () => {
     expect(useAppStore.getState().currentRoadmapId).toBe('d2e4439c-8f14-47dd-9280-a2a3cc1029fd');
   });
 
+  it('asks for the material when the goal refers to something not attached', async () => {
+    renderHome();
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByRole('textbox', { name: 'Describe your learning goal' }),
+      'Convert this into a roadmap and do tag the resources properly that are mentioned in it',
+    );
+    await user.click(screen.getByRole('button', { name: 'Generate roadmap' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent(/nothing was attached/);
+    expect(
+      screen.queryByRole('dialog', { name: 'How familiar are you with this topic?' }),
+    ).not.toBeInTheDocument();
+    expect(mocks.generateInput).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Generate roadmap' }));
+    expect(
+      screen.getByRole('dialog', { name: 'How familiar are you with this topic?' }),
+    ).toBeInTheDocument();
+  });
+
   it('keeps the generation screen open with a clear message when AI credits are exhausted', async () => {
     mocks.generationError = Object.assign(new Error('An unexpected error occurred'), {
       code: 'AI_CREDITS_EXHAUSTED',

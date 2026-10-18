@@ -2207,6 +2207,17 @@ button.save-indicator {
   cursor: pointer;
 }
 
+.composer-material-notice {
+  margin: 8px 3px 0;
+  padding: 8px 12px;
+  border: 1px solid color-mix(in srgb, var(--color-warning) 45%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-warning) 10%, transparent);
+  color: var(--color-warning);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
 .composer-source-helper {
   margin: 8px 3px 0;
   font-size: 0.76rem;

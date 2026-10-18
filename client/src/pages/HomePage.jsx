@@ -13,6 +13,10 @@ import {
   useGenerateRoadmap,
 } from '../features/roadmaps/hooks/use-roadmap-generation.js';
 import { GenerationExperience } from '../features/roadmaps/components/GenerationExperience.jsx';
+import {
+  missingMaterialMessage,
+  referencesMissingMaterial,
+} from '../features/roadmaps/missing-material.js';
 import { saveRoadmapPreview } from '../features/roadmaps/preview-storage.js';
 import { useProfile } from '../features/users/hooks/use-profile.js';
 import { useAppStore } from '../store/use-app-store.js';
@@ -59,6 +63,7 @@ export function HomePage() {
   const [proficiencySelection, setProficiencySelection] = useState(null);
   const [submittedProficiency, setSubmittedProficiency] = useState('not_sure');
   const [resumeFile, setResumeFile] = useState(null);
+  const [materialNoticeFor, setMaterialNoticeFor] = useState(null);
   const [personalizedOpen, setPersonalizedOpen] = useState(false);
   const [questionnaire, setQuestionnaire] = useState({});
   const composerRef = useRef(null);
@@ -218,6 +223,14 @@ export function HomePage() {
 
   function submitQuickMode(event) {
     event.preventDefault();
+    if (
+      materialNoticeFor !== composerDraft &&
+      referencesMissingMaterial(composerDraft, { hasAttachment: Boolean(resumeFile) })
+    ) {
+      setMaterialNoticeFor(composerDraft);
+      return;
+    }
+    setMaterialNoticeFor(null);
     setProficiencySelection(null);
     setProficiencyOpen(true);
   }
@@ -396,6 +409,11 @@ export function HomePage() {
                   ) : null}
                 </form>
               </Card>
+              {materialNoticeFor !== null && materialNoticeFor === composerDraft ? (
+                <p className="composer-material-notice" role="alert">
+                  {missingMaterialMessage}
+                </p>
+              ) : null}
               <p className="composer-source-helper">
                 Paste a goal, upload a PDF, connect a GitHub repository, share a YouTube link, or
                 drop AI-generated content—we’ll turn it into a personalized roadmap.
