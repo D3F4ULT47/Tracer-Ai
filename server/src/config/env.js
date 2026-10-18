@@ -79,7 +79,7 @@ const environmentSchema = z
     AI_REASONING_EFFORT_CORE: z.enum(['minimal', 'low', 'medium', 'high']).default('medium'),
     AI_FREE_PREPARATION_BUDGET_MS: z.coerce.number().int().min(5_000).max(300_000).default(60_000),
     AI_FREE_ATTEMPT_TIMEOUT_MS: z.coerce.number().int().min(5_000).max(300_000).default(30_000),
-    AI_PAID_FALLBACK_BUDGET_MS: z.coerce.number().int().min(5_000).max(300_000).default(90_000),
+    AI_PAID_FALLBACK_BUDGET_MS: z.coerce.number().int().min(5_000).max(300_000).default(150_000),
     AI_PAID_PREPARATION_LIMIT: z.coerce.number().int().min(0).max(10).default(2),
     AI_FREE_UNAVAILABLE_POLICY: z.enum(['reject', 'continue']).default('reject'),
     AI_PREPARATION_FAILURE_POLICY: z.enum(['fail', 'degraded']).default('fail'),

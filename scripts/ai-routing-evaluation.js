@@ -464,6 +464,7 @@ evaluation.settings[args.model] = {
   retries: Number(process.env.AI_MAX_RETRIES_FAST),
   freeAttemptTimeoutMs: aiConfig.preparation.freeAttemptTimeoutMs,
   freeBudgetMs: aiConfig.preparation.freeBudgetMs,
+  paidBudgetMs: aiConfig.preparation.paidBudgetMs,
   reasoningEffort: aiConfig.profileSettings.fast.reasoningEffort,
 };
 const save = () => {

@@ -13,7 +13,10 @@ import {
 } from '../src/modules/ai/providers/model-chain.js';
 import { createOpenAiCompatibleProvider } from '../src/modules/ai/providers/openai-compatible.provider.js';
 import { chainLimits, resolveChainEntries } from '../src/modules/ai/providers/provider.factory.js';
-import { toChatProviderSchema } from '../src/modules/ai/providers/provider-support.js';
+import {
+  sendWithRetries,
+  toChatProviderSchema,
+} from '../src/modules/ai/providers/provider-support.js';
 import Ajv from 'ajv';
 
 const intent = {
@@ -337,6 +340,28 @@ test('chat schemas replace type arrays with equivalent anyOf branches', () => {
   ]) {
     assert.equal(converted(value), original(value), JSON.stringify(value));
   }
+});
+
+test('a preparation deadline replaces the client request timeout; generation keeps the client default', async () => {
+  const sent = [];
+  const call = (extra) =>
+    sendWithRetries({
+      send: async (options) => {
+        sent.push(options);
+        return { id: 'r', model: 'm' };
+      },
+      parse: { usage: () => ({}), data: () => ({}) },
+      maxRetries: 0,
+      sleep: async () => {},
+      providerName: 'aicredits-chat',
+      model: 'm',
+      ...extra,
+    });
+
+  await call({ deadline: Date.now() + 150_000 });
+  await call({});
+  assert.ok(sent[0].timeout > 149_000 && sent[0].timeout <= 150_000, String(sent[0].timeout));
+  assert.equal(sent[1], undefined);
 });
 
 test('AICredits chat sends reasoning effort only to models probed to accept it', async () => {

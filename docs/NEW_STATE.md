@@ -45,7 +45,7 @@ The old pipeline makes 3 calls in every case (section 5).
 - **Privacy (decision D-1).** A request containing a resume is personal data and never goes to a free endpoint. Only paid models are tried, on every attempt, retry and fallback.
 - **Failure (D-3).** If every preparation model fails, the request ends with HTTP 502 and no roadmap is generated from bad input. An unreadable source is not a model failure: preparation continues with the goal text and reports the source as failed.
 - **Free quota exhausted (D-7).** When OpenRouter's daily free limit is used up, preparation stops with HTTP 503 ("Server down") instead of silently paying.
-- **Limits.** Each free attempt gets at most 30 s, all free attempts together 60 s, all paid attempts together 90 s, and at most 2 paid attempts (D-2).
+- **Limits.** Each free attempt gets at most 30 s, all free attempts together 60 s, all paid attempts together 150 s (raised from 90 s on Oct 18, section 3.4), and at most 2 paid attempts (D-2). For preparation calls the time left in the budget replaces the 120 s per-call timeout (`AI_REQUEST_TIMEOUT_MS`); generation keeps 120 s.
 - **Evidence check.** Every evidence quote must appear in the source or learner text, and every evidence reference must exist. This check is what stops invented requirements from reaching the roadmap. In the old pipeline, output that fails is rejected and the next model is tried. The new flow salvages first (section 3.4).
 
 **Measured on the router alone:** inputs F1–F3 (goal only) routed to case 1 and made 0 calls. Every other input routed to its expected case (section 7).
@@ -159,6 +159,7 @@ Cost: about ₹0.46 for the recorded tokens; up to about ₹1.2 more if the 8 ti
   - Reviews missing.
   - A third of calls still time out, which the gate does not check for paid models.
 - **Cost:** about ₹0.65 recorded; up to about ₹0.9 more if the 6 timed-out calls were billed.
+- **Paid time limit raised to 150 s (D-8 change, Oct 18).** The default of `AI_PAID_FALLBACK_BUDGET_MS` is now 150000. Without a matching change, the 120 s per-call timeout would still have cut a single call at 120 s, so preparation calls now take their timeout from the budget. Worst-case preparation wait is now 60 s free plus 150 s paid, plus up to 20 s for evidence repair. Not yet measured: whether 150 s turns the p3 timeouts into valid outputs.
 
 ## 4. The legacy pipeline
 

@@ -227,7 +227,8 @@ const RETRY_HEADROOM_MS = 10_000;
  * Sends one request with same-model retries on transient errors. `parse.usage` reads token usage
  * before `parse.data` can reject the output, so failures after tokens were spent are still
  * accounted on `error.aiAttempt`. `signal` aborts the in-flight request; `deadline` (epoch ms)
- * stops retries that could not finish in time.
+ * stops retries that could not finish in time and replaces the client's per-request timeout, so a
+ * preparation budget longer than `AI_REQUEST_TIMEOUT_MS` is not cut short.
  */
 export async function sendWithRetries({
   send,
@@ -258,10 +259,18 @@ export async function sendWithRetries({
     providerReportedCostCurrency: parsed?.reportedCostCurrency ?? null,
   });
 
+  const requestOptions = () => {
+    const options = {
+      ...(signal ? { signal } : {}),
+      ...(deadline !== null ? { timeout: Math.max(1_000, deadline - Date.now()) } : {}),
+    };
+    return Object.keys(options).length > 0 ? options : undefined;
+  };
+
   try {
     for (; ; attempt += 1) {
       try {
-        response = await send(signal ? { signal } : undefined);
+        response = await send(requestOptions());
         break;
       } catch (error) {
         if (attempt > maxRetries || !isRetryable(error) || signal?.aborted) throw error;
