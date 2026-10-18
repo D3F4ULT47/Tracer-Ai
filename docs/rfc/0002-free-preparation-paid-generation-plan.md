@@ -261,17 +261,18 @@ Revision 2 counted 9 fixtures per model. The three case 1 fixtures make no prepa
 
 **Results** (evaluation `eval-2026-10-17-r1`, production limits: 30 s per free attempt, 60 s free budget, 90 s paid budget, no retries):
 
-| Model                      | Fixtures           | Outcome                                                                                                                                                     |
-| -------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Nemotron 3 Super (free)    | F4, F5, F9         | 8 of 8 attempts timed out at 30 s; then the circuit breaker stopped further attempts                                                                        |
-| Dots 3 Note preview (free) | F4, F5             | 5 of 5 attempts timed out at 30 s                                                                                                                           |
-| gpt-oss-120b (AICredits)   | F4–F9, 3 runs each | 4 of 18 succeeded: 7 evidence failures, 6 timeouts at 90 s, 1 truncated JSON. Every success found all labelled critical requirements and the expected level |
+| Model                       | Fixtures             | Outcome                                                                                                                                                               |
+| --------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Nemotron 3 Super (free)     | F4, F5, F9           | 8 of 8 attempts timed out at 30 s; then the circuit breaker stopped further attempts                                                                                  |
+| Dots 3 Note preview (free)  | F4, F5               | 5 of 5 attempts timed out at 30 s                                                                                                                                     |
+| gpt-oss-120b (AICredits)    | F4–F9, 3 runs each   | 4 of 18 succeeded: 7 evidence failures, 6 timeouts at 90 s, 1 truncated JSON. Every success found all labelled critical requirements and the expected level           |
+| gpt-5-mini (AICredits chat) | F4, F5, F6 (stopped) | 1 of 8 succeeded (86 s, all 5 critical requirements); 6 timeouts at 90 s, 1 evidence failure; then the circuit breaker stopped the run. About ₹1.6 per completed call |
 
 With a 180 s limit (evaluations `eval-2026-10-17-t180*`, one run each), Nemotron took 52 s and 105 s on F4 and F5 and both failed evidence validation, timed out on F7, and passed F9 once in 27 s; Dots used its whole 10,000-token output limit on F4 and returned truncated JSON. A second Nemotron F9 attempt recorded 620 s against a 180 s timer; it did not reproduce in the foreground and is attributed, unconfirmed, to the machine sleeping during the run.
 
 **Defect found and fixed.** AICredits' Chat Completions endpoint rejected every request from the chat adapter with HTTP 400 because the schemas use `type` arrays (`["string", "null"]`). The chat adapter now sends the equivalent `anyOf` form (`toChatProviderSchema`), covered by a unit test. Before the fix no AICredits chat model could have run preparation, so the paid fallback configured in the chain never worked.
 
-**Verdict.** No model meets the section 8.4 thresholds; `model-eligibility.json` is unchanged and the release gate in section 13.1 stays unmet. The free models fail on latency first, and on evidence grounding when given more time. Measured spend on Oct 17–18 (including the three-run diagnosis `diag-oss-2026-10-18` and two probes): about ₹1.4 from recorded tokens, plus at most about ₹0.7 if AICredits bills the five timed-out requests.
+**Verdict.** No model meets the section 8.4 thresholds; `model-eligibility.json` is unchanged and the release gate in section 13.1 stays unmet. The free models fail on latency first, and on evidence grounding when given more time. Measured spend on Oct 17–18 (including the three-run diagnosis `diag-oss-2026-10-18` and two probes): about ₹4.6 from recorded tokens (gpt-oss-120b ₹1.4, gpt-5-mini ₹3.2). AICredits reports no usage for timed-out requests; if it bills them, the worst case adds about ₹0.7 for gpt-oss-120b and about ₹9.6 for gpt-5-mini.
 
 ## 9. Behaviour and cost per path
 

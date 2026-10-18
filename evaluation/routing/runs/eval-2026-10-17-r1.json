@@ -26,6 +26,14 @@
       "freeAttemptTimeoutMs": 30000,
       "freeBudgetMs": 60000,
       "reasoningEffort": "low"
+    },
+    "aicredits-chat:openai/gpt-5-mini": {
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "retries": 0,
+      "freeAttemptTimeoutMs": 30000,
+      "freeBudgetMs": 60000,
+      "reasoningEffort": "low"
     }
   },
   "runs": [
@@ -3410,9 +3418,852 @@
         }
       ],
       "output": null
+    },
+    {
+      "fixture": "F4",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-5-mini",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "4147e2b1-cddb-4889-8dc8-9eba0f4ca174",
+      "elapsedMs": 90566,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "failureDetails": [
+        {
+          "code": "AI_PROVIDER_TIMEOUT",
+          "details": null,
+          "attempts": [null]
+        }
+      ],
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 90356,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F4",
+      "run": 2,
+      "model": "aicredits-chat:openai/gpt-5-mini",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "6464f3fd-c69b-47c7-9424-ff43286bbfac",
+      "elapsedMs": 85613,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "errorMessage": null,
+      "failureDetails": [],
+      "router": {
+        "case": 2,
+        "caseMatches": true,
+        "sourceUnderstanding": "REQUIRED",
+        "learnerAssessment": "NOT_REQUIRED",
+        "executedOperations": ["source_understanding"]
+      },
+      "requirements": {
+        "critical": [
+          {
+            "label": "CRUD endpoints for items",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "JWT authentication",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "PostgreSQL with migrations",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Integration tests for every endpoint",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Starts with docker compose",
+            "found": true,
+            "criticality": "critical"
+          }
+        ],
+        "noncritical": [
+          {
+            "label": "Pagination at 20 items",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "OpenAPI documentation",
+            "found": true,
+            "criticality": "noncritical"
+          }
+        ],
+        "allMarkedNoncritical": false
+      },
+      "level": {
+        "assessed": null,
+        "resolved": "intermediate",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "success",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 2004,
+          "outputTokens": 7563,
+          "reasoningTokens": 2432,
+          "latencyMs": 85441,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": {
+        "sourceUnderstanding": {
+          "schemaVersion": "1.1.0",
+          "understandingId": "bdec1de8-85e9-43d2-af33-c1a719df183f",
+          "generatedAt": "2026-10-18T09:05:05.927Z",
+          "mode": "mixed",
+          "summary": "This analysis extracts explicit requirements, constraints, acceptance criteria, files, and suggested extras from a small training repository for an inventory REST API and the accompanying natural prompt. Key enforced items: implement CRUD endpoints under /api/items, JWT bearer authentication for every request, PostgreSQL persistence managed via migrations, list pagination at 20 items/page, integration tests that cover every endpoint, and the service must start with `docker compose up`. The repo uses JavaScript and PLpgSQL and contains specific paths (routes, middleware, migrations, tests, docker-compose). An OpenAPI doc is listed as a 'nice to have'.",
+          "sourceAttributions": [
+            {
+              "sourceId": "0a3c3be8-6f2e-4724-9db7-003ccb400832",
+              "sourceType": "natural_prompt",
+              "identifier": "natural_prompt:12d2cf58a0d6e98b",
+              "title": "Natural prompt",
+              "url": null,
+              "creator": null,
+              "capturedAt": "2026-10-18T09:05:05.927Z",
+              "relevantLocations": []
+            },
+            {
+              "sourceId": "d1fae0d8-5612-4835-8ec8-bb818c8a665d",
+              "sourceType": "github_repository",
+              "identifier": "tracer-fixtures/inventory-service@main",
+              "title": "tracer-fixtures/inventory-service",
+              "url": "https://github.com/tracer-fixtures/inventory-service",
+              "creator": "tracer-fixtures",
+              "capturedAt": "2026-10-18T09:05:05.927Z",
+              "relevantLocations": [
+                {
+                  "kind": "branch",
+                  "value": "main"
+                },
+                {
+                  "kind": "path",
+                  "value": "package.json"
+                },
+                {
+                  "kind": "path",
+                  "value": "src/app.js"
+                },
+                {
+                  "kind": "path",
+                  "value": "src/routes/items.js"
+                },
+                {
+                  "kind": "path",
+                  "value": "src/middleware/auth.js"
+                },
+                {
+                  "kind": "path",
+                  "value": "migrations/001_init.sql"
+                },
+                {
+                  "kind": "path",
+                  "value": "test/items.test.js"
+                },
+                {
+                  "kind": "path",
+                  "value": "docker-compose.yml"
+                },
+                {
+                  "kind": "path",
+                  "value": "README.md"
+                }
+              ]
+            }
+          ],
+          "concepts": [
+            {
+              "name": "REST API with CRUD endpoints",
+              "confidence": 0.99,
+              "evidenceIds": ["E3", "E2"],
+              "reasoning": "The repository is described as a training project to build a REST API and explicitly requires create/read/update/delete endpoints under /api/items."
+            },
+            {
+              "name": "JWT bearer authentication",
+              "confidence": 0.98,
+              "evidenceIds": ["E4", "E11"],
+              "reasoning": "The README requires every request to be authenticated with JWT bearer tokens and the repo includes an auth middleware path."
+            },
+            {
+              "name": "Database migrations for PostgreSQL",
+              "confidence": 0.98,
+              "evidenceIds": ["E5", "E11"],
+              "reasoning": "The README requires storing data in PostgreSQL and managing the schema with migrations; a migrations path is present in the repository paths."
+            },
+            {
+              "name": "Integration testing coverage for endpoints",
+              "confidence": 0.97,
+              "evidenceIds": ["E7", "E11"],
+              "reasoning": "Acceptance criteria require integration tests that cover every endpoint and the repo contains a test file path."
+            },
+            {
+              "name": "Docker Compose for running the service",
+              "confidence": 0.96,
+              "evidenceIds": ["E8", "E11"],
+              "reasoning": "Acceptance criteria specify the whole service must start with `docker compose up` and a docker-compose.yml path exists."
+            },
+            {
+              "name": "Pagination of list endpoints (20/page)",
+              "confidence": 0.95,
+              "evidenceIds": ["E6"],
+              "reasoning": "The README explicitly requires list endpoints to be paginated at 20 items per page."
+            },
+            {
+              "name": "Optional OpenAPI documentation",
+              "confidence": 0.9,
+              "evidenceIds": ["E9"],
+              "reasoning": "OpenAPI docs are listed under 'Nice to have'."
+            }
+          ],
+          "technologies": [
+            {
+              "name": "JavaScript (Node.js)",
+              "confidence": 0.98,
+              "evidenceIds": ["E10", "E11"],
+              "reasoning": "Repository languages list JavaScript and the path list includes Node-style project files (package.json, src/...)."
+            },
+            {
+              "name": "PLpgSQL / PostgreSQL",
+              "confidence": 0.97,
+              "evidenceIds": ["E10", "E5"],
+              "reasoning": "The README states PostgreSQL for storage and lists PLpgSQL as a language."
+            },
+            {
+              "name": "Docker Compose",
+              "confidence": 0.96,
+              "evidenceIds": ["E8", "E11"],
+              "reasoning": "The acceptance criterion names `docker compose up` and docker-compose.yml is present."
+            },
+            {
+              "name": "Testing framework (integration tests)",
+              "confidence": 0.7,
+              "evidenceIds": ["E7", "E11"],
+              "reasoning": "Integration tests are required and a test file is present; specific test runner not named in provided excerpts."
+            },
+            {
+              "name": "OpenAPI / API documentation (optional)",
+              "confidence": 0.85,
+              "evidenceIds": ["E9"],
+              "reasoning": "OpenAPI is suggested as a nice-to-have in the README."
+            }
+          ],
+          "skills": [
+            {
+              "name": "Design and implement RESTful CRUD endpoints",
+              "confidence": 0.99,
+              "evidenceIds": ["E3", "E2"],
+              "reasoning": "The project explicitly asks for create/read/update/delete endpoints as a REST API."
+            },
+            {
+              "name": "Implement JWT bearer authentication and middleware",
+              "confidence": 0.98,
+              "evidenceIds": ["E4", "E11"],
+              "reasoning": "Every request must be authenticated with JWTs and repository contains src/middleware/auth.js."
+            },
+            {
+              "name": "Write and run PostgreSQL migrations, potentially PLpgSQL",
+              "confidence": 0.96,
+              "evidenceIds": ["E5", "E11"],
+              "reasoning": "Schema must be managed with migrations and migrations/001_init.sql is present; PLpgSQL is listed as a language."
+            },
+            {
+              "name": "Configure Docker Compose to run the service",
+              "confidence": 0.95,
+              "evidenceIds": ["E8", "E11"],
+              "reasoning": "Service must start with `docker compose up` and docker-compose.yml is included."
+            },
+            {
+              "name": "Write integration tests that cover endpoints",
+              "confidence": 0.94,
+              "evidenceIds": ["E7", "E11"],
+              "reasoning": "Integration tests covering every endpoint are required and a test file path exists."
+            },
+            {
+              "name": "Implement pagination for list endpoints",
+              "confidence": 0.9,
+              "evidenceIds": ["E6"],
+              "reasoning": "Pagination at 20 items per page is an explicit requirement."
+            }
+          ],
+          "prerequisites": [
+            {
+              "name": "Familiarity with JavaScript / Node.js",
+              "confidence": 0.98,
+              "evidenceIds": ["E10", "E11"],
+              "reasoning": "Repository lists JavaScript as a language and contains Node project files."
+            },
+            {
+              "name": "Familiarity with PostgreSQL and migrations",
+              "confidence": 0.97,
+              "evidenceIds": ["E5", "E10"],
+              "reasoning": "Storage requirement is PostgreSQL and migrations are required; PLpgSQL is listed."
+            },
+            {
+              "name": "Familiarity with Docker and docker-compose",
+              "confidence": 0.96,
+              "evidenceIds": ["E8", "E11"],
+              "reasoning": "Acceptance criteria specify `docker compose up` and a docker-compose.yml file exists."
+            },
+            {
+              "name": "Basics of JWT authentication",
+              "confidence": 0.95,
+              "evidenceIds": ["E4", "E11"],
+              "reasoning": "Every request must be authenticated with JWT bearer tokens and an auth middleware exists in the repository."
+            }
+          ],
+          "dependencies": [
+            {
+              "from": "Authenticate every request with JWT bearer tokens",
+              "to": "Expose create, read, update and delete endpoints for items under /api/items",
+              "type": "prerequisite",
+              "confidence": 0.95,
+              "evidenceIds": ["E4", "E3", "E11"]
+            },
+            {
+              "from": "Store data in PostgreSQL and manage the schema with migrations",
+              "to": "Expose create, read, update and delete endpoints for items under /api/items",
+              "type": "prerequisite",
+              "confidence": 0.95,
+              "evidenceIds": ["E5", "E3", "E11"]
+            },
+            {
+              "from": "The whole service starts with `docker compose up`",
+              "to": "Integration tests cover every endpoint",
+              "type": "sequence",
+              "confidence": 0.85,
+              "evidenceIds": ["E8", "E7"]
+            },
+            {
+              "from": "migrations/001_init.sql (schema migration)",
+              "to": "PostgreSQL database used by the service",
+              "type": "component",
+              "confidence": 0.9,
+              "evidenceIds": ["E11", "E5"]
+            }
+          ],
+          "milestones": [
+            {
+              "name": "Repository service scaffolded and starts with docker compose",
+              "confidence": 0.96,
+              "evidenceIds": ["E8", "E11"],
+              "reasoning": "Acceptance criteria require the whole service to start with `docker compose up` and docker-compose.yml exists; starting the service is a natural early milestone."
+            },
+            {
+              "name": "Database migrations applied and schema present",
+              "confidence": 0.95,
+              "evidenceIds": ["E5", "E11"],
+              "reasoning": "Schema must be managed with migrations and migrations/001_init.sql is present; applying migrations is required before CRUD endpoints operate."
+            },
+            {
+              "name": "CRUD endpoints implemented under /api/items",
+              "confidence": 0.98,
+              "evidenceIds": ["E3"],
+              "reasoning": "This is an explicit project requirement and core functionality."
+            },
+            {
+              "name": "JWT authentication middleware integrated for all endpoints",
+              "confidence": 0.97,
+              "evidenceIds": ["E4", "E11"],
+              "reasoning": "All requests must be authenticated; an auth middleware path exists implying middleware integration is a milestone."
+            },
+            {
+              "name": "Integration tests written and passing that cover every endpoint",
+              "confidence": 0.96,
+              "evidenceIds": ["E7", "E11"],
+              "reasoning": "Acceptance criteria require integration tests covering every endpoint; tests must exist and pass."
+            },
+            {
+              "name": "Pagination implemented for list endpoints (20 items/page)",
+              "confidence": 0.95,
+              "evidenceIds": ["E6"],
+              "reasoning": "Pagination at 20 items per page is an explicit requirement."
+            },
+            {
+              "name": "(Optional) OpenAPI documentation produced",
+              "confidence": 0.9,
+              "evidenceIds": ["E9"],
+              "reasoning": "The repository lists OpenAPI documentation as 'Nice to have'."
+            }
+          ],
+          "creatorRecommendations": [
+            {
+              "name": "OpenAPI documentation for the endpoints (nice to have)",
+              "confidence": 0.9,
+              "evidenceIds": ["E9"],
+              "reasoning": "The README lists OpenAPI documentation under 'Nice to have', suggesting the project creator recommends this as an optional enhancement."
+            }
+          ],
+          "preservedStructure": [
+            {
+              "sourceId": "d1fae0d8-5612-4835-8ec8-bb818c8a665d",
+              "order": 1,
+              "title": "Inventory Service",
+              "description": "A training project: build a REST API for warehouse inventory."
+            },
+            {
+              "sourceId": "d1fae0d8-5612-4835-8ec8-bb818c8a665d",
+              "order": 2,
+              "title": "Requirements",
+              "description": "- Expose create, read, update and delete endpoints for items under /api/items.\n- Authenticate every request with JWT bearer tokens.\n- Store data in PostgreSQL and manage the schema with migrations.\n- Paginate list endpoints at 20 items per page."
+            },
+            {
+              "sourceId": "d1fae0d8-5612-4835-8ec8-bb818c8a665d",
+              "order": 3,
+              "title": "Acceptance criteria",
+              "description": "- Integration tests cover every endpoint.\n- The whole service starts with `docker compose up`."
+            },
+            {
+              "sourceId": "d1fae0d8-5612-4835-8ec8-bb818c8a665d",
+              "order": 4,
+              "title": "Nice to have",
+              "description": "- OpenAPI documentation for the endpoints."
+            },
+            {
+              "sourceId": "d1fae0d8-5612-4835-8ec8-bb818c8a665d",
+              "order": 5,
+              "title": "Repository paths (preserved)",
+              "description": "package.json, src/app.js, src/routes/items.js, src/middleware/auth.js, migrations/001_init.sql, test/items.test.js, docker-compose.yml, README.md"
+            }
+          ],
+          "evidence": [
+            {
+              "evidenceId": "E1",
+              "sourceId": "0a3c3be8-6f2e-4724-9db7-003ccb400832",
+              "locator": "section: Build the inventory service from this repository",
+              "excerpt": "Build the inventory service from this repository"
+            },
+            {
+              "evidenceId": "E2",
+              "sourceId": "d1fae0d8-5612-4835-8ec8-bb818c8a665d",
+              "locator": "README.md: top",
+              "excerpt": "A training project: build a REST API for warehouse inventory."
+            },
+            {
+              "evidenceId": "E3",
+              "sourceId": "d1fae0d8-5612-4835-8ec8-bb818c8a665d",
+              "locator": "README.md: Requirements",
+              "excerpt": "- Expose create, read, update and delete endpoints for items under /api/items."
+            },
+            {
+              "evidenceId": "E4",
+              "sourceId": "d1fae0d8-5612-4835-8ec8-bb818c8a665d",
+              "locator": "README.md: Requirements",
+              "excerpt": "- Authenticate every request with JWT bearer tokens."
+            },
+            {
+              "evidenceId": "E5",
+              "sourceId": "d1fae0d8-5612-4835-8ec8-bb818c8a665d",
+              "locator": "README.md: Requirements",
+              "excerpt": "- Store data in PostgreSQL and manage the schema with migrations."
+            },
+            {
+              "evidenceId": "E6",
+              "sourceId": "d1fae0d8-5612-4835-8ec8-bb818c8a665d",
+              "locator": "README.md: Requirements",
+              "excerpt": "- Paginate list endpoints at 20 items per page."
+            },
+            {
+              "evidenceId": "E7",
+              "sourceId": "d1fae0d8-5612-4835-8ec8-bb818c8a665d",
+              "locator": "README.md: Acceptance criteria",
+              "excerpt": "- Integration tests cover every endpoint."
+            },
+            {
+              "evidenceId": "E8",
+              "sourceId": "d1fae0d8-5612-4835-8ec8-bb818c8a665d",
+              "locator": "README.md: Acceptance criteria",
+              "excerpt": "- The whole service starts with `docker compose up`."
+            },
+            {
+              "evidenceId": "E9",
+              "sourceId": "d1fae0d8-5612-4835-8ec8-bb818c8a665d",
+              "locator": "README.md: Nice to have",
+              "excerpt": "- OpenAPI documentation for the endpoints."
+            },
+            {
+              "evidenceId": "E10",
+              "sourceId": "d1fae0d8-5612-4835-8ec8-bb818c8a665d",
+              "locator": "README.md: Languages",
+              "excerpt": "Languages: JavaScript, PLpgSQL"
+            },
+            {
+              "evidenceId": "E11",
+              "sourceId": "d1fae0d8-5612-4835-8ec8-bb818c8a665d",
+              "locator": "README.md: Repository paths",
+              "excerpt": "Repository paths: package.json, src/app.js, src/routes/items.js, src/middleware/auth.js, migrations/001_init.sql, test/items.test.js, docker-compose.yml, README.md"
+            }
+          ],
+          "assumptions": [
+            "Tests referenced by the acceptance criteria will be integration tests run by a Node.js test runner (exact runner not specified in provided sources).",
+            "JWT token format (claims, signing algorithm, secret management) is not specified in the sources and will need to be defined by implementers.",
+            "Database connection details (host, port, user, password) and how docker-compose wires services together are not specified in the excerpts and must be derived from docker-compose.yml and environment variables at implementation time.",
+            "The provided migrations/001_init.sql is the expected starting migration for schema management, but its contents were not supplied in the excerpts.",
+            "The test file test/items.test.js exists and may encode additional behavioral expectations; its content was not provided and thus exact test expectations are unknown."
+          ],
+          "requirements": [
+            {
+              "id": "R1",
+              "statement": "Build the inventory service from this repository.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E1", "E2"]
+            },
+            {
+              "id": "R2",
+              "statement": "Expose create, read, update and delete endpoints for items under /api/items.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E3"]
+            },
+            {
+              "id": "R3",
+              "statement": "Authenticate every request with JWT bearer tokens.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E4"]
+            },
+            {
+              "id": "R4",
+              "statement": "Store data in PostgreSQL and manage the schema with migrations.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E5"]
+            },
+            {
+              "id": "R5",
+              "statement": "Paginate list endpoints at 20 items per page.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E6"]
+            },
+            {
+              "id": "R6",
+              "statement": "Integration tests cover every endpoint.",
+              "kind": "evaluation_criterion",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E7"]
+            },
+            {
+              "id": "R7",
+              "statement": "The whole service starts with `docker compose up`.",
+              "kind": "evaluation_criterion",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E8"]
+            },
+            {
+              "id": "R8",
+              "statement": "Provide OpenAPI documentation for the endpoints (nice to have).",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "noncritical",
+              "evidenceIds": ["E9"]
+            },
+            {
+              "id": "R9",
+              "statement": "Use JavaScript and PLpgSQL (repository languages) for implementation.",
+              "kind": "constraint",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E10"]
+            },
+            {
+              "id": "R10",
+              "statement": "Repository contains these paths which should be preserved/used: package.json, src/app.js, src/routes/items.js, src/middleware/auth.js, migrations/001_init.sql, test/items.test.js, docker-compose.yml, README.md.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "noncritical",
+              "evidenceIds": ["E11"]
+            }
+          ],
+          "sourceProcessing": [
+            {
+              "sourceType": "natural_prompt",
+              "identifier": null,
+              "status": "processed",
+              "errorCode": null
+            },
+            {
+              "sourceType": "github_repository",
+              "identifier": "https://github.com/tracer-fixtures/inventory-service",
+              "status": "processed",
+              "errorCode": null
+            }
+          ]
+        },
+        "assessment": null
+      }
+    },
+    {
+      "fixture": "F4",
+      "run": 3,
+      "model": "aicredits-chat:openai/gpt-5-mini",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "87dbac7d-42d8-4965-8b1e-29c7f562149a",
+      "elapsedMs": 85838,
+      "outcome": "failed",
+      "failureClass": "evidence",
+      "errorCode": "SOURCE_UNDERSTANDING_EVIDENCE_INVALID",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "failureDetails": [
+        {
+          "code": "SOURCE_UNDERSTANDING_EVIDENCE_INVALID",
+          "details": null,
+          "attempts": [null]
+        }
+      ],
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "invalid_output",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 2004,
+          "outputTokens": 7575,
+          "reasoningTokens": 1920,
+          "latencyMs": 85380,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F5",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-5-mini",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "a602e1a8-d9fe-408e-8180-a9dc8f9fb0aa",
+      "elapsedMs": 90323,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "failureDetails": [
+        {
+          "code": "AI_PROVIDER_TIMEOUT",
+          "details": null,
+          "attempts": [null]
+        }
+      ],
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 90093,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F5",
+      "run": 2,
+      "model": "aicredits-chat:openai/gpt-5-mini",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "6f213cf2-c688-4ee4-b39f-208858a11584",
+      "elapsedMs": 90132,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "failureDetails": [
+        {
+          "code": "AI_PROVIDER_TIMEOUT",
+          "details": null,
+          "attempts": [null]
+        }
+      ],
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 90050,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F5",
+      "run": 3,
+      "model": "aicredits-chat:openai/gpt-5-mini",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "b59cfe80-bc6e-4369-a8f0-21b7f08a925b",
+      "elapsedMs": 90213,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "failureDetails": [
+        {
+          "code": "AI_PROVIDER_TIMEOUT",
+          "details": null,
+          "attempts": [null]
+        }
+      ],
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 90092,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F6",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-5-mini",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "94b666e2-d59e-44ec-97a6-0b81aee66676",
+      "elapsedMs": 90204,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "failureDetails": [
+        {
+          "code": "AI_PROVIDER_TIMEOUT",
+          "details": null,
+          "attempts": [null]
+        }
+      ],
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "combined_preparation",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 90075,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F6",
+      "run": 2,
+      "model": "aicredits-chat:openai/gpt-5-mini",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "6decb481-a76f-41b0-b768-0f3342de5f63",
+      "elapsedMs": 90090,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_PROVIDER_TIMEOUT",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "failureDetails": [
+        {
+          "code": "AI_PROVIDER_TIMEOUT",
+          "details": null,
+          "attempts": [null]
+        }
+      ],
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "combined_preparation",
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 90032,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
     }
   ],
-  "updatedAt": "2026-10-18T08:01:15.412Z",
+  "updatedAt": "2026-10-18T09:15:28.749Z",
   "summary": [
     {
       "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
@@ -3528,6 +4379,45 @@
       "latencyMs": {
         "p50": 28948,
         "p95": 28948
+      },
+      "cost": 0
+    },
+    {
+      "model": "aicredits-chat:openai/gpt-5-mini",
+      "operation": "source_understanding",
+      "fixtures": ["F4", "F5"],
+      "runs": 6,
+      "schemaPassRate": 1,
+      "evidencePassRate": 0.5,
+      "criticalRecall": 1,
+      "levelMatchRate": 1,
+      "availabilityFailureRate": 0.6667,
+      "failuresByClass": {
+        "availability": 4,
+        "evidence": 1
+      },
+      "latencyMs": {
+        "p50": 85441,
+        "p95": 85441
+      },
+      "cost": 0
+    },
+    {
+      "model": "aicredits-chat:openai/gpt-5-mini",
+      "operation": "combined_preparation",
+      "fixtures": ["F6"],
+      "runs": 2,
+      "schemaPassRate": null,
+      "evidencePassRate": null,
+      "criticalRecall": null,
+      "levelMatchRate": null,
+      "availabilityFailureRate": 1,
+      "failuresByClass": {
+        "availability": 2
+      },
+      "latencyMs": {
+        "p50": null,
+        "p95": null
       },
       "cost": 0
     }

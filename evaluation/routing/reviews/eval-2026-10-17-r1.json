@@ -27,6 +27,13 @@
     },
     {
       "fixture": "F4",
+      "model": "aicredits-chat:openai/gpt-5-mini",
+      "criteria": ["C1", "C2", "C3", "C4", "C5", "C7"],
+      "rating": null,
+      "notes": ""
+    },
+    {
+      "fixture": "F4",
       "model": "aicredits-chat:openai/gpt-oss-120b",
       "criteria": ["C1", "C2", "C3", "C4", "C5", "C7"],
       "rating": null,
@@ -48,6 +55,13 @@
     },
     {
       "fixture": "F5",
+      "model": "aicredits-chat:openai/gpt-5-mini",
+      "criteria": ["C1", "C2", "C3", "C4", "C5", "C7"],
+      "rating": null,
+      "notes": ""
+    },
+    {
+      "fixture": "F5",
       "model": "aicredits-chat:openai/gpt-oss-120b",
       "criteria": ["C1", "C2", "C3", "C4", "C5", "C7"],
       "rating": null,
@@ -64,6 +78,13 @@
       "fixture": "F5",
       "model": "openrouter:nvidia/nemotron-3-super-120b-a12b:free",
       "criteria": ["C1", "C2", "C3", "C4", "C5", "C7"],
+      "rating": null,
+      "notes": ""
+    },
+    {
+      "fixture": "F6",
+      "model": "aicredits-chat:openai/gpt-5-mini",
+      "criteria": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
       "rating": null,
       "notes": ""
     },
