@@ -6,6 +6,7 @@ import {
   getConfiguredAiProvider,
 } from '../../modules/ai/providers/provider.factory.js';
 import { getTemporaryFileStore } from '../../modules/uploads/index.js';
+import { logger } from '../logging/logger.js';
 
 function requireValue(name, value) {
   if (!value) throw new Error(`${name} is required`);
@@ -38,9 +39,17 @@ function validateAuthenticationConfiguration() {
 
 async function validateAiConfiguration() {
   requireAiConfiguration('core');
-  for (const profile of ['core', 'fast']) {
-    if (aiConfig.modelChains[profile].length > 0) {
-      getConfiguredAiProvider(profile, { dataClass: 'general' });
+  getConfiguredAiProvider('core', { dataClass: 'general' });
+  if (aiConfig.modelChains.fast.length > 0) {
+    // Preparation without an eligible model is rejected per request (503); it must not stop generation.
+    try {
+      getConfiguredAiProvider('fast', { dataClass: 'general' });
+    } catch (error) {
+      if (error.code !== 'AI_NO_ELIGIBLE_MODEL') throw error;
+      logger.warn(
+        { event: 'ai.preparation_chain_unavailable', code: error.code },
+        'No eligible preparation model; routed preparation will return 503',
+      );
     }
   }
   await checkConfiguredAiProviders();
