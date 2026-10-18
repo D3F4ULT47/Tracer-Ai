@@ -24,7 +24,7 @@
     "assumptions"
   ],
   "properties": {
-    "schemaVersion": { "type": "string", "enum": ["1.0.0", "1.1.0", "1.2.0"] },
+    "schemaVersion": { "type": "string", "enum": ["1.0.0", "1.1.0", "1.2.0", "1.3.0"] },
     "understandingId": { "type": "string", "format": "uuid" },
     "generatedAt": { "type": "string", "format": "date-time" },
     "mode": { "enum": ["single", "mixed"] },

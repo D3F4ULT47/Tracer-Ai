@@ -23,7 +23,14 @@ import {
 const operation = 'source_understanding';
 const promptName = 'source-understanding';
 export const LEGACY_SOURCE_PROMPT_VERSION = '1.0.0';
-export const ROUTED_SOURCE_PROMPT_VERSION = '1.2.0';
+export const ROUTED_SOURCE_PROMPT_VERSION = '1.3.0';
+const serverAssignedProperties = Object.freeze([
+  'schemaVersion',
+  'understandingId',
+  'generatedAt',
+  'mode',
+  'sourceAttributions',
+]);
 
 function hash(value) {
   return createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -41,8 +48,14 @@ export function sourceUnderstandingProviderSchema(promptVersion = LEGACY_SOURCE_
   if (promptVersion === LEGACY_SOURCE_PROMPT_VERSION) {
     delete schema.properties.requirements;
     delete schema.$defs.requirement;
-  } else {
-    schema.required.push('requirements');
+    return schema;
+  }
+  schema.required.push('requirements');
+  if (promptVersion !== '1.1.0') {
+    for (const property of serverAssignedProperties) delete schema.properties[property];
+    schema.required = schema.required.filter((name) => !serverAssignedProperties.includes(name));
+    delete schema.$defs.attribution;
+    delete schema.$defs.location;
   }
   return schema;
 }

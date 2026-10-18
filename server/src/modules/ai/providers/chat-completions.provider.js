@@ -34,10 +34,13 @@ function supportsStructuredChat(providerName, entry) {
   return !Array.isArray(apis) || apis.some((api) => String(api).toLowerCase().includes('chat'));
 }
 
-// AICredits' catalog does not list per-model parameters, so a reasoning effort is only sent where
-// the OpenRouter catalog confirms `reasoning` support.
-function supportsReasoning(providerName, entry) {
-  if (!isOpenRouter(providerName)) return false;
+// AICredits' catalog does not list per-model parameters, so a reasoning effort is sent only to
+// AICredits models probed to accept `reasoning_effort` on Chat Completions, and to OpenRouter
+// models whose catalog entry confirms `reasoning` support.
+const aiCreditsChatReasoningModels = new Set(['openai/gpt-oss-120b']);
+
+function supportsReasoning(providerName, entry, model) {
+  if (!isOpenRouter(providerName)) return aiCreditsChatReasoningModels.has(model);
   const parameters = entry?.supported_parameters;
   return Array.isArray(parameters) && parameters.includes('reasoning');
 }
@@ -146,7 +149,7 @@ export function createChatCompletionsProvider({
       deadline = null,
     }) {
       const appliedEffort =
-        reasoningEffort && supportsReasoning(providerName, catalog.get(model))
+        reasoningEffort && supportsReasoning(providerName, catalog.get(model), model)
           ? reasoningEffort
           : null;
       const request = {

@@ -358,7 +358,7 @@ test('case 1: goal text with a selected level makes no preparatory model call', 
   assert.ok(validatePreparation(result.preparation), JSON.stringify(validatePreparation.errors));
 });
 
-test('case 2: a planning source runs source understanding 1.2.0 on the fast profile', async () => {
+test('case 2: a planning source runs source understanding 1.3.0 on the fast profile', async () => {
   const { service, calls } = harness();
   const result = await prepare(service, {
     sources: [{ type: 'natural_prompt', content: goal }, pdfSource],
@@ -367,9 +367,9 @@ test('case 2: a planning source runs source understanding 1.2.0 on the fast prof
   });
 
   assert.equal(result.preparation.case, 2);
-  assert.deepEqual(calls.understand, [{ profile: 'fast', promptVersion: '1.2.0' }]);
-  assert.deepEqual(calls.prompts, ['source-understanding@1.2.0']);
-  assert.equal(result.sourceUnderstanding.schemaVersion, '1.2.0');
+  assert.deepEqual(calls.understand, [{ profile: 'fast', promptVersion: '1.3.0' }]);
+  assert.deepEqual(calls.prompts, ['source-understanding@1.3.0']);
+  assert.equal(result.sourceUnderstanding.schemaVersion, '1.3.0');
   assert.equal(calls.assess.length, 0);
   assert.equal(result.sourceUnderstanding.requirements[0].criticality, 'critical');
   assert.deepEqual(
@@ -400,7 +400,7 @@ test('case 2: a reworded critical quote is salvaged, then repaired by one bounde
     calls.providerInputs.map(({ schemaName }) => schemaName),
     ['source_understanding', 'evidence_repair'],
   );
-  assert.deepEqual(calls.prompts, ['source-understanding@1.2.0', 'evidence-repair@1.0.0']);
+  assert.deepEqual(calls.prompts, ['source-understanding@1.3.0', 'evidence-repair@1.0.0']);
   const [requirement] = result.sourceUnderstanding.requirements;
   assert.equal(requirement.criticality, 'critical');
   assert.deepEqual(result.preparation.evidenceSalvage.sourceUnderstanding, {
@@ -496,7 +496,7 @@ test('case 3: one combined call, kept on paid models when a resume is present', 
       reuse: { scope: null, cacheTtlSeconds: 3_600 },
     },
   ]);
-  assert.deepEqual(calls.prompts, ['preparation-combined@1.1.0']);
+  assert.deepEqual(calls.prompts, ['preparation-combined@1.2.0']);
   const sentSources = calls.providerInputs[0].parsed.sources.map(({ type }) => type);
   assert.ok(!sentSources.includes('resume'), 'resume is learner evidence, not a planning source');
   assert.equal(result.sourceUnderstanding.requirements.length, 1);
@@ -752,7 +752,7 @@ test('without a learner scope, every repeat is a new provider call', async () =>
   assert.equal(calls.providerInputs.length, 2);
 });
 
-test('learner assessment uses prompt 1.1.0 for preparation and keeps 1.0.0 for the legacy profile', async () => {
+test('learner assessment uses prompt 1.2.0 for preparation and keeps 1.0.0 for the legacy profile', async () => {
   const loaded = [];
   const service = createAssessmentService({
     flags: { isEnabled: async () => true },
@@ -787,15 +787,44 @@ test('learner assessment uses prompt 1.1.0 for preparation and keeps 1.0.0 for t
 
   await assess('fast');
   await assess();
-  assert.deepEqual(loaded, ['learner-assessment@1.1.0', 'learner-assessment@1.0.0']);
+  assert.deepEqual(loaded, ['learner-assessment@1.2.0', 'learner-assessment@1.0.0']);
+});
+
+test('the routed schema leaves server-assigned fields to the server; legacy schemas keep them', async () => {
+  const { sourceUnderstandingProviderSchema, ROUTED_SOURCE_PROMPT_VERSION } =
+    await import('../src/modules/ai/source-understanding/source-understanding.service.js');
+  const serverAssigned = [
+    'schemaVersion',
+    'understandingId',
+    'generatedAt',
+    'mode',
+    'sourceAttributions',
+  ];
+  const routed = sourceUnderstandingProviderSchema(ROUTED_SOURCE_PROMPT_VERSION);
+  for (const name of serverAssigned) {
+    assert.ok(!(name in routed.properties), name);
+    assert.ok(!routed.required.includes(name), name);
+  }
+  for (const version of ['1.0.0', '1.1.0']) {
+    assert.ok('sourceAttributions' in sourceUnderstandingProviderSchema(version).properties);
+  }
+
+  const { service } = harness();
+  const result = await prepare(service, {
+    sources: [{ type: 'natural_prompt', content: goal }, pdfSource],
+    assessmentInputs: { naturalLanguage: goal },
+    explicitInput: { primaryGoal: goal, experienceLevel: 'intermediate' },
+  });
+  assert.equal(result.sourceUnderstanding.sourceAttributions.length, 2);
+  assert.equal(result.sourceUnderstanding.mode, 'mixed');
 });
 
 test('the preparation prompts keep the untrusted-data rule and never cap requirements', async () => {
   const { loadPrompt } = await import('../src/modules/ai/prompt.repository.js');
   for (const [name, version] of [
-    ['source-understanding', '1.2.0'],
-    ['preparation-combined', '1.1.0'],
-    ['learner-assessment', '1.1.0'],
+    ['source-understanding', '1.3.0'],
+    ['preparation-combined', '1.2.0'],
+    ['learner-assessment', '1.2.0'],
   ]) {
     const { content } = await loadPrompt(name, version);
     assert.match(content, /untrusted data/, `${name}@${version} keeps the injection rule`);

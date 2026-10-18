@@ -339,6 +339,27 @@ test('chat schemas replace type arrays with equivalent anyOf branches', () => {
   }
 });
 
+test('AICredits chat sends reasoning effort only to models probed to accept it', async () => {
+  const { requests, providerFor } = harness(() => json(chatBody(JSON.stringify(intent))));
+  const provider = providerFor({ provider: 'aicredits-chat' });
+  await provider.generateStructured({
+    ...request,
+    model: 'openai/gpt-oss-120b',
+    reasoningEffort: 'low',
+  });
+  await provider.generateStructured({
+    ...request,
+    model: 'openai/gpt-5-mini',
+    reasoningEffort: 'low',
+  });
+  await provider.generateStructured({ ...request, model: 'openai/gpt-oss-120b' });
+
+  assert.equal(requests[0].body.reasoning_effort, 'low');
+  assert.equal(requests[0].body.reasoning, undefined);
+  assert.equal(requests[1].body.reasoning_effort, undefined);
+  assert.equal(requests[2].body.reasoning_effort, undefined);
+});
+
 test('chat adapter sends strict JSON schema output and maps chat usage', async () => {
   const { requests, providerFor } = harness(() => json(chatBody(JSON.stringify(intent))));
   const provider = providerFor({ provider: 'openrouter' });
