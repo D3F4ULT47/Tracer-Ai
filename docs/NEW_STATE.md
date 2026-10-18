@@ -131,6 +131,35 @@ What this shows:
 
 Cost: about ₹0.46 for the recorded tokens; up to about ₹1.2 more if the 8 timed-out calls were billed. Nemotron: ₹0.
 
+**Shorter output, second re-evaluation** (`eval-2026-10-18-p3`, commit `5f8706a`):
+
+- **What changed:**
+  - Prompts `source-understanding/1.3.0`, `preparation-combined/1.2.0` and `learner-assessment/1.2.0`: about half the list limits, stated as maximums rather than targets, and reasoning of at most 12 words.
+  - The model no longer writes the fields the server overwrites (attributions, IDs, timestamps, mode, version).
+  - `reasoning_effort: low` is now sent to gpt-oss-120b on AICredits. Before, it was never sent to any AICredits model, although the run settings recorded "low". A probe on Oct 18 confirmed AICredits accepts it, and reasoning tokens fell from 62–73 to 0–24 on a small request.
+
+| gpt-oss-120b                                | Before (p2)        | After (p3)                            |
+| ------------------------------------------- | ------------------ | ------------------------------------- |
+| Calls                                       | 12 (stopped early) | 18 (all inputs)                       |
+| Valid outputs                               | 4 (33%)            | 11 (61%)                              |
+| Timed out at 90 s                           | 8 (67%)            | 6 (33%)                               |
+| Output tokens, source understanding         | about 6,000        | 2,800–3,000                           |
+| Reasoning tokens                            | 1,300–2,400        | 0–600                                 |
+| Critical recall (found and marked critical) | 14 of 21           | 22 of 25 (88%)                        |
+| Evidence failures                           | 0                  | 1 (F7 run 1, cause not recorded)      |
+| Salvage used                                | Never              | 3 learner assessments, all then valid |
+
+- **Remaining issues:**
+  - All 3 recall misses are on F5, the AI report: the "12-week timeline" (twice) and "Airflow" were found but marked noncritical. Whether a learning plan's timeline is a hard constraint is a judgement for the review, not a clear model error.
+  - F4 still marks the "Nice to have" OpenAPI item critical.
+  - Latency is dominated by provider speed: two outputs of the same size took 4 s and 60 s (F9).
+- **Gate result:** not approved.
+  - Combined-call evidence pass rate 67% (threshold 90%).
+  - Source-understanding recall 82% (threshold 90%).
+  - Reviews missing.
+  - A third of calls still time out, which the gate does not check for paid models.
+- **Cost:** about ₹0.65 recorded; up to about ₹0.9 more if the 6 timed-out calls were billed.
+
 ## 4. The legacy pipeline
 
 **It has not been removed.** It is still the only flow the browser uses.
