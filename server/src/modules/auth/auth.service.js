@@ -121,7 +121,13 @@ export const authService = Object.freeze({
 
   async login({ email, password }, context = {}) {
     const user = await User.findOne({ email: normalizeEmail(email) }).select('+passwordHash');
-    if (!user?.passwordHash || !(await passwordService.verify(user.passwordHash, password))) {
+    if (!user) {
+      throw new AppError('No account exists for this email', {
+        status: 404,
+        code: 'ACCOUNT_NOT_FOUND',
+      });
+    }
+    if (!user.passwordHash || !(await passwordService.verify(user.passwordHash, password))) {
       throw new AppError('Invalid email or password', { status: 401, code: 'INVALID_CREDENTIALS' });
     }
     if (user.status !== 'active') {

@@ -50,7 +50,11 @@ it('returns a verified signup to the pending roadmap preview', async () => {
   const user = userEvent.setup();
   await user.type(screen.getByRole('textbox', { name: 'Name' }), 'New Learner');
   await user.type(screen.getByRole('textbox', { name: 'Email' }), 'new@example.com');
-  await user.type(screen.getByLabelText('Password'), 'SecurePassword!2026');
+  await user.type(screen.getByLabelText('Password', { selector: 'input' }), 'SecurePassword!2026');
+  await user.type(
+    screen.getByLabelText('Confirm password', { selector: 'input' }),
+    'SecurePassword!2026',
+  );
   await user.click(screen.getByRole('button', { name: 'Create account' }));
 
   expect(
@@ -82,7 +86,11 @@ it('signs a verified new user in and navigates directly home', async () => {
   const user = userEvent.setup();
   await user.type(screen.getByRole('textbox', { name: 'Name' }), 'New Learner');
   await user.type(screen.getByRole('textbox', { name: 'Email' }), 'new@example.com');
-  await user.type(screen.getByLabelText('Password'), 'SecurePassword!2026');
+  await user.type(screen.getByLabelText('Password', { selector: 'input' }), 'SecurePassword!2026');
+  await user.type(
+    screen.getByLabelText('Confirm password', { selector: 'input' }),
+    'SecurePassword!2026',
+  );
   await user.click(screen.getByRole('button', { name: 'Create account' }));
 
   expect(await screen.findByRole('heading', { name: 'Roadmap home' })).toBeInTheDocument();
@@ -96,4 +104,50 @@ it('signs a verified new user in and navigates directly home', async () => {
     password: 'SecurePassword!2026',
   });
   expect(queryClient.getQueryData(authKeys.me).data.user.name).toBe('New Learner');
+});
+
+function renderSignup(initialEntry = '/signup') {
+  const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+  render(
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={[initialEntry]}>
+        <Routes>
+          <Route path="/signup" element={<SignupPage />} />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+}
+
+it('blocks signup when the two passwords differ', async () => {
+  renderSignup();
+  const user = userEvent.setup();
+  await user.type(screen.getByRole('textbox', { name: 'Name' }), 'New Learner');
+  await user.type(screen.getByRole('textbox', { name: 'Email' }), 'new@example.com');
+  await user.type(screen.getByLabelText('Password', { selector: 'input' }), 'SecurePassword!2026');
+  await user.type(
+    screen.getByLabelText('Confirm password', { selector: 'input' }),
+    'SecurePassword!2027',
+  );
+  await user.click(screen.getByRole('button', { name: 'Create account' }));
+
+  expect(screen.getByText('Passwords do not match.')).toBeInTheDocument();
+  expect(mocks.register).not.toHaveBeenCalled();
+});
+
+it('shows and hides the password with the eye button', async () => {
+  renderSignup();
+  const user = userEvent.setup();
+  const password = screen.getByLabelText('Password', { selector: 'input' });
+  expect(password).toHaveAttribute('type', 'password');
+  await user.click(screen.getByRole('button', { name: 'Show password' }));
+  expect(password).toHaveAttribute('type', 'text');
+  await user.click(screen.getByRole('button', { name: 'Hide password' }));
+  expect(password).toHaveAttribute('type', 'password');
+});
+
+it('prefills the email when login found no account', () => {
+  renderSignup({ pathname: '/signup', state: { email: 'new@example.com' } });
+  expect(screen.getByRole('textbox', { name: 'Email' })).toHaveValue('new@example.com');
+  expect(screen.getByText(/No account exists for new@example.com/)).toBeInTheDocument();
 });

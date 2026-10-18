@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, KeyRound } from 'lucide-react';
 import { Button } from '../components/Button/index.js';
 import { Card } from '../components/Card/index.js';
-import { Input } from '../components/Input/index.js';
+import { Input, PasswordInput } from '../components/Input/index.js';
 import { Loader } from '../components/Loader/index.js';
 import { Modal } from '../components/Modal/index.js';
 import { Toast } from '../components/Toast/index.js';
@@ -26,7 +26,14 @@ export function LoginPage() {
   async function submit(event) {
     event.preventDefault();
     const body = Object.fromEntries(new FormData(event.currentTarget));
-    await login.mutateAsync(body);
+    try {
+      await login.mutateAsync(body);
+    } catch (error) {
+      if (error.code === 'ACCOUNT_NOT_FOUND') {
+        navigate('/signup', { replace: true, state: { email: body.email } });
+      }
+      return;
+    }
     navigate(consumeAuthReturn('/'), { replace: true });
   }
 
@@ -64,10 +71,9 @@ export function LoginPage() {
             required
             autoComplete="email"
           />
-          <Input
+          <PasswordInput
             id="login-password"
             name="password"
-            type="password"
             label="Password"
             required
             autoComplete="current-password"

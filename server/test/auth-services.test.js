@@ -16,6 +16,24 @@ const { passwordService } = await import('../src/modules/auth/password.service.j
 const { tokenService } = await import('../src/modules/auth/token.service.js');
 const { OAuthProviderRegistry } =
   await import('../src/modules/auth/oauth/oauth-provider-registry.js');
+const { authService } = await import('../src/modules/auth/auth.service.js');
+const { User } = await import('../src/modules/auth/models/user.model.js');
+
+test('login tells the client when no account exists, and keeps one message for a wrong password', async (t) => {
+  let found = null;
+  t.mock.method(User, 'findOne', () => ({ select: async () => found }));
+
+  await assert.rejects(authService.login({ email: 'new@example.com', password: 'x'.repeat(12) }), {
+    status: 404,
+    code: 'ACCOUNT_NOT_FOUND',
+  });
+
+  found = { passwordHash: await passwordService.hash('CorrectPassword!2026'), status: 'active' };
+  await assert.rejects(
+    authService.login({ email: 'known@example.com', password: 'WrongPassword!2026' }),
+    { status: 401, code: 'INVALID_CREDENTIALS' },
+  );
+});
 
 test('password service hashes and verifies without retaining plaintext', async () => {
   const password = 'correct horse battery staple';
