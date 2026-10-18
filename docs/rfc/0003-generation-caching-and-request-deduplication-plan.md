@@ -206,14 +206,11 @@ These tests found one real bug, now fixed: source understanding and the combined
 
 ### 6.2 Live check (spends credit)
 
-`scripts/ai-reuse-live-check.js` runs the same scenarios against the running API and real providers, and counts what actually happened from `ai_usage_records`. Before running it:
+`scripts/ai-reuse-live-check.js` runs these scenarios on the routed flow (`/ai/roadmaps/prepare`; the legacy endpoints are never called) against the running API and real providers, and counts what actually happened from `ai_usage_records`. Before running it, enable `ai-routed-preparation` and `ai-learner-assessment` in `FEATURE_FLAGS`, set `AI_RATE_LIMIT_ANONYMOUS_PER_HOUR` to at least 10, and restart the API.
 
-1. Top up AICredits.
-2. Set `FEATURE_FLAGS={"ai-learner-assessment":true,"ai-roadmap-generation":true}`; with `{}` both endpoints return 404 before any model is called.
-3. Set `AI_RATE_LIMIT_ANONYMOUS_PER_HOUR=50` (the default of 10 is used up by about three roadmaps).
-4. Restart the API.
+The default run makes one provider call (a case 4 learner assessment). `--with-other-learner`, `--with-shared` and `--with-generation` each add one call.
 
-`--skip-generation` checks only preparation (cheap). Without it the run makes four generation calls. `--with-public-source=<GitHub URL>` adds the cross-learner public-source check.
+**Result, Oct 18** (`AI_MODEL_FAST=aicredits:openai/gpt-5.5`, default run): 3 of 3 checks passed. The first preparation routed to case 4 and made one call (1,002 input and 866 output tokens, 8.9 s, ₹3.09). A retry with the same key was replayed with no new record. A repeat by the same learner with a new key was a cache hit: 0 tokens, ₹0, 4 ms. The other-learner, simultaneous-request and generation checks have not been run live.
 
 ## 7. Cheaper generation model
 

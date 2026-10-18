@@ -1,14 +1,21 @@
 /**
- * Live check of caching, idempotency and in-flight deduplication against the running API and
- * real providers (Plan 0003). Spends provider credit; every input is synthetic.
+ * Live check of caching, idempotency and in-flight deduplication on the routed preparation flow
+ * (`/ai/roadmaps/prepare`) against the running API and real providers (Plan 0003). Spends
+ * provider credit; every input is synthetic. The legacy endpoints are never called.
  *
- *   node scripts/ai-reuse-live-check.js [--api=http://localhost:4000/api/v1] [--skip-generation]
- *                                       [--with-public-source=https://github.com/owner/repo]
+ *   node scripts/ai-reuse-live-check.js [--api=http://localhost:4000/api/v1]
+ *     [--with-other-learner] [--with-shared] [--with-generation]
  *
- * Requires the API and MongoDB running, FEATURE_FLAGS enabling `ai-learner-assessment` and
- * `ai-roadmap-generation`, and AI_RATE_LIMIT_ANONYMOUS_PER_HOUR of at least 20.
- * Provider calls are counted from `ai_usage_records` by pipeline ID, so the numbers are what was
- * actually sent to (or saved from) the provider, not what the API reported.
+ * The default run makes one provider call (a learner assessment, RFC 0001 case 4) and checks that
+ * a retry and a repeat by the same learner make none. Each option adds the provider calls it
+ * names: another learner (1 call), two simultaneous identical requests (1 call), one roadmap
+ * generation (1 call, the expensive one).
+ *
+ * Requires the API and MongoDB running, FEATURE_FLAGS enabling `ai-routed-preparation` and
+ * `ai-learner-assessment` (and `ai-roadmap-generation` for --with-generation), and
+ * AI_RATE_LIMIT_ANONYMOUS_PER_HOUR of at least 10. Provider calls are counted from
+ * `ai_usage_records` by pipeline ID, so the numbers are what was actually sent to (or saved from)
+ * the provider, not what the API reported.
  */
 import { randomUUID } from 'node:crypto';
 import mongoose from 'mongoose';
@@ -20,15 +27,26 @@ const option = (name) =>
     ?.split('=')
     .slice(1)
     .join('=');
+const flag = (name) => process.argv.includes(`--${name}`);
 const api = option('api') ?? `http://localhost:${env.PORT}/api/v1`;
-const skipGeneration = process.argv.includes('--skip-generation');
-const publicSource = option('with-public-source');
 
-const goal = `Learn event-driven backend design (synthetic check ${randomUUID().slice(0, 8)})`;
+const tag = randomUUID().slice(0, 8);
+const goalFor = (suffix) =>
+  `I'm a backend developer with 2 years of Node.js experience and I want to learn event-driven design (synthetic check ${tag}${suffix})`;
 const learners = { first: randomUUID(), second: randomUUID() };
 const results = [];
 
-async function post(path, body, { learner, key = randomUUID(), pipelineId }) {
+function prepareBody(goal) {
+  return {
+    mode: 'quick',
+    sources: [{ type: 'natural_prompt', content: goal }],
+    assessmentInputs: { naturalLanguage: goal },
+    explicitInput: { primaryGoal: goal, goalType: 'learning_goal' },
+    questionnaire: {},
+  };
+}
+
+async function post(path, body, { learner, key = randomUUID(), pipelineId = randomUUID() }) {
   const response = await fetch(`${api}${path}`, {
     method: 'POST',
     headers: {
@@ -43,58 +61,21 @@ async function post(path, body, { learner, key = randomUUID(), pipelineId }) {
   if (!response.ok) {
     const code = payload?.error?.code ?? response.status;
     const hint = {
-      AI_ASSESSMENT_DISABLED: 'set FEATURE_FLAGS={"ai-learner-assessment":true,...} and restart',
+      404: 'set FEATURE_FLAGS with "ai-routed-preparation":true and restart the API',
       AI_ROADMAP_GENERATION_DISABLED: 'add "ai-roadmap-generation":true to FEATURE_FLAGS',
       AI_RATE_LIMITED: 'raise AI_RATE_LIMIT_ANONYMOUS_PER_HOUR and restart the API',
       AI_CREDITS_EXHAUSTED: 'the AICredits balance is empty',
     }[code];
     throw new Error(`${path} failed with ${code}${hint ? ` — ${hint}` : ''}`);
   }
-  return { payload, replayed: response.headers.get('idempotent-replayed') === 'true' };
-}
-
-async function roadmapAction({ learner, key = randomUUID(), pipelineId = randomUUID() }) {
-  const options = { learner, key, pipelineId };
-  const requests = [
-    ['/ai/source-understanding', { sources: [{ type: 'natural_prompt', content: goal }] }],
-  ];
-  const understanding = await post(...requests[0], options);
-  requests.push(['/ai/assessments', { inputs: { naturalLanguage: goal } }]);
-  const assessment = await post(...requests[1], options);
-  const context = await post(
-    '/ai/learning-contexts',
-    {
-      assessment: assessment.payload.data.assessment,
-      mode: 'quick',
-      explicitInput: { primaryGoal: goal, goalType: 'career_goal', experienceLevel: 'beginner' },
-      questionnaire: {},
-      sourceVersions: { assessmentVersion: assessment.payload.data.assessment.schemaVersion },
-    },
-    { learner, pipelineId },
-  );
-  const previewBody = {
-    context: context.payload.data.context,
-    sourceUnderstanding: understanding.payload.data.understanding,
-    anonymousSessionId: learners[learner],
+  return {
+    payload,
+    pipelineId,
+    replayed: response.headers.get('idempotent-replayed') === 'true',
   };
-  if (!skipGeneration) {
-    requests.push(['/ai/roadmaps/preview', previewBody]);
-    await post(...requests[2], options);
-  }
-  return { pipelineId, key, learner, requests, previewBody };
 }
 
-/** Sends the same AI requests again with the same key, as a network retry would. */
-async function retry(action) {
-  const pipelineId = randomUUID();
-  const responses = [];
-  for (const [path, body] of action.requests) {
-    responses.push(
-      await post(path, body, { learner: action.learner, key: action.key, pipelineId }),
-    );
-  }
-  return { pipelineId, replayed: responses.map((response) => response.replayed) };
-}
+const prepare = (goal, options) => post('/ai/roadmaps/prepare', prepareBody(goal), options);
 
 async function counts(pipelineId) {
   const records = await mongoose.connection.db
@@ -121,99 +102,83 @@ function check(name, condition, detail) {
   results.push({ name, passed: Boolean(condition), detail });
 }
 
-const called = (summary, operation) => (summary[operation]?.providerAttempts ?? 0) > 0;
-const hits = (summary, operation) => summary[operation]?.cacheHits ?? 0;
+const assessment = 'learner_assessment';
+const attempts = (summary, operation = assessment) => summary[operation]?.providerAttempts ?? 0;
+const hits = (summary, operation = assessment) => summary[operation]?.cacheHits ?? 0;
 const settle = () => new Promise((resolve) => setTimeout(resolve, 500));
 
 await mongoose.connect(env.MONGODB_URI);
 try {
-  const first = await roadmapAction({ learner: 'first' });
+  const goal = goalFor('');
+  const key = randomUUID();
+  const first = await prepare(goal, { learner: 'first', key });
   await settle();
   const l1 = await counts(first.pipelineId);
+  const preparation = first.payload.data.preparation;
   check(
-    'L1 first roadmap calls the provider for each operation',
-    called(l1, 'source_understanding') &&
-      called(l1, 'learner_assessment') &&
-      (skipGeneration || called(l1, 'roadmap_generation')),
-    l1,
+    'L1 first preparation routes to case 4 and calls the provider once',
+    preparation.case === 4 && attempts(l1) === 1 && Object.keys(l1).length === 1,
+    { case: preparation.case, executed: preparation.executedOperations, records: l1 },
   );
 
-  const replay = await retry(first);
+  const replay = await prepare(goal, { learner: 'first', key });
   await settle();
   const l2 = await counts(replay.pipelineId);
   check(
-    'L2 retry with the same key replays every AI response, 0 new records',
-    replay.replayed.every(Boolean) && Object.keys(l2).length === 0,
+    'L2 retry with the same key replays the response, 0 new records',
+    replay.replayed && Object.keys(l2).length === 0,
     { replayed: replay.replayed, records: l2 },
   );
 
-  const again = await roadmapAction({ learner: 'first' });
+  const again = await prepare(goal, { learner: 'first' });
   await settle();
   const l3 = await counts(again.pipelineId);
   check(
-    'L3 same learner, new action: preparation is a cache hit with 0 tokens',
-    hits(l3, 'source_understanding') === 1 &&
-      hits(l3, 'learner_assessment') === 1 &&
-      !called(l3, 'source_understanding') &&
-      !called(l3, 'learner_assessment') &&
-      (l3.source_understanding?.tokens ?? 0) === 0,
+    'L3 same learner, new key: the assessment is a cache hit with 0 tokens',
+    hits(l3) === 1 && attempts(l3) === 0 && (l3[assessment]?.tokens ?? 0) === 0,
     l3,
   );
-  if (!skipGeneration) {
-    check(
-      'L3 generation is not cached and calls the provider again',
-      called(l3, 'roadmap_generation'),
-      l3,
-    );
 
-    const tabsPipeline = randomUUID();
-    const tabs = await Promise.all(
-      [1, 2].map(() =>
-        post('/ai/roadmaps/preview', again.previewBody, {
-          learner: 'first',
-          pipelineId: tabsPipeline,
-        }),
-      ),
-    );
+  if (flag('with-other-learner')) {
+    const other = await prepare(goal, { learner: 'second' });
     await settle();
-    const l4 = await counts(tabsPipeline);
+    const l5 = await counts(other.pipelineId);
     check(
-      'L4 two simultaneous identical previews share one provider call',
-      tabs.length === 2 && (l4.roadmap_generation?.shared ?? 0) === 1,
+      'L5 a different learner with the same goal gets no cached result',
+      hits(l5) === 0 && attempts(l5) === 1,
+      l5,
+    );
+  }
+
+  if (flag('with-shared')) {
+    const sharedGoal = goalFor('-tabs');
+    const pipelineId = randomUUID();
+    await Promise.all([1, 2].map(() => prepare(sharedGoal, { learner: 'first', pipelineId })));
+    await settle();
+    const l4 = await counts(pipelineId);
+    check(
+      'L4 two simultaneous identical preparations share one provider call',
+      attempts(l4) === 1 && (l4[assessment]?.shared ?? 0) === 1,
       l4,
     );
   }
 
-  const other = await roadmapAction({ learner: 'second' });
-  await settle();
-  const l5 = await counts(other.pipelineId);
-  check(
-    'L5 a different learner with the same goal gets no cached result',
-    hits(l5, 'source_understanding') === 0 &&
-      hits(l5, 'learner_assessment') === 0 &&
-      called(l5, 'source_understanding') &&
-      called(l5, 'learner_assessment'),
-    l5,
-  );
-
-  if (publicSource) {
-    const sources = [{ type: 'github_repository', url: publicSource }];
-    const pipelines = [randomUUID(), randomUUID()];
+  if (flag('with-generation')) {
+    const pipelineId = randomUUID();
     await post(
-      '/ai/source-understanding',
-      { sources },
-      { learner: 'first', pipelineId: pipelines[0] },
-    );
-    await post(
-      '/ai/source-understanding',
-      { sources },
-      { learner: 'second', pipelineId: pipelines[1] },
+      '/ai/roadmaps/preview',
+      {
+        context: first.payload.data.context,
+        sourceUnderstanding: first.payload.data.sourceUnderstanding,
+        anonymousSessionId: learners.first,
+      },
+      { learner: 'first', pipelineId },
     );
     await settle();
-    const l6 = await Promise.all(pipelines.map(counts));
+    const l6 = await counts(pipelineId);
     check(
-      'L6 a public-only source is understood once and shared across learners',
-      hits(l6[1], 'source_understanding') === 1 && !called(l6[1], 'source_understanding'),
+      'L6 generation from the routed preparation calls the provider once',
+      attempts(l6, 'roadmap_generation') === 1,
       l6,
     );
   }
