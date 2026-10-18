@@ -154,8 +154,19 @@ function harness({
   reuseLayer = null,
   failurePolicy = 'degraded',
 } = {}) {
-  const calls = { resolver: [], providerInputs: [], understand: [], assess: [], contexts: [] };
+  const calls = {
+    resolver: [],
+    providerInputs: [],
+    understand: [],
+    assess: [],
+    contexts: [],
+    prompts: [],
+  };
   const storage = repositories();
+  const promptLoader = async (name, version) => {
+    calls.prompts.push(`${name}@${version}`);
+    return prompt(name, version);
+  };
   const respond = (mode, data) => {
     if (mode !== 'success') throw Object.assign(new Error('provider down'), { status: 503 });
     return {
@@ -215,7 +226,7 @@ function harness({
       youtubeApiKey: null,
     }),
     providerResolver: resolver,
-    promptLoader: async (name, version) => prompt(name, version),
+    promptLoader,
     repositories: storage,
     now: () => fixedNow,
     log: { error() {}, warn() {} },
@@ -265,7 +276,7 @@ function harness({
       },
     },
     providerResolver: resolver,
-    promptLoader: async (name, version) => prompt(name, version),
+    promptLoader,
     repositories: storage,
     failurePolicy,
     log: { info() {}, error() {}, warn() {} },
@@ -321,7 +332,7 @@ test('case 1: goal text with a selected level makes no preparatory model call', 
   assert.ok(validatePreparation(result.preparation), JSON.stringify(validatePreparation.errors));
 });
 
-test('case 2: a planning source runs source understanding 1.1.0 on the fast profile', async () => {
+test('case 2: a planning source runs source understanding 1.2.0 on the fast profile', async () => {
   const { service, calls } = harness();
   const result = await prepare(service, {
     sources: [{ type: 'natural_prompt', content: goal }, pdfSource],
@@ -330,7 +341,9 @@ test('case 2: a planning source runs source understanding 1.1.0 on the fast prof
   });
 
   assert.equal(result.preparation.case, 2);
-  assert.deepEqual(calls.understand, [{ profile: 'fast', promptVersion: '1.1.0' }]);
+  assert.deepEqual(calls.understand, [{ profile: 'fast', promptVersion: '1.2.0' }]);
+  assert.deepEqual(calls.prompts, ['source-understanding@1.2.0']);
+  assert.equal(result.sourceUnderstanding.schemaVersion, '1.2.0');
   assert.equal(calls.assess.length, 0);
   assert.equal(result.sourceUnderstanding.requirements[0].criticality, 'critical');
   assert.deepEqual(
@@ -367,6 +380,7 @@ test('case 3: one combined call, kept on paid models when a resume is present', 
       reuse: { scope: null, cacheTtlSeconds: 3_600 },
     },
   ]);
+  assert.deepEqual(calls.prompts, ['preparation-combined@1.1.0']);
   const sentSources = calls.providerInputs[0].parsed.sources.map(({ type }) => type);
   assert.ok(!sentSources.includes('resume'), 'resume is learner evidence, not a planning source');
   assert.equal(result.sourceUnderstanding.requirements.length, 1);
@@ -620,6 +634,59 @@ test('without a learner scope, every repeat is a new provider call', async () =>
   await prepare(service, caseInputs[2]);
   await prepare(service, caseInputs[2]);
   assert.equal(calls.providerInputs.length, 2);
+});
+
+test('learner assessment uses prompt 1.1.0 for preparation and keeps 1.0.0 for the legacy profile', async () => {
+  const loaded = [];
+  const service = createAssessmentService({
+    flags: { isEnabled: async () => true },
+    providerResolver: () => ({
+      configuration: { provider: 'aicredits', model: 'test-model' },
+      provider: {
+        async generateStructured() {
+          return {
+            data: assessmentData('Built a React dashboard'),
+            provider: 'aicredits',
+            model: 'test-model',
+            latencyMs: 5,
+            usage: { inputTokens: 10, cachedInputTokens: 0, outputTokens: 5, totalTokens: 15 },
+          };
+        },
+      },
+    }),
+    promptLoader: async (name, version) => {
+      loaded.push(`${name}@${version}`);
+      return prompt(name, version);
+    },
+    repositories: repositories(),
+    log: { error() {}, warn() {} },
+  });
+  const assess = (profile) =>
+    service.assess({
+      ownerId: null,
+      requestId: 'request-1',
+      inputs: { naturalLanguage: selfDescription },
+      ...(profile ? { profile } : {}),
+    });
+
+  await assess('fast');
+  await assess();
+  assert.deepEqual(loaded, ['learner-assessment@1.1.0', 'learner-assessment@1.0.0']);
+});
+
+test('the preparation prompts keep the untrusted-data rule and never cap requirements', async () => {
+  const { loadPrompt } = await import('../src/modules/ai/prompt.repository.js');
+  for (const [name, version] of [
+    ['source-understanding', '1.2.0'],
+    ['preparation-combined', '1.1.0'],
+    ['learner-assessment', '1.1.0'],
+  ]) {
+    const { content } = await loadPrompt(name, version);
+    assert.match(content, /untrusted data/, `${name}@${version} keeps the injection rule`);
+    if (name !== 'learner-assessment') {
+      assert.match(content, /Requirements are never limited/, `${name}@${version}`);
+    }
+  }
 });
 
 test('case 4 request count: first 1, same-learner repeat 0, other learner 1', async () => {

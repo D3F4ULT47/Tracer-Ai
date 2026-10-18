@@ -154,7 +154,7 @@ export function createPreparationService({
     learner,
   }) {
     const prepared = prepareAssessmentInputs(assessmentInputs);
-    const prompt = await promptLoader('preparation-combined', '1.0.0');
+    const prompt = await promptLoader('preparation-combined', '1.1.0');
     const { provider, configuration } = providerResolver('fast', {
       operation: combinedOperation,
       dataClass: dataClassForAssessment(assessmentInputs),

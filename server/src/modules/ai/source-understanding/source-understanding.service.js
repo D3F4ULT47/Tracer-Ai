@@ -21,7 +21,7 @@ import {
 const operation = 'source_understanding';
 const promptName = 'source-understanding';
 export const LEGACY_SOURCE_PROMPT_VERSION = '1.0.0';
-export const ROUTED_SOURCE_PROMPT_VERSION = '1.1.0';
+export const ROUTED_SOURCE_PROMPT_VERSION = '1.2.0';
 
 function hash(value) {
   return createHash('sha256').update(JSON.stringify(value)).digest('hex');

@@ -19,7 +19,7 @@ import { finalizeProficiencyAssessment } from './proficiency.analyzer.js';
 
 const operation = 'learner_assessment';
 const promptName = 'learner-assessment';
-const promptVersion = '1.0.0';
+const promptVersions = Object.freeze({ core: '1.0.0', fast: '1.1.0' });
 
 function determineInputType(inputs) {
   const sources = Object.keys(inputs);
@@ -81,7 +81,7 @@ export function createAssessmentService({
       }
 
       const prepared = prepareAssessmentInputs(inputs);
-      const prompt = await promptLoader(promptName, promptVersion);
+      const prompt = await promptLoader(promptName, promptVersions[profile] ?? promptVersions.core);
       const { provider, configuration } = providerResolver(profile, {
         operation,
         dataClass: dataClassForAssessmentInputs(prepared.inputs),
