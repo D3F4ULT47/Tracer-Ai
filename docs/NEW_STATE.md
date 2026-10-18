@@ -113,10 +113,10 @@ Both changes apply only to the new flow. The old pipeline keeps its prompts and 
 
 **Re-evaluation on Oct 18** (`eval-2026-10-18-p2`, production limits, no retries):
 
-| Model                   | Calls | Valid outputs        | Timed out | Evidence failures | Salvage used | Critical recall                                                                     |
-| ----------------------- | ----- | -------------------- | --------- | ----------------- | ------------ | ----------------------------------------------------------------------------------- |
-| gpt-oss-120b            | 12    | 4 (F4, F5 twice, F6) | 8 at 90 s | 0 (was 7 of 18)   | Never        | 15 of 17 calls 88%; source understanding 10 of 17 (F5 run 1 empty), combined 4 of 4 |
-| Nemotron 3 Super (free) | 5     | 0                    | 5 at 30 s | —                 | —            | —                                                                                   |
+| Model                   | Calls | Valid outputs        | Timed out | Evidence failures | Salvage used | Critical recall                                                                                                                   |
+| ----------------------- | ----- | -------------------- | --------- | ----------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| gpt-oss-120b            | 12    | 4 (F4, F5 twice, F6) | 8 at 90 s | 0 (was 7 of 18)   | Never        | 14 of 21 (67%): source understanding 10 of 17 (F5 run 1 empty; F5 run 2 marked the 12-week timeline noncritical), combined 4 of 4 |
+| Nemotron 3 Super (free) | 5     | 0                    | 5 at 30 s | —                 | —            | —                                                                                                                                 |
 
 Both runs were stopped by the circuit breaker after 5 consecutive timeouts, so F7 run 3 onwards (gpt-oss-120b) and F5 run 3 onwards (Nemotron) did not run; F8 and F9 were not evaluated.
 
@@ -126,6 +126,7 @@ What this shows:
 - **The length caps did not shorten the output.** The model fills every list up to its cap: about 12,000 characters plus 1,300–2,400 reasoning tokens, roughly 6,000 output tokens, the same as before.
 - **Timeouts are now the only failure, and they depend on provider speed.** The same size of output took 16 s in one call and more than 90 s in another.
 - **F5 (the embedded instruction) produced valid outputs for the first time.** One found all 6 critical requirements and did not follow the instruction. Another "succeeded" with an empty understanding (no requirements, no evidence), which the validator accepts today.
+- **Over-marking on F4:** the README's "Nice to have" OpenAPI documentation was marked a critical deliverable, and an eighth requirement restates the goal ("Build the inventory service using the provided repository").
 - **Gate gap:** `ai-routing-approve.js` checks availability failures only for free models. gpt-oss-120b's combined call would pass every numeric threshold with 1 valid output from 6 runs; only the missing review blocks it.
 
 Cost: about ₹0.46 for the recorded tokens; up to about ₹1.2 more if the 8 timed-out calls were billed. Nemotron: ₹0.
