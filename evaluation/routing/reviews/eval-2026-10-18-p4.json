@@ -1,0 +1,50 @@
+{
+  "evaluationId": "eval-2026-10-18-p4",
+  "instructions": "Owner review R1 (Plan 0002 section 6). Set each rating to \"acceptable\", \"acceptable_with_notes\" or \"unacceptable\" after reading the outputs in the runs file. This file is never filled in by a script.",
+  "reviewer": null,
+  "reviewedAt": null,
+  "items": [
+    {
+      "fixture": "F1",
+      "model": "none",
+      "criteria": ["C1", "C6"],
+      "rating": null,
+      "notes": ""
+    },
+    {
+      "fixture": "F2",
+      "model": "none",
+      "criteria": ["C1", "C6"],
+      "rating": null,
+      "notes": ""
+    },
+    {
+      "fixture": "F3",
+      "model": "none",
+      "criteria": ["C1", "C6"],
+      "rating": null,
+      "notes": ""
+    },
+    {
+      "fixture": "F4",
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "criteria": ["C1", "C2", "C3", "C4", "C5", "C7"],
+      "rating": null,
+      "notes": ""
+    },
+    {
+      "fixture": "F5",
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "criteria": ["C1", "C2", "C3", "C4", "C5", "C7"],
+      "rating": null,
+      "notes": ""
+    },
+    {
+      "fixture": "F6",
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "criteria": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+      "rating": null,
+      "notes": ""
+    }
+  ]
+}

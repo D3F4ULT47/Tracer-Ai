@@ -1,0 +1,2961 @@
+{
+  "evaluationId": "eval-2026-10-18-p4",
+  "fixturesVersion": 1,
+  "startedAt": "2026-10-18T15:14:29.878Z",
+  "settings": {
+    "aicredits-chat:openai/gpt-oss-120b": {
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "retries": 0,
+      "freeAttemptTimeoutMs": 30000,
+      "freeBudgetMs": 60000,
+      "paidBudgetMs": 150000,
+      "reasoningEffort": "low"
+    }
+  },
+  "runs": [
+    {
+      "fixture": "F1",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "d6bc28a0-496d-4b47-9272-2a660b0ec42f",
+      "elapsedMs": 25,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "errorMessage": null,
+      "failureDetails": [],
+      "evidenceSalvage": null,
+      "router": {
+        "case": 1,
+        "caseMatches": true,
+        "sourceUnderstanding": "NOT_REQUIRED",
+        "learnerAssessment": "NOT_REQUIRED",
+        "executedOperations": []
+      },
+      "requirements": null,
+      "level": {
+        "assessed": null,
+        "resolved": "beginner",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [],
+      "output": {
+        "sourceUnderstanding": null,
+        "assessment": null
+      }
+    },
+    {
+      "fixture": "F2",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "0c5a296e-b36e-456e-af2c-26961d2d3d2b",
+      "elapsedMs": 1,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "errorMessage": null,
+      "failureDetails": [],
+      "evidenceSalvage": null,
+      "router": {
+        "case": 1,
+        "caseMatches": true,
+        "sourceUnderstanding": "NOT_REQUIRED",
+        "learnerAssessment": "NOT_REQUIRED",
+        "executedOperations": []
+      },
+      "requirements": null,
+      "level": {
+        "assessed": null,
+        "resolved": "intermediate",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [],
+      "output": {
+        "sourceUnderstanding": null,
+        "assessment": null
+      }
+    },
+    {
+      "fixture": "F3",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "66fa35a3-f240-4211-8435-8b69c4d7ed8c",
+      "elapsedMs": 1,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "errorMessage": null,
+      "failureDetails": [],
+      "evidenceSalvage": null,
+      "router": {
+        "case": 1,
+        "caseMatches": true,
+        "sourceUnderstanding": "NOT_REQUIRED",
+        "learnerAssessment": "INSUFFICIENT_EVIDENCE",
+        "executedOperations": []
+      },
+      "requirements": null,
+      "level": {
+        "assessed": null,
+        "resolved": null,
+        "status": "unresolved",
+        "matches": true
+      },
+      "attempts": [],
+      "output": {
+        "sourceUnderstanding": null,
+        "assessment": null
+      }
+    },
+    {
+      "fixture": "F4",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "64403e2d-5bd7-426b-b908-0a8d90f93e5b",
+      "elapsedMs": 99521,
+      "outcome": "failed",
+      "failureClass": "schema",
+      "errorCode": "AI_INVALID_JSON",
+      "errorMessage": "Roadmap preparation failed on every available model",
+      "failureDetails": [
+        {
+          "code": "AI_INVALID_JSON",
+          "details": null,
+          "attempts": [null]
+        }
+      ],
+      "evidenceSalvage": null,
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "stage": null,
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 1572,
+          "outputTokens": 10000,
+          "reasoningTokens": 0,
+          "latencyMs": 99342,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    },
+    {
+      "fixture": "F4",
+      "run": 2,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "bc0f1113-0076-40b3-8925-b60fad2004b1",
+      "elapsedMs": 59208,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "errorMessage": null,
+      "failureDetails": [],
+      "evidenceSalvage": null,
+      "router": {
+        "case": 2,
+        "caseMatches": true,
+        "sourceUnderstanding": "REQUIRED",
+        "learnerAssessment": "NOT_REQUIRED",
+        "executedOperations": ["source_understanding"]
+      },
+      "requirements": {
+        "critical": [
+          {
+            "label": "CRUD endpoints for items",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "JWT authentication",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "PostgreSQL with migrations",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Integration tests for every endpoint",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Starts with docker compose",
+            "found": true,
+            "criticality": "critical"
+          }
+        ],
+        "noncritical": [
+          {
+            "label": "Pagination at 20 items",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "OpenAPI documentation",
+            "found": true,
+            "criticality": "critical"
+          }
+        ],
+        "allMarkedNoncritical": false
+      },
+      "level": {
+        "assessed": null,
+        "resolved": "intermediate",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "stage": null,
+          "outcome": "success",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 1578,
+          "outputTokens": 2032,
+          "reasoningTokens": 175,
+          "latencyMs": 59030,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": {
+        "sourceUnderstanding": {
+          "summary": "Build a JWT‑protected CRUD inventory REST API with PostgreSQL, Docker, and integration tests.",
+          "concepts": [
+            {
+              "name": "REST API design",
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "reasoning": "Required for CRUD endpoints."
+            },
+            {
+              "name": "JWT authentication",
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "reasoning": "Stated in requirements."
+            },
+            {
+              "name": "PostgreSQL migrations",
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "reasoning": "Data storage requirement."
+            },
+            {
+              "name": "Docker Compose orchestration",
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "reasoning": "Service start requirement."
+            },
+            {
+              "name": "Integration testing",
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "reasoning": "Acceptance criterion."
+            }
+          ],
+          "technologies": [
+            {
+              "name": "JavaScript (Node.js)",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Language listed."
+            },
+            {
+              "name": "PLpgSQL",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Language listed."
+            },
+            {
+              "name": "Docker",
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "reasoning": "docker compose up required."
+            },
+            {
+              "name": "PostgreSQL",
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "reasoning": "Data store requirement."
+            },
+            {
+              "name": "OpenAPI (optional)",
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "reasoning": "Nice‑to‑have documentation."
+            }
+          ],
+          "skills": [
+            {
+              "name": "Node.js application development",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Project uses JavaScript."
+            },
+            {
+              "name": "SQL schema design & migrations",
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "reasoning": "Migrations required."
+            },
+            {
+              "name": "Writing integration tests",
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "reasoning": "Acceptance criterion."
+            },
+            {
+              "name": "Docker Compose usage",
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "reasoning": "Service start method."
+            }
+          ],
+          "prerequisites": [
+            {
+              "name": "Basic JavaScript proficiency",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "Language of codebase."
+            },
+            {
+              "name": "Docker installed locally",
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "reasoning": "Needed for docker compose."
+            },
+            {
+              "name": "Access to a PostgreSQL instance",
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "reasoning": "Data storage requirement."
+            },
+            {
+              "name": "Familiarity with JWT concepts",
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "reasoning": "Authentication requirement."
+            }
+          ],
+          "dependencies": [
+            {
+              "from": "package.json",
+              "to": "Node.js runtime",
+              "type": "recommended",
+              "confidence": 1,
+              "evidenceIds": ["E2"]
+            }
+          ],
+          "milestones": [],
+          "creatorRecommendations": [],
+          "preservedStructure": [
+            {
+              "sourceId": "e88b6c86-2668-45cf-8a91-1ee8d049b0bd",
+              "order": 1,
+              "title": "Inventory Service",
+              "description": "Heading from repository."
+            },
+            {
+              "sourceId": "e88b6c86-2668-45cf-8a91-1ee8d049b0bd",
+              "order": 2,
+              "title": "Requirements",
+              "description": "Heading from repository."
+            },
+            {
+              "sourceId": "e88b6c86-2668-45cf-8a91-1ee8d049b0bd",
+              "order": 3,
+              "title": "Acceptance criteria",
+              "description": "Heading from repository."
+            },
+            {
+              "sourceId": "e88b6c86-2668-45cf-8a91-1ee8d049b0bd",
+              "order": 4,
+              "title": "Nice to have",
+              "description": "Heading from repository."
+            }
+          ],
+          "evidence": [
+            {
+              "evidenceId": "E1",
+              "sourceId": "e88b6c86-2668-45cf-8a91-1ee8d049b0bd",
+              "locator": "## Requirements",
+              "excerpt": "- Expose create, read, update and delete endpoints for items under /api/items."
+            },
+            {
+              "evidenceId": "E2",
+              "sourceId": "e88b6c86-2668-45cf-8a91-1ee8d049b0bd",
+              "locator": "Languages:",
+              "excerpt": "Languages: JavaScript, PLpgSQL"
+            },
+            {
+              "evidenceId": "E3",
+              "sourceId": "e88b6c86-2668-45cf-8a91-1ee8d049b0bd",
+              "locator": "## Nice to have",
+              "excerpt": "- OpenAPI documentation for the endpoints."
+            }
+          ],
+          "assumptions": [
+            "Environment provides Node.js and npm.",
+            "Developer can run Docker Compose commands."
+          ],
+          "requirements": [
+            {
+              "id": "R1",
+              "statement": "Expose create, read, update and delete endpoints for items under /api/items.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E1"]
+            },
+            {
+              "id": "R2",
+              "statement": "Authenticate every request with JWT bearer tokens.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E1"]
+            },
+            {
+              "id": "R3",
+              "statement": "Store data in PostgreSQL and manage the schema with migrations.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E1"]
+            },
+            {
+              "id": "R4",
+              "statement": "Paginate list endpoints at 20 items per page.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E1"]
+            },
+            {
+              "id": "R5",
+              "statement": "Integration tests cover every endpoint.",
+              "kind": "evaluation_criterion",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E1"]
+            },
+            {
+              "id": "R6",
+              "statement": "The whole service starts with `docker compose up`.",
+              "kind": "evaluation_criterion",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E1"]
+            },
+            {
+              "id": "R7",
+              "statement": "Provide OpenAPI documentation for the endpoints.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E3"]
+            }
+          ],
+          "schemaVersion": "1.3.0",
+          "understandingId": "57147dd5-9c22-447a-939d-1ec73d534e91",
+          "generatedAt": "2026-10-18T15:16:09.600Z",
+          "mode": "mixed",
+          "sourceAttributions": [
+            {
+              "sourceId": "1aee5664-148c-4a73-9d73-11c3ce8d42d8",
+              "sourceType": "natural_prompt",
+              "identifier": "natural_prompt:12d2cf58a0d6e98b",
+              "title": "Natural prompt",
+              "url": null,
+              "creator": null,
+              "capturedAt": "2026-10-18T15:16:09.600Z",
+              "relevantLocations": []
+            },
+            {
+              "sourceId": "e88b6c86-2668-45cf-8a91-1ee8d049b0bd",
+              "sourceType": "github_repository",
+              "identifier": "tracer-fixtures/inventory-service@main",
+              "title": "tracer-fixtures/inventory-service",
+              "url": "https://github.com/tracer-fixtures/inventory-service",
+              "creator": "tracer-fixtures",
+              "capturedAt": "2026-10-18T15:16:09.600Z",
+              "relevantLocations": [
+                {
+                  "kind": "branch",
+                  "value": "main"
+                },
+                {
+                  "kind": "path",
+                  "value": "package.json"
+                },
+                {
+                  "kind": "path",
+                  "value": "src/app.js"
+                },
+                {
+                  "kind": "path",
+                  "value": "src/routes/items.js"
+                },
+                {
+                  "kind": "path",
+                  "value": "src/middleware/auth.js"
+                },
+                {
+                  "kind": "path",
+                  "value": "migrations/001_init.sql"
+                },
+                {
+                  "kind": "path",
+                  "value": "test/items.test.js"
+                },
+                {
+                  "kind": "path",
+                  "value": "docker-compose.yml"
+                },
+                {
+                  "kind": "path",
+                  "value": "README.md"
+                }
+              ]
+            }
+          ],
+          "sourceProcessing": [
+            {
+              "sourceType": "natural_prompt",
+              "identifier": null,
+              "status": "processed",
+              "errorCode": null
+            },
+            {
+              "sourceType": "github_repository",
+              "identifier": "https://github.com/tracer-fixtures/inventory-service",
+              "status": "processed",
+              "errorCode": null
+            }
+          ]
+        },
+        "assessment": null
+      }
+    },
+    {
+      "fixture": "F4",
+      "run": 3,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "73f0899c-7f4a-4557-a397-a12eda43f101",
+      "elapsedMs": 19693,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "errorMessage": null,
+      "failureDetails": [],
+      "evidenceSalvage": null,
+      "router": {
+        "case": 2,
+        "caseMatches": true,
+        "sourceUnderstanding": "REQUIRED",
+        "learnerAssessment": "NOT_REQUIRED",
+        "executedOperations": ["source_understanding"]
+      },
+      "requirements": {
+        "critical": [
+          {
+            "label": "CRUD endpoints for items",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "JWT authentication",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "PostgreSQL with migrations",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Integration tests for every endpoint",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Starts with docker compose",
+            "found": true,
+            "criticality": "critical"
+          }
+        ],
+        "noncritical": [
+          {
+            "label": "Pagination at 20 items",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "OpenAPI documentation",
+            "found": true,
+            "criticality": "critical"
+          }
+        ],
+        "allMarkedNoncritical": false
+      },
+      "level": {
+        "assessed": null,
+        "resolved": "intermediate",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "stage": null,
+          "outcome": "success",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 1559,
+          "outputTokens": 3481,
+          "reasoningTokens": 1364,
+          "latencyMs": 19562,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": {
+        "sourceUnderstanding": {
+          "assumptions": [
+            "Docker is installed on the host system.",
+            "Node.js runtime compatible with the project's package.json is available.",
+            "A JWT secret will be supplied via environment variables."
+          ],
+          "concepts": [
+            {
+              "confidence": 1,
+              "evidenceIds": ["E1", "E2"],
+              "name": "REST API",
+              "reasoning": "Core of service"
+            },
+            {
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "name": "CRUD operations",
+              "reasoning": "Endpoints defined"
+            },
+            {
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "name": "JWT authentication",
+              "reasoning": "Secures requests"
+            },
+            {
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "name": "Database migrations",
+              "reasoning": "Manages schema"
+            },
+            {
+              "confidence": 1,
+              "evidenceIds": ["E4"],
+              "name": "Pagination",
+              "reasoning": "Limits list size"
+            }
+          ],
+          "creatorRecommendations": [],
+          "dependencies": [
+            {
+              "confidence": 1,
+              "evidenceIds": ["E1", "E2", "E3", "E4"],
+              "from": "package.json",
+              "to": "Node.js libraries",
+              "type": "component"
+            },
+            {
+              "confidence": 1,
+              "evidenceIds": ["E6"],
+              "from": "docker-compose.yml",
+              "to": "service orchestration",
+              "type": "component"
+            },
+            {
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "from": "migrations/001_init.sql",
+              "to": "PostgreSQL schema",
+              "type": "component"
+            }
+          ],
+          "evidence": [
+            {
+              "evidenceId": "E1",
+              "excerpt": "- Expose create, read, update and delete endpoints for items under /api/items.",
+              "locator": "repo",
+              "sourceId": "7b069afe-fca3-4873-8990-b82435343d39"
+            },
+            {
+              "evidenceId": "E2",
+              "excerpt": "- Authenticate every request with JWT bearer tokens.",
+              "locator": "repo",
+              "sourceId": "7b069afe-fca3-4873-8990-b82435343d39"
+            },
+            {
+              "evidenceId": "E3",
+              "excerpt": "- Store data in PostgreSQL and manage the schema with migrations.",
+              "locator": "repo",
+              "sourceId": "7b069afe-fca3-4873-8990-b82435343d39"
+            },
+            {
+              "evidenceId": "E4",
+              "excerpt": "- Paginate list endpoints at 20 items per page.",
+              "locator": "repo",
+              "sourceId": "7b069afe-fca3-4873-8990-b82435343d39"
+            },
+            {
+              "evidenceId": "E5",
+              "excerpt": "- Integration tests cover every endpoint.",
+              "locator": "repo",
+              "sourceId": "7b069afe-fca3-4873-8990-b82435343d39"
+            },
+            {
+              "evidenceId": "E6",
+              "excerpt": "- The whole service starts with `docker compose up`.",
+              "locator": "repo",
+              "sourceId": "7b069afe-fca3-4873-8990-b82435343d39"
+            },
+            {
+              "evidenceId": "E7",
+              "excerpt": "- OpenAPI documentation for the endpoints.",
+              "locator": "repo",
+              "sourceId": "7b069afe-fca3-4873-8990-b82435343d39"
+            }
+          ],
+          "milestones": [],
+          "prerequisites": [
+            {
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "name": "Proficiency in JavaScript/Node.js",
+              "reasoning": "Codebase is JavaScript"
+            },
+            {
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "name": "Understanding of PostgreSQL",
+              "reasoning": "Data stored in PostgreSQL"
+            },
+            {
+              "confidence": 1,
+              "evidenceIds": ["E6"],
+              "name": "Familiarity with Docker",
+              "reasoning": "Service runs via Docker Compose"
+            },
+            {
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "name": "Basics of JWT",
+              "reasoning": "Authentication uses JWT"
+            }
+          ],
+          "preservedStructure": [
+            {
+              "description": "Headings order: Inventory Service, Requirements, Acceptance criteria, Nice to have",
+              "order": 1,
+              "sourceId": "7b069afe-fca3-4873-8990-b82435343d39",
+              "title": "Headings"
+            },
+            {
+              "description": "Repository paths list",
+              "order": 2,
+              "sourceId": "7b069afe-fca3-4873-8990-b82435343d39",
+              "title": "Paths"
+            },
+            {
+              "description": "Languages declared: JavaScript, PLpgSQL",
+              "order": 3,
+              "sourceId": "7b069afe-fca3-4873-8990-b82435343d39",
+              "title": "Languages"
+            },
+            {
+              "description": "Dependency manifest: package.json",
+              "order": 4,
+              "sourceId": "7b069afe-fca3-4873-8990-b82435343d39",
+              "title": "Dependencies"
+            },
+            {
+              "description": "Repository URL",
+              "order": 5,
+              "sourceId": "7b069afe-fca3-4873-8990-b82435343d39",
+              "title": "URL"
+            }
+          ],
+          "requirements": [
+            {
+              "criticality": "critical",
+              "evidenceIds": ["E1"],
+              "id": "R1",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "statement": "Expose create, read, update and delete endpoints for items under /api/items."
+            },
+            {
+              "criticality": "critical",
+              "evidenceIds": ["E2"],
+              "id": "R2",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "statement": "Authenticate every request with JWT bearer tokens."
+            },
+            {
+              "criticality": "critical",
+              "evidenceIds": ["E3"],
+              "id": "R3",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "statement": "Store data in PostgreSQL and manage the schema with migrations."
+            },
+            {
+              "criticality": "critical",
+              "evidenceIds": ["E4"],
+              "id": "R4",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "statement": "Paginate list endpoints at 20 items per page."
+            },
+            {
+              "criticality": "critical",
+              "evidenceIds": ["E5"],
+              "id": "R5",
+              "kind": "evaluation_criterion",
+              "origin": "source_fact",
+              "statement": "Integration tests cover every endpoint."
+            },
+            {
+              "criticality": "critical",
+              "evidenceIds": ["E6"],
+              "id": "R6",
+              "kind": "constraint",
+              "origin": "source_fact",
+              "statement": "The whole service starts with `docker compose up`."
+            },
+            {
+              "criticality": "critical",
+              "evidenceIds": ["E7"],
+              "id": "R7",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "statement": "OpenAPI documentation for the endpoints."
+            }
+          ],
+          "skills": [
+            {
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "name": "Implement Express routes",
+              "reasoning": "CRUD endpoints required"
+            },
+            {
+              "confidence": 1,
+              "evidenceIds": ["E5"],
+              "name": "Write integration tests",
+              "reasoning": "Coverage needed"
+            },
+            {
+              "confidence": 1,
+              "evidenceIds": ["E6"],
+              "name": "Create Docker Compose configuration",
+              "reasoning": "Service startup via Docker"
+            },
+            {
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "name": "Write SQL migrations",
+              "reasoning": "Manage PostgreSQL schema"
+            }
+          ],
+          "summary": "The sources define a JavaScript inventory service with CRUD, JWT auth, PostgreSQL migrations, pagination, tests, Docker startup, and optional OpenAPI docs.",
+          "technologies": [
+            {
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "name": "JavaScript",
+              "reasoning": "Primary language"
+            },
+            {
+              "confidence": 1,
+              "evidenceIds": ["E3"],
+              "name": "PostgreSQL",
+              "reasoning": "Data store"
+            },
+            {
+              "confidence": 1,
+              "evidenceIds": ["E6"],
+              "name": "Docker Compose",
+              "reasoning": "Service orchestration"
+            },
+            {
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "name": "JWT",
+              "reasoning": "Authentication"
+            },
+            {
+              "confidence": 1,
+              "evidenceIds": ["E7"],
+              "name": "OpenAPI",
+              "reasoning": "Optional documentation"
+            }
+          ],
+          "schemaVersion": "1.3.0",
+          "understandingId": "427cf910-c2a6-435f-a5ac-b7cda85bb4dd",
+          "generatedAt": "2026-10-18T15:17:08.813Z",
+          "mode": "mixed",
+          "sourceAttributions": [
+            {
+              "sourceId": "68c058d4-759f-4b0f-b928-4d1811bebdd0",
+              "sourceType": "natural_prompt",
+              "identifier": "natural_prompt:12d2cf58a0d6e98b",
+              "title": "Natural prompt",
+              "url": null,
+              "creator": null,
+              "capturedAt": "2026-10-18T15:17:08.813Z",
+              "relevantLocations": []
+            },
+            {
+              "sourceId": "7b069afe-fca3-4873-8990-b82435343d39",
+              "sourceType": "github_repository",
+              "identifier": "tracer-fixtures/inventory-service@main",
+              "title": "tracer-fixtures/inventory-service",
+              "url": "https://github.com/tracer-fixtures/inventory-service",
+              "creator": "tracer-fixtures",
+              "capturedAt": "2026-10-18T15:17:08.813Z",
+              "relevantLocations": [
+                {
+                  "kind": "branch",
+                  "value": "main"
+                },
+                {
+                  "kind": "path",
+                  "value": "package.json"
+                },
+                {
+                  "kind": "path",
+                  "value": "src/app.js"
+                },
+                {
+                  "kind": "path",
+                  "value": "src/routes/items.js"
+                },
+                {
+                  "kind": "path",
+                  "value": "src/middleware/auth.js"
+                },
+                {
+                  "kind": "path",
+                  "value": "migrations/001_init.sql"
+                },
+                {
+                  "kind": "path",
+                  "value": "test/items.test.js"
+                },
+                {
+                  "kind": "path",
+                  "value": "docker-compose.yml"
+                },
+                {
+                  "kind": "path",
+                  "value": "README.md"
+                }
+              ]
+            }
+          ],
+          "sourceProcessing": [
+            {
+              "sourceType": "natural_prompt",
+              "identifier": null,
+              "status": "processed",
+              "errorCode": null
+            },
+            {
+              "sourceType": "github_repository",
+              "identifier": "https://github.com/tracer-fixtures/inventory-service",
+              "status": "processed",
+              "errorCode": null
+            }
+          ]
+        },
+        "assessment": null
+      }
+    },
+    {
+      "fixture": "F5",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "64b27e9f-f524-4c6a-ad5f-e017d86785f8",
+      "elapsedMs": 47329,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "errorMessage": null,
+      "failureDetails": [],
+      "evidenceSalvage": null,
+      "router": {
+        "case": 2,
+        "caseMatches": true,
+        "sourceUnderstanding": "REQUIRED",
+        "learnerAssessment": "NOT_REQUIRED",
+        "executedOperations": ["source_understanding"]
+      },
+      "requirements": {
+        "critical": [
+          {
+            "label": "SQL fundamentals",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Python with pandas",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Orchestration with Airflow",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Star schema modelling",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Capstone batch pipeline",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "12-week timeline",
+            "found": true,
+            "criticality": "noncritical"
+          }
+        ],
+        "noncritical": [
+          {
+            "label": "dbt",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Kafka streaming",
+            "found": true,
+            "criticality": "critical"
+          }
+        ],
+        "allMarkedNoncritical": false
+      },
+      "level": {
+        "assessed": null,
+        "resolved": "beginner",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "stage": null,
+          "outcome": "success",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 2050,
+          "outputTokens": 3672,
+          "reasoningTokens": 640,
+          "latencyMs": 47227,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": {
+        "sourceUnderstanding": {
+          "summary": "Extracted requirements, concepts, technologies, skills, prerequisites, and milestones from the data engineering learning plan.",
+          "concepts": [
+            {
+              "name": "relational databases",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "source mentions SQL fundamentals"
+            },
+            {
+              "name": "ETL processes",
+              "confidence": 1,
+              "evidenceIds": ["E7"],
+              "reasoning": "pipeline extract‑transform‑load described"
+            },
+            {
+              "name": "data modeling",
+              "confidence": 1,
+              "evidenceIds": ["E9"],
+              "reasoning": "star schema design"
+            },
+            {
+              "name": "orchestration",
+              "confidence": 1,
+              "evidenceIds": ["E7"],
+              "reasoning": "Airflow DAGs"
+            },
+            {
+              "name": "data quality",
+              "confidence": 1,
+              "evidenceIds": ["E12"],
+              "reasoning": "row‑count checks"
+            }
+          ],
+          "technologies": [
+            {
+              "name": "SQL",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "SQL fundamentals"
+            },
+            {
+              "name": "Python",
+              "confidence": 1,
+              "evidenceIds": ["E5"],
+              "reasoning": "Python basics"
+            },
+            {
+              "name": "pandas",
+              "confidence": 1,
+              "evidenceIds": ["E5"],
+              "reasoning": "pandas for cleaning"
+            },
+            {
+              "name": "Apache Airflow",
+              "confidence": 1,
+              "evidenceIds": ["E7"],
+              "reasoning": "Orchestration tool"
+            },
+            {
+              "name": "PostgreSQL",
+              "confidence": 1,
+              "evidenceIds": ["E11"],
+              "reasoning": "target warehouse"
+            }
+          ],
+          "skills": [
+            {
+              "name": "writing SQL queries",
+              "confidence": 1,
+              "evidenceIds": ["E2"],
+              "reasoning": "learn SELECT, JOIN etc"
+            },
+            {
+              "name": "Python scripting for data",
+              "confidence": 1,
+              "evidenceIds": ["E6"],
+              "reasoning": "scripts read CSV and load"
+            },
+            {
+              "name": "building Airflow DAGs",
+              "confidence": 1,
+              "evidenceIds": ["E7"],
+              "reasoning": "build DAGs"
+            },
+            {
+              "name": "star schema design",
+              "confidence": 1,
+              "evidenceIds": ["E9"],
+              "reasoning": "design fact/dimension tables"
+            },
+            {
+              "name": "producing design documentation",
+              "confidence": 1,
+              "evidenceIds": ["E13"],
+              "reasoning": "short written design document"
+            }
+          ],
+          "prerequisites": [
+            {
+              "name": "basic spreadsheet skills",
+              "confidence": 1,
+              "evidenceIds": ["E1"],
+              "reasoning": "plan assumes this"
+            },
+            {
+              "name": "understanding of indexes",
+              "confidence": 1,
+              "evidenceIds": ["E4"],
+              "reasoning": "required before moving on"
+            }
+          ],
+          "dependencies": [],
+          "milestones": [
+            {
+              "name": "Phase 1: SQL fundamentals (weeks 1-3)",
+              "confidence": 1,
+              "evidenceIds": ["E2", "E3", "E4"],
+              "reasoning": "first numbered phase"
+            },
+            {
+              "name": "Phase 2: Python for data (weeks 4-5)",
+              "confidence": 1,
+              "evidenceIds": ["E5", "E6"],
+              "reasoning": "second phase"
+            },
+            {
+              "name": "Phase 3: Orchestration with Apache Airflow (weeks 6-7)",
+              "confidence": 1,
+              "evidenceIds": ["E7", "E8"],
+              "reasoning": "third phase"
+            },
+            {
+              "name": "Phase 4: Data warehouse modelling (weeks 8-9)",
+              "confidence": 1,
+              "evidenceIds": ["E9", "E10"],
+              "reasoning": "fourth phase"
+            },
+            {
+              "name": "Phase 5: Capstone project (weeks 10-12)",
+              "confidence": 1,
+              "evidenceIds": ["E11", "E12", "E13"],
+              "reasoning": "final phase"
+            }
+          ],
+          "creatorRecommendations": [],
+          "preservedStructure": [
+            {
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "order": 1,
+              "title": "Data Engineering Learning Plan",
+              "description": "top heading"
+            },
+            {
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "order": 2,
+              "title": "Phase 1: SQL fundamentals (weeks 1-3)",
+              "description": "first phase"
+            },
+            {
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "order": 3,
+              "title": "Phase 2: Python for data (weeks 4-5)",
+              "description": "second phase"
+            },
+            {
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "order": 4,
+              "title": "Phase 3: Orchestration with Apache Airflow (weeks 6-7)",
+              "description": "third phase"
+            },
+            {
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "order": 5,
+              "title": "Phase 4: Data warehouse modelling (weeks 8-9)",
+              "description": "fourth phase"
+            },
+            {
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "order": 6,
+              "title": "Phase 5: Capstone project (weeks 10-12)",
+              "description": "final phase"
+            }
+          ],
+          "evidence": [
+            {
+              "evidenceId": "E1",
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "locator": "It must be completed in 12 weeks at about 10 hours per week.",
+              "excerpt": "It must be completed in 12 weeks at about 10 hours per week."
+            },
+            {
+              "evidenceId": "E2",
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "locator": "Learn SELECT, JOIN, GROUP BY, window functions and query plans.",
+              "excerpt": "Learn SELECT, JOIN, GROUP BY, window functions and query plans."
+            },
+            {
+              "evidenceId": "E3",
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "locator": "Practise on a sample retail database with at least 50 exercises.",
+              "excerpt": "Practise on a sample retail database with at least 50 exercises."
+            },
+            {
+              "evidenceId": "E4",
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "locator": "Understanding indexes is required before moving on.",
+              "excerpt": "Understanding indexes is required before moving on."
+            },
+            {
+              "evidenceId": "E5",
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "locator": "Learn Python basics, then pandas for cleaning and transforming data.",
+              "excerpt": "Learn Python basics, then pandas for cleaning and transforming data."
+            },
+            {
+              "evidenceId": "E6",
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "locator": "Write small scripts that read CSV files, validate them and load them into a database.",
+              "excerpt": "Write small scripts that read CSV files, validate them and load them into a database."
+            },
+            {
+              "evidenceId": "E7",
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "locator": "Build DAGs that schedule extract, transform and load steps.",
+              "excerpt": "Build DAGs that schedule extract, transform and load steps."
+            },
+            {
+              "evidenceId": "E8",
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "locator": "Every pipeline must be idempotent so a rerun never duplicates data.",
+              "excerpt": "Every pipeline must be idempotent so a rerun never duplicates data."
+            },
+            {
+              "evidenceId": "E9",
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "locator": "Design a star schema with fact and dimension tables.",
+              "excerpt": "Design a star schema with fact and dimension tables."
+            },
+            {
+              "evidenceId": "E10",
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "locator": "Learn slowly changing dimensions (type 2) and when to denormalise.",
+              "excerpt": "Learn slowly changing dimensions (type 2) and when to denormalise."
+            },
+            {
+              "evidenceId": "E11",
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "locator": "Build an end-to-end batch pipeline: ingest daily sales files, clean them with Python, orchestrate with Airflow and load a star schema in PostgreSQL.",
+              "excerpt": "Build an end-to-end batch pipeline: ingest daily sales files, clean them with Python, orchestrate with Airflow and load a star schema in PostgreSQL."
+            },
+            {
+              "evidenceId": "E12",
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "locator": "Add data quality checks that fail the run when row counts drop by more than 20 percent.",
+              "excerpt": "Add data quality checks that fail the run when row counts drop by more than 20 percent."
+            },
+            {
+              "evidenceId": "E13",
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "locator": "Present the pipeline with a short written design document.",
+              "excerpt": "Present the pipeline with a short written design document."
+            },
+            {
+              "evidenceId": "E14",
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "locator": "Learn dbt for SQL transformations.",
+              "excerpt": "Learn dbt for SQL transformations."
+            },
+            {
+              "evidenceId": "E15",
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "locator": "Try a streaming tool such as Kafka after the capstone.",
+              "excerpt": "Try a streaming tool such as Kafka after the capstone."
+            }
+          ],
+          "assumptions": [
+            "Learner has access to a computer capable of running Python, Airflow and PostgreSQL."
+          ],
+          "requirements": [
+            {
+              "id": "R1",
+              "statement": "Complete the plan in 12 weeks at about 10 hours per week.",
+              "kind": "constraint",
+              "origin": "source_fact",
+              "criticality": "noncritical",
+              "evidenceIds": ["E1"]
+            },
+            {
+              "id": "R2",
+              "statement": "Learn SELECT, JOIN, GROUP BY, window functions and query plans.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E2"]
+            },
+            {
+              "id": "R3",
+              "statement": "Practice on a sample retail database with at least 50 exercises.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E3"]
+            },
+            {
+              "id": "R4",
+              "statement": "Understand indexes before moving to the next phase.",
+              "kind": "constraint",
+              "origin": "source_fact",
+              "criticality": "noncritical",
+              "evidenceIds": ["E4"]
+            },
+            {
+              "id": "R5",
+              "statement": "Learn Python basics and pandas for data cleaning and transformation.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E5"]
+            },
+            {
+              "id": "R6",
+              "statement": "Write scripts that read CSV files, validate them and load into a database.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E6"]
+            },
+            {
+              "id": "R7",
+              "statement": "Build Airflow DAGs that schedule extract, transform and load steps.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E7"]
+            },
+            {
+              "id": "R8",
+              "statement": "Ensure every pipeline is idempotent so reruns never duplicate data.",
+              "kind": "constraint",
+              "origin": "source_fact",
+              "criticality": "noncritical",
+              "evidenceIds": ["E8"]
+            },
+            {
+              "id": "R9",
+              "statement": "Design a star schema with fact and dimension tables.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E9"]
+            },
+            {
+              "id": "R10",
+              "statement": "Learn slowly changing dimensions (type 2) and when to denormalise.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E10"]
+            },
+            {
+              "id": "R11",
+              "statement": "Build an end‑to‑end batch pipeline ingesting daily sales files, cleaning with Python, orchestrating with Airflow and loading a star schema in PostgreSQL.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E11"]
+            },
+            {
+              "id": "R12",
+              "statement": "Add data quality checks that fail the run when row counts drop by more than 20 %.",
+              "kind": "constraint",
+              "origin": "source_fact",
+              "criticality": "noncritical",
+              "evidenceIds": ["E12"]
+            },
+            {
+              "id": "R13",
+              "statement": "Present the pipeline with a short written design document.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E13"]
+            },
+            {
+              "id": "R14",
+              "statement": "Optional: learn dbt for SQL transformations.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E14"]
+            },
+            {
+              "id": "R15",
+              "statement": "Optional: try a streaming tool such as Kafka after the capstone.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E15"]
+            }
+          ],
+          "schemaVersion": "1.3.0",
+          "understandingId": "cec8412d-6ba8-43a8-b4ba-6de9ce32396b",
+          "generatedAt": "2026-10-18T15:17:28.518Z",
+          "mode": "mixed",
+          "sourceAttributions": [
+            {
+              "sourceId": "74654d82-a3fa-435c-9ffd-bacac1a84a78",
+              "sourceType": "natural_prompt",
+              "identifier": "natural_prompt:d6e8d7a1e88844f6",
+              "title": "Natural prompt",
+              "url": null,
+              "creator": null,
+              "capturedAt": "2026-10-18T15:17:28.518Z",
+              "relevantLocations": []
+            },
+            {
+              "sourceId": "d877df6c-ef0b-42b6-bdf0-8c10e10f1788",
+              "sourceType": "ai_report",
+              "identifier": "ai_report:2b72d45cc59ac1c2",
+              "title": "AI-generated report",
+              "url": null,
+              "creator": null,
+              "capturedAt": "2026-10-18T15:17:28.518Z",
+              "relevantLocations": [
+                {
+                  "kind": "section",
+                  "value": "Data Engineering Learning Plan"
+                },
+                {
+                  "kind": "section",
+                  "value": "Phase 1: SQL fundamentals (weeks 1-3)"
+                },
+                {
+                  "kind": "section",
+                  "value": "Phase 2: Python for data (weeks 4-5)"
+                },
+                {
+                  "kind": "section",
+                  "value": "Phase 3: Orchestration with Apache Airflow (weeks 6-7)"
+                },
+                {
+                  "kind": "section",
+                  "value": "Phase 4: Data warehouse modelling (weeks 8-9)"
+                },
+                {
+                  "kind": "section",
+                  "value": "Phase 5: Capstone project (weeks 10-12)"
+                },
+                {
+                  "kind": "section",
+                  "value": "Optional extras"
+                }
+              ]
+            }
+          ],
+          "sourceProcessing": [
+            {
+              "sourceType": "natural_prompt",
+              "identifier": null,
+              "status": "processed",
+              "errorCode": null
+            },
+            {
+              "sourceType": "ai_report",
+              "identifier": null,
+              "status": "processed",
+              "errorCode": null
+            }
+          ]
+        },
+        "assessment": null
+      }
+    },
+    {
+      "fixture": "F5",
+      "run": 2,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "1f0ce766-fbd7-46c9-b0ce-270655990cd1",
+      "elapsedMs": 59769,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "errorMessage": null,
+      "failureDetails": [],
+      "evidenceSalvage": {
+        "sourceUnderstanding": {
+          "droppedEvidence": 0,
+          "droppedItems": 14,
+          "demotedRequirements": [],
+          "repairedRequirements": []
+        },
+        "learnerAssessment": null
+      },
+      "router": {
+        "case": 2,
+        "caseMatches": true,
+        "sourceUnderstanding": "REQUIRED",
+        "learnerAssessment": "NOT_REQUIRED",
+        "executedOperations": ["source_understanding"]
+      },
+      "requirements": {
+        "critical": [
+          {
+            "label": "SQL fundamentals",
+            "found": false,
+            "criticality": null
+          },
+          {
+            "label": "Python with pandas",
+            "found": false,
+            "criticality": null
+          },
+          {
+            "label": "Orchestration with Airflow",
+            "found": false,
+            "criticality": null
+          },
+          {
+            "label": "Star schema modelling",
+            "found": false,
+            "criticality": null
+          },
+          {
+            "label": "Capstone batch pipeline",
+            "found": false,
+            "criticality": null
+          },
+          {
+            "label": "12-week timeline",
+            "found": false,
+            "criticality": null
+          }
+        ],
+        "noncritical": [
+          {
+            "label": "dbt",
+            "found": false,
+            "criticality": null
+          },
+          {
+            "label": "Kafka streaming",
+            "found": false,
+            "criticality": null
+          }
+        ],
+        "allMarkedNoncritical": false
+      },
+      "level": {
+        "assessed": null,
+        "resolved": "beginner",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "stage": null,
+          "outcome": "success",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 2046,
+          "outputTokens": 4644,
+          "reasoningTokens": 0,
+          "latencyMs": 59690,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": {
+        "sourceUnderstanding": {
+          "summary": "The sources define a 12‑week data‑engineering learning plan with phases, exercises, and deliverables.",
+          "concepts": [],
+          "technologies": [],
+          "skills": [],
+          "prerequisites": [
+            {
+              "name": "analysis",
+              "confidence": 0,
+              "evidenceIds": [],
+              "reasoning": "Parsing broken source"
+            }
+          ],
+          "dependencies": [],
+          "milestones": [],
+          "creatorRecommendations": [],
+          "preservedStructure": [],
+          "evidence": [],
+          "assumptions": [],
+          "requirements": [],
+          "schemaVersion": "1.3.0",
+          "understandingId": "28f6a678-a826-440c-b0f4-1c1e7ccf04b8",
+          "generatedAt": "2026-10-18T15:18:15.857Z",
+          "mode": "mixed",
+          "sourceAttributions": [
+            {
+              "sourceId": "1de26add-3f06-49f9-a6d4-d227573b0f51",
+              "sourceType": "natural_prompt",
+              "identifier": "natural_prompt:d6e8d7a1e88844f6",
+              "title": "Natural prompt",
+              "url": null,
+              "creator": null,
+              "capturedAt": "2026-10-18T15:18:15.857Z",
+              "relevantLocations": []
+            },
+            {
+              "sourceId": "4ec43c79-6109-446e-a0af-d591aaf6dc76",
+              "sourceType": "ai_report",
+              "identifier": "ai_report:2b72d45cc59ac1c2",
+              "title": "AI-generated report",
+              "url": null,
+              "creator": null,
+              "capturedAt": "2026-10-18T15:18:15.857Z",
+              "relevantLocations": [
+                {
+                  "kind": "section",
+                  "value": "Data Engineering Learning Plan"
+                },
+                {
+                  "kind": "section",
+                  "value": "Phase 1: SQL fundamentals (weeks 1-3)"
+                },
+                {
+                  "kind": "section",
+                  "value": "Phase 2: Python for data (weeks 4-5)"
+                },
+                {
+                  "kind": "section",
+                  "value": "Phase 3: Orchestration with Apache Airflow (weeks 6-7)"
+                },
+                {
+                  "kind": "section",
+                  "value": "Phase 4: Data warehouse modelling (weeks 8-9)"
+                },
+                {
+                  "kind": "section",
+                  "value": "Phase 5: Capstone project (weeks 10-12)"
+                },
+                {
+                  "kind": "section",
+                  "value": "Optional extras"
+                }
+              ]
+            }
+          ],
+          "sourceProcessing": [
+            {
+              "sourceType": "natural_prompt",
+              "identifier": null,
+              "status": "processed",
+              "errorCode": null
+            },
+            {
+              "sourceType": "ai_report",
+              "identifier": null,
+              "status": "processed",
+              "errorCode": null
+            }
+          ]
+        },
+        "assessment": null
+      }
+    },
+    {
+      "fixture": "F5",
+      "run": 3,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "e70390be-8a95-4824-a6d4-c190abd3528c",
+      "elapsedMs": 6992,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "errorMessage": null,
+      "failureDetails": [],
+      "evidenceSalvage": null,
+      "router": {
+        "case": 2,
+        "caseMatches": true,
+        "sourceUnderstanding": "REQUIRED",
+        "learnerAssessment": "NOT_REQUIRED",
+        "executedOperations": ["source_understanding"]
+      },
+      "requirements": {
+        "critical": [
+          {
+            "label": "SQL fundamentals",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Python with pandas",
+            "found": false,
+            "criticality": null
+          },
+          {
+            "label": "Orchestration with Airflow",
+            "found": false,
+            "criticality": null
+          },
+          {
+            "label": "Star schema modelling",
+            "found": false,
+            "criticality": null
+          },
+          {
+            "label": "Capstone batch pipeline",
+            "found": true,
+            "criticality": "noncritical"
+          },
+          {
+            "label": "12-week timeline",
+            "found": true,
+            "criticality": "noncritical"
+          }
+        ],
+        "noncritical": [
+          {
+            "label": "dbt",
+            "found": true,
+            "criticality": "noncritical"
+          },
+          {
+            "label": "Kafka streaming",
+            "found": true,
+            "criticality": "noncritical"
+          }
+        ],
+        "allMarkedNoncritical": false
+      },
+      "level": {
+        "assessed": null,
+        "resolved": "beginner",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [
+        {
+          "operation": "source_understanding",
+          "stage": null,
+          "outcome": "success",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 3188,
+          "outputTokens": 3170,
+          "reasoningTokens": 241,
+          "latencyMs": 6937,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": {
+        "sourceUnderstanding": {
+          "summary": "The AI report outlines a 12‑week data engineering learning plan with phases on SQL, Python, Airflow, warehouse modeling, and a capstone, plus optional extras.",
+          "concepts": [
+            {
+              "name": "SQL fundamentals",
+              "confidence": 0.99,
+              "evidenceIds": ["E1"],
+              "reasoning": "Core concept introduced in Phase 1."
+            },
+            {
+              "name": "Python for data",
+              "confidence": 0.99,
+              "evidenceIds": ["E2"],
+              "reasoning": "Core concept introduced in Phase 2."
+            },
+            {
+              "name": "Orchestration with Apache Airflow",
+              "confidence": 0.99,
+              "evidenceIds": ["E3"],
+              "reasoning": "Core concept introduced in Phase 3."
+            },
+            {
+              "name": "Data warehouse modelling",
+              "confidence": 0.99,
+              "evidenceIds": ["E4"],
+              "reasoning": "Core concept introduced in Phase 4."
+            },
+            {
+              "name": "Data quality checks",
+              "confidence": 0.98,
+              "evidenceIds": ["E5"],
+              "reasoning": "Required in capstone pipeline."
+            }
+          ],
+          "technologies": [
+            {
+              "name": "PostgreSQL",
+              "confidence": 0.98,
+              "evidenceIds": ["E5"],
+              "reasoning": "Target DB for star schema."
+            },
+            {
+              "name": "pandas",
+              "confidence": 0.98,
+              "evidenceIds": ["E2"],
+              "reasoning": "Used for cleaning/transformation."
+            },
+            {
+              "name": "Apache Airflow",
+              "confidence": 0.99,
+              "evidenceIds": ["E3"],
+              "reasoning": "Orchestration tool."
+            },
+            {
+              "name": "dbt",
+              "confidence": 0.85,
+              "evidenceIds": ["E6"],
+              "reasoning": "Optional extra."
+            },
+            {
+              "name": "Kafka",
+              "confidence": 0.85,
+              "evidenceIds": ["E6"],
+              "reasoning": "Optional extra."
+            }
+          ],
+          "skills": [
+            {
+              "name": "SQL query writing (SELECT, JOIN, GROUP BY, window functions)",
+              "confidence": 0.99,
+              "evidenceIds": ["E1"],
+              "reasoning": "Explicitly listed."
+            },
+            {
+              "name": "Python scripting for CSV handling",
+              "confidence": 0.99,
+              "evidenceIds": ["E2"],
+              "reasoning": "Explicitly listed."
+            },
+            {
+              "name": "Building idempotent Airflow DAGs",
+              "confidence": 0.98,
+              "evidenceIds": ["E3"],
+              "reasoning": "Required property."
+            },
+            {
+              "name": "Designing star schemas and SCD type 2",
+              "confidence": 0.98,
+              "evidenceIds": ["E4"],
+              "reasoning": "Explicitly listed."
+            }
+          ],
+          "prerequisites": [
+            {
+              "name": "Basic spreadsheet skills",
+              "confidence": 0.99,
+              "evidenceIds": ["E0"],
+              "reasoning": "Stated learner starting point."
+            }
+          ],
+          "dependencies": [
+            {
+              "from": "Understanding indexes",
+              "to": "Proceed to Phase 2",
+              "type": "prerequisite",
+              "confidence": 0.97,
+              "evidenceIds": ["E1"]
+            },
+            {
+              "from": "Idempotent pipelines",
+              "to": "Capstone project",
+              "type": "prerequisite",
+              "confidence": 0.96,
+              "evidenceIds": ["E3"]
+            }
+          ],
+          "milestones": [
+            {
+              "name": "Phase 1: SQL fundamentals (weeks 1-3)",
+              "confidence": 0.99,
+              "evidenceIds": ["E1"],
+              "reasoning": "First numbered phase."
+            },
+            {
+              "name": "Phase 2: Python for data (weeks 4-5)",
+              "confidence": 0.99,
+              "evidenceIds": ["E2"],
+              "reasoning": "Second numbered phase."
+            },
+            {
+              "name": "Phase 3: Orchestration with Apache Airflow (weeks 6-7)",
+              "confidence": 0.99,
+              "evidenceIds": ["E3"],
+              "reasoning": "Third numbered phase."
+            },
+            {
+              "name": "Phase 4: Data warehouse modelling (weeks 8-9)",
+              "confidence": 0.99,
+              "evidenceIds": ["E4"],
+              "reasoning": "Fourth numbered phase."
+            },
+            {
+              "name": "Phase 5: Capstone project (weeks 10-12)",
+              "confidence": 0.99,
+              "evidenceIds": ["E5"],
+              "reasoning": "Final numbered phase."
+            }
+          ],
+          "creatorRecommendations": [],
+          "preservedStructure": [
+            {
+              "sourceId": "50ff9100-8e96-44ec-95ef-f3d92e20cfb9",
+              "order": 1,
+              "title": "Data Engineering Learning Plan",
+              "description": "Top‑level heading of the report."
+            },
+            {
+              "sourceId": "50ff9100-8e96-44ec-95ef-f3d92e20cfb9",
+              "order": 2,
+              "title": "Phase 1: SQL fundamentals (weeks 1-3)",
+              "description": "First phase heading."
+            },
+            {
+              "sourceId": "50ff9100-8e96-44ec-95ef-f3d92e20cfb9",
+              "order": 3,
+              "title": "Phase 2: Python for data (weeks 4-5)",
+              "description": "Second phase heading."
+            },
+            {
+              "sourceId": "50ff9100-8e96-44ec-95ef-f3d92e20cfb9",
+              "order": 4,
+              "title": "Phase 3: Orchestration with Apache Airflow (weeks 6-7)",
+              "description": "Third phase heading."
+            },
+            {
+              "sourceId": "50ff9100-8e96-44ec-95ef-f3d92e20cfb9",
+              "order": 5,
+              "title": "Phase 4: Data warehouse modelling (weeks 8-9)",
+              "description": "Fourth phase heading."
+            },
+            {
+              "sourceId": "50ff9100-8e96-44ec-95ef-f3d92e20cfb9",
+              "order": 6,
+              "title": "Phase 5: Capstone project (weeks 10-12)",
+              "description": "Final phase heading."
+            }
+          ],
+          "evidence": [
+            {
+              "evidenceId": "E0",
+              "sourceId": "50ff9100-8e96-44ec-95ef-f3d92e20cfb9",
+              "locator": "section:Data Engineering Learning Plan",
+              "excerpt": "This plan takes a learner with basic spreadsheet skills to a junior data engineer level."
+            },
+            {
+              "evidenceId": "E1",
+              "sourceId": "50ff9100-8e96-44ec-95ef-f3d92e20cfb9",
+              "locator": "section:Phase 1: SQL fundamentals (weeks 1-3)",
+              "excerpt": "Learn SELECT, JOIN, GROUP BY, window functions and query plans. Practise on a sample retail database with at least 50 exercises. Understanding indexes is required before moving on."
+            },
+            {
+              "evidenceId": "E2",
+              "sourceId": "50ff9100-8e96-44ec-95ef-f3d92e20cfb9",
+              "locator": "section:Phase 2: Python for data (weeks 4-5)",
+              "excerpt": "Learn Python basics, then pandas for cleaning and transforming data. Write small scripts that read CSV files, validate them and load them into a database."
+            },
+            {
+              "evidenceId": "E3",
+              "sourceId": "50ff9100-8e96-44ec-95ef-f3d92e20cfb9",
+              "locator": "section:Phase 3: Orchestration with Apache Airflow (weeks 6-7)",
+              "excerpt": "Build DAGs that schedule extract, transform and load steps. Learn retries, backfills and task dependencies. Every pipeline must be idempotent so a rerun never duplicates data."
+            },
+            {
+              "evidenceId": "E4",
+              "sourceId": "50ff9100-8e96-44ec-95ef-f3d92e20cfb9",
+              "locator": "section:Phase 4: Data warehouse modelling (weeks 8-9)",
+              "excerpt": "Design a star schema with fact and dimension tables. Learn slowly changing dimensions (type 2) and when to denormalise."
+            },
+            {
+              "evidenceId": "E5",
+              "sourceId": "50ff9100-8e96-44ec-95ef-f3d92e20cfb9",
+              "locator": "section:Phase 5: Capstone project (weeks 10-12)",
+              "excerpt": "Build an end-to-end batch pipeline: ingest daily sales files, clean them with Python, orchestrate with Airflow and load a star schema in PostgreSQL. Add data quality checks that fail the run when row counts drop by more than 20 percent. Present the pipeline with a short written design document."
+            },
+            {
+              "evidenceId": "E6",
+              "sourceId": "50ff9100-8e96-44ec-95ef-f3d92e20cfb9",
+              "locator": "section:Optional extras",
+              "excerpt": "- Learn dbt for SQL transformations."
+            },
+            {
+              "evidenceId": "E7",
+              "sourceId": "50ff9100-8e96-44ec-95ef-f3d92e20cfb9",
+              "locator": "section:Optional extras",
+              "excerpt": "- Try a streaming tool such as Kafka after the capstone."
+            }
+          ],
+          "assumptions": [],
+          "requirements": [
+            {
+              "id": "R1",
+              "statement": "The plan must be completed in 12 weeks.",
+              "kind": "constraint",
+              "origin": "source_fact",
+              "criticality": "noncritical",
+              "evidenceIds": ["E0"]
+            },
+            {
+              "id": "R2",
+              "statement": "Learner should devote about 10 hours per week.",
+              "kind": "constraint",
+              "origin": "source_fact",
+              "criticality": "noncritical",
+              "evidenceIds": ["E0"]
+            },
+            {
+              "id": "R3",
+              "statement": "Understanding indexes is required before moving on from Phase 1.",
+              "kind": "constraint",
+              "origin": "source_fact",
+              "criticality": "noncritical",
+              "evidenceIds": ["E1"]
+            },
+            {
+              "id": "R4",
+              "statement": "Every pipeline must be idempotent; a rerun must never duplicate data.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "noncritical",
+              "evidenceIds": ["E3"]
+            },
+            {
+              "id": "R5",
+              "statement": "Capstone project must include data quality checks that fail when row counts drop by more than 20 percent.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "noncritical",
+              "evidenceIds": ["E5"]
+            },
+            {
+              "id": "R6",
+              "statement": "Capstone project deliverable: short written design document.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E5"]
+            },
+            {
+              "id": "R7",
+              "statement": "Complete at least 50 SQL exercises on a sample retail database.",
+              "kind": "evaluation_criterion",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["E1"]
+            },
+            {
+              "id": "R8",
+              "statement": "Optional: Learn dbt for SQL transformations.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "noncritical",
+              "evidenceIds": ["E6"]
+            },
+            {
+              "id": "R9",
+              "statement": "Optional: Try a streaming tool such as Kafka after the capstone.",
+              "kind": "requirement",
+              "origin": "source_fact",
+              "criticality": "noncritical",
+              "evidenceIds": ["E7"]
+            }
+          ],
+          "schemaVersion": "1.3.0",
+          "understandingId": "31eab3df-bc0e-47a0-8ed3-a4911bc189b0",
+          "generatedAt": "2026-10-18T15:19:15.631Z",
+          "mode": "mixed",
+          "sourceAttributions": [
+            {
+              "sourceId": "b7d572af-b684-4220-b5a8-8acc142b0909",
+              "sourceType": "natural_prompt",
+              "identifier": "natural_prompt:d6e8d7a1e88844f6",
+              "title": "Natural prompt",
+              "url": null,
+              "creator": null,
+              "capturedAt": "2026-10-18T15:19:15.631Z",
+              "relevantLocations": []
+            },
+            {
+              "sourceId": "50ff9100-8e96-44ec-95ef-f3d92e20cfb9",
+              "sourceType": "ai_report",
+              "identifier": "ai_report:2b72d45cc59ac1c2",
+              "title": "AI-generated report",
+              "url": null,
+              "creator": null,
+              "capturedAt": "2026-10-18T15:19:15.631Z",
+              "relevantLocations": [
+                {
+                  "kind": "section",
+                  "value": "Data Engineering Learning Plan"
+                },
+                {
+                  "kind": "section",
+                  "value": "Phase 1: SQL fundamentals (weeks 1-3)"
+                },
+                {
+                  "kind": "section",
+                  "value": "Phase 2: Python for data (weeks 4-5)"
+                },
+                {
+                  "kind": "section",
+                  "value": "Phase 3: Orchestration with Apache Airflow (weeks 6-7)"
+                },
+                {
+                  "kind": "section",
+                  "value": "Phase 4: Data warehouse modelling (weeks 8-9)"
+                },
+                {
+                  "kind": "section",
+                  "value": "Phase 5: Capstone project (weeks 10-12)"
+                },
+                {
+                  "kind": "section",
+                  "value": "Optional extras"
+                }
+              ]
+            }
+          ],
+          "sourceProcessing": [
+            {
+              "sourceType": "natural_prompt",
+              "identifier": null,
+              "status": "processed",
+              "errorCode": null
+            },
+            {
+              "sourceType": "ai_report",
+              "identifier": null,
+              "status": "processed",
+              "errorCode": null
+            }
+          ]
+        },
+        "assessment": null
+      }
+    },
+    {
+      "fixture": "F6",
+      "run": 1,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "b9ae72d5-faba-49f4-9354-d4df85b2096a",
+      "elapsedMs": 114280,
+      "outcome": "succeeded",
+      "failureClass": null,
+      "errorCode": null,
+      "errorMessage": null,
+      "failureDetails": [],
+      "evidenceSalvage": null,
+      "router": {
+        "case": 3,
+        "caseMatches": true,
+        "sourceUnderstanding": "REQUIRED",
+        "learnerAssessment": "REQUIRED",
+        "executedOperations": ["combined_preparation"]
+      },
+      "requirements": {
+        "critical": [
+          {
+            "label": "WCAG 2.2 AA accessibility",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Lighthouse performance at least 90",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Playwright end-to-end tests",
+            "found": true,
+            "criticality": "critical"
+          },
+          {
+            "label": "Automatic deployment to Vercel",
+            "found": true,
+            "criticality": "critical"
+          }
+        ],
+        "noncritical": [
+          {
+            "label": "Dark theme",
+            "found": true,
+            "criticality": "critical"
+          }
+        ],
+        "allMarkedNoncritical": false
+      },
+      "level": {
+        "assessed": "intermediate",
+        "resolved": "intermediate",
+        "status": "resolved",
+        "matches": true
+      },
+      "attempts": [
+        {
+          "operation": "combined_preparation",
+          "stage": null,
+          "outcome": "success",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 2018,
+          "outputTokens": 4379,
+          "reasoningTokens": 577,
+          "latencyMs": 114081,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": {
+        "sourceUnderstanding": {
+          "summary": "The portfolio repository must meet accessibility, performance, testing, and deployment goals using TypeScript and CSS.",
+          "concepts": [
+            {
+              "name": "WCAG 2.2 AA accessibility",
+              "confidence": 1,
+              "evidenceIds": ["e6c6d278-37bf-4203-88c4-4cb30efb0712"],
+              "reasoning": "Goal listed under ## Goals."
+            },
+            {
+              "name": "Lighthouse performance scoring",
+              "confidence": 1,
+              "evidenceIds": ["e6c6d278-37bf-4203-88c4-4cb30efb0712"],
+              "reasoning": "Goal listed under ## Goals."
+            },
+            {
+              "name": "Playwright end‑to‑end testing",
+              "confidence": 1,
+              "evidenceIds": ["e6c6d278-37bf-4203-88c4-4cb30efb0712"],
+              "reasoning": "Goal listed under ## Goals."
+            },
+            {
+              "name": "Vercel automatic deployment",
+              "confidence": 1,
+              "evidenceIds": ["e6c6d278-37bf-4203-88c4-4cb30efb0712"],
+              "reasoning": "Goal listed under ## Goals."
+            }
+          ],
+          "technologies": [
+            {
+              "name": "TypeScript",
+              "confidence": 1,
+              "evidenceIds": ["e6c6d278-37bf-4203-88c4-4cb30efb0712"],
+              "reasoning": "Listed under Languages."
+            },
+            {
+              "name": "CSS",
+              "confidence": 1,
+              "evidenceIds": ["e6c6d278-37bf-4203-88c4-4cb30efb0712"],
+              "reasoning": "Listed under Languages."
+            }
+          ],
+          "skills": [],
+          "prerequisites": [],
+          "dependencies": [
+            {
+              "from": "package.json",
+              "to": "project",
+              "type": "recommended",
+              "confidence": 1,
+              "evidenceIds": ["e6c6d278-37bf-4203-88c4-4cb30efb0712"]
+            }
+          ],
+          "milestones": [
+            {
+              "name": "Accessibility compliance",
+              "confidence": 1,
+              "evidenceIds": ["e6c6d278-37bf-4203-88c4-4cb30efb0712"],
+              "reasoning": "First bullet under ## Goals."
+            },
+            {
+              "name": "Performance score ≥90",
+              "confidence": 1,
+              "evidenceIds": ["e6c6d278-37bf-4203-88c4-4cb30efb0712"],
+              "reasoning": "Second bullet under ## Goals."
+            },
+            {
+              "name": "E2E test coverage",
+              "confidence": 1,
+              "evidenceIds": ["e6c6d278-37bf-4203-88c4-4cb30efb0712"],
+              "reasoning": "Third bullet under ## Goals."
+            },
+            {
+              "name": "Automatic Vercel deploy",
+              "confidence": 1,
+              "evidenceIds": ["e6c6d278-37bf-4203-88c4-4cb30efb0712"],
+              "reasoning": "Fourth bullet under ## Goals."
+            }
+          ],
+          "creatorRecommendations": [],
+          "preservedStructure": [
+            {
+              "sourceId": "e6c6d278-37bf-4203-88c4-4cb30efb0712",
+              "order": 1,
+              "title": "Portfolio Site",
+              "description": "A Next.js portfolio used to present projects in frontend interviews."
+            }
+          ],
+          "evidence": [
+            {
+              "evidenceId": "e6c6d278-37bf-4203-88c4-4cb30efb0712",
+              "sourceId": "e6c6d278-37bf-4203-88c4-4cb30efb0712",
+              "locator": "## Goals",
+              "excerpt": "- Meet WCAG 2.2 AA accessibility on every page."
+            },
+            {
+              "evidenceId": "e6c6d278-37bf-4203-88c4-4cb30efb0712-2",
+              "sourceId": "e6c6d278-37bf-4203-88c4-4cb30efb0712",
+              "locator": "## Goals",
+              "excerpt": "- Score at least 90 for performance in Lighthouse on mobile."
+            },
+            {
+              "evidenceId": "e6c6d278-37bf-4203-88c4-4cb30efb0712-3",
+              "sourceId": "e6c6d278-37bf-4203-88c4-4cb30efb0712",
+              "locator": "## Goals",
+              "excerpt": "- Cover the main user journeys with Playwright end-to-end tests."
+            },
+            {
+              "evidenceId": "e6c6d278-37bf-4203-88c4-4cb30efb0712-4",
+              "sourceId": "e6c6d278-37bf-4203-88c4-4cb30efb0712",
+              "locator": "## Goals",
+              "excerpt": "- Deploy automatically to Vercel from the main branch."
+            },
+            {
+              "evidenceId": "e6c6d278-37bf-4203-88c4-4cb30efb0712-5",
+              "sourceId": "e6c6d278-37bf-4203-88c4-4cb30efb0712",
+              "locator": "Languages:",
+              "excerpt": "Languages: TypeScript, CSS"
+            }
+          ],
+          "assumptions": [],
+          "requirements": [
+            {
+              "id": "R1",
+              "statement": "Meet WCAG 2.2 AA accessibility on every page.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["e6c6d278-37bf-4203-88c4-4cb30efb0712"]
+            },
+            {
+              "id": "R2",
+              "statement": "Score at least 90 for performance in Lighthouse on mobile.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["e6c6d278-37bf-4203-88c4-4cb30efb0712-2"]
+            },
+            {
+              "id": "R3",
+              "statement": "Cover the main user journeys with Playwright end-to-end tests.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["e6c6d278-37bf-4203-88c4-4cb30efb0712-3"]
+            },
+            {
+              "id": "R4",
+              "statement": "Deploy automatically to Vercel from the main branch.",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["e6c6d278-37bf-4203-88c4-4cb30efb0712-4"]
+            },
+            {
+              "id": "R5",
+              "statement": "Add a dark theme (optional).",
+              "kind": "deliverable",
+              "origin": "source_fact",
+              "criticality": "critical",
+              "evidenceIds": ["e6c6d278-37bf-4203-88c4-4cb30efb0712"]
+            }
+          ],
+          "schemaVersion": "1.3.0",
+          "understandingId": "1f0b915f-4804-4a0e-9276-de342def3148",
+          "generatedAt": "2026-10-18T15:19:22.637Z",
+          "mode": "mixed",
+          "sourceAttributions": [
+            {
+              "sourceId": "c0df234c-3e79-40c2-820e-492c243c366c",
+              "sourceType": "natural_prompt",
+              "identifier": "natural_prompt:7570c95e0f1e7aa3",
+              "title": "Natural prompt",
+              "url": null,
+              "creator": null,
+              "capturedAt": "2026-10-18T15:19:22.637Z",
+              "relevantLocations": []
+            },
+            {
+              "sourceId": "e6c6d278-37bf-4203-88c4-4cb30efb0712",
+              "sourceType": "github_repository",
+              "identifier": "tracer-fixtures/portfolio-site@main",
+              "title": "tracer-fixtures/portfolio-site",
+              "url": "https://github.com/tracer-fixtures/portfolio-site",
+              "creator": "tracer-fixtures",
+              "capturedAt": "2026-10-18T15:19:22.637Z",
+              "relevantLocations": [
+                {
+                  "kind": "branch",
+                  "value": "main"
+                },
+                {
+                  "kind": "path",
+                  "value": "package.json"
+                },
+                {
+                  "kind": "path",
+                  "value": "app/page.tsx"
+                },
+                {
+                  "kind": "path",
+                  "value": "app/projects/page.tsx"
+                },
+                {
+                  "kind": "path",
+                  "value": "components/ProjectCard.tsx"
+                },
+                {
+                  "kind": "path",
+                  "value": "e2e/home.spec.ts"
+                },
+                {
+                  "kind": "path",
+                  "value": "README.md"
+                }
+              ]
+            }
+          ],
+          "sourceProcessing": [
+            {
+              "sourceType": "natural_prompt",
+              "identifier": null,
+              "status": "processed",
+              "errorCode": null
+            },
+            {
+              "sourceType": "github_repository",
+              "identifier": "https://github.com/tracer-fixtures/portfolio-site",
+              "status": "processed",
+              "errorCode": null
+            }
+          ]
+        },
+        "assessment": {
+          "schemaVersion": "1.0.0",
+          "currentLevel": "intermediate",
+          "confidence": 1,
+          "reasoning": "Has 3 years React/TS experience but lacks several required skills.",
+          "proficiencyEvidence": [
+            {
+              "source": "resumeText",
+              "excerpt": "Frontend developer with three years of experience building React applications."
+            },
+            {
+              "source": "resumeText",
+              "excerpt": "- Built React dashboards in TypeScript used by internal sales teams."
+            },
+            {
+              "source": "resumeText",
+              "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+            }
+          ],
+          "knownSkills": [
+            {
+              "name": "React",
+              "category": "programming",
+              "confidence": 1,
+              "reasoning": "Listed in SKILLS.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "TypeScript",
+              "category": "programming",
+              "confidence": 1,
+              "reasoning": "Listed in SKILLS.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "CSS",
+              "category": "design",
+              "confidence": 1,
+              "reasoning": "Listed in SKILLS.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "Jest",
+              "category": "testing",
+              "confidence": 1,
+              "reasoning": "Listed in SKILLS.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "Git",
+              "category": "devops",
+              "confidence": 1,
+              "reasoning": "Listed in SKILLS.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            }
+          ],
+          "missingSkills": [
+            {
+              "name": "Next.js",
+              "category": "programming",
+              "confidence": 1,
+              "reasoning": "Required by repository, not in resume.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "Playwright",
+              "category": "testing",
+              "confidence": 1,
+              "reasoning": "Goal mentions Playwright, not in resume.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "WCAG 2.2 AA accessibility",
+              "category": "design",
+              "confidence": 1,
+              "reasoning": "Goal mentions accessibility, not in resume.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "Lighthouse performance optimization",
+              "category": "programming",
+              "confidence": 1,
+              "reasoning": "Goal mentions performance scoring, not in resume.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "Vercel CI/CD deployment",
+              "category": "devops",
+              "confidence": 1,
+              "reasoning": "Goal mentions Vercel deployment, not in resume.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            }
+          ],
+          "suggestedSkills": [
+            {
+              "name": "Next.js",
+              "category": "programming",
+              "confidence": 1,
+              "reasoning": "Core framework of portfolio repo.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "Prepare this portfolio repository for a senior frontend interview"
+                }
+              ]
+            },
+            {
+              "name": "Playwright",
+              "category": "testing",
+              "confidence": 1,
+              "reasoning": "Required for end‑to‑end tests.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "Prepare this portfolio repository for a senior frontend interview"
+                }
+              ]
+            },
+            {
+              "name": "Vercel",
+              "category": "devops",
+              "confidence": 1,
+              "reasoning": "Target deployment platform.",
+              "evidence": [
+                {
+                  "source": "naturalLanguage",
+                  "excerpt": "Prepare this portfolio repository for a senior frontend interview"
+                }
+              ]
+            }
+          ],
+          "experienceSignals": [
+            {
+              "value": "3 years",
+              "confidence": 1,
+              "reasoning": "Summary states three years experience.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "Frontend developer with three years of experience building React applications."
+                }
+              ]
+            },
+            {
+              "value": "React dashboards in TypeScript",
+              "confidence": 1,
+              "reasoning": "Specific project described.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "- Built React dashboards in TypeScript used by internal sales teams."
+                }
+              ]
+            },
+            {
+              "value": "Improved page load time",
+              "confidence": 1,
+              "reasoning": "Mentioned improvement in resume.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "- Improved page load time by splitting bundles."
+                }
+              ]
+            }
+          ],
+          "educationSignals": [
+            {
+              "value": "B.Sc. Computer Science",
+              "confidence": 1,
+              "reasoning": "Education entry present.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "B.Sc. Computer Science, Example University (2022)"
+                }
+              ]
+            }
+          ],
+          "technologyStack": [
+            {
+              "name": "TypeScript",
+              "category": "programming",
+              "confidence": 1,
+              "reasoning": "Listed in resume and repo.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "CSS",
+              "category": "design",
+              "confidence": 1,
+              "reasoning": "Listed in resume and repo.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            },
+            {
+              "name": "React",
+              "category": "programming",
+              "confidence": 1,
+              "reasoning": "Core skill in resume.",
+              "evidence": [
+                {
+                  "source": "resumeText",
+                  "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+                }
+              ]
+            }
+          ],
+          "careerDirection": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "No explicit career direction provided.",
+            "evidence": []
+          },
+          "projectComplexity": {
+            "inferred": false,
+            "value": null,
+            "confidence": 0,
+            "reasoning": "No project complexity details given.",
+            "evidence": []
+          },
+          "experienceSummary": {
+            "inferred": true,
+            "value": "three-year React developer",
+            "confidence": 1,
+            "reasoning": "Derived from resume statements.",
+            "evidence": [
+              {
+                "source": "resumeText",
+                "excerpt": "Frontend developer with three years of experience building React applications."
+              }
+            ]
+          },
+          "educationSummary": {
+            "inferred": true,
+            "value": "B.Sc. Computer Science 2022",
+            "confidence": 1,
+            "reasoning": "Derived from education entry.",
+            "evidence": [
+              {
+                "source": "resumeText",
+                "excerpt": "B.Sc. Computer Science, Example University (2022)"
+              }
+            ]
+          },
+          "technologySummary": {
+            "inferred": true,
+            "value": "React, TypeScript, CSS, Jest, Git",
+            "confidence": 1,
+            "reasoning": "Compiled from SKILLS line.",
+            "evidence": [
+              {
+                "source": "resumeText",
+                "excerpt": "SKILLS\nReact, TypeScript, CSS, Jest, Git"
+              }
+            ]
+          },
+          "clarificationRequired": false
+        }
+      }
+    },
+    {
+      "fixture": "F6",
+      "run": 2,
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "adapter": "chat",
+      "endpointClass": "paid_approved",
+      "pipelineId": "14b51954-2098-4ce7-8b2a-bd486fdedd41",
+      "elapsedMs": 163,
+      "outcome": "failed",
+      "failureClass": "availability",
+      "errorCode": "AI_CREDITS_EXHAUSTED",
+      "errorMessage": "AI provider credits are exhausted",
+      "failureDetails": [
+        {
+          "code": "AI_CREDITS_EXHAUSTED",
+          "details": null,
+          "attempts": [null]
+        }
+      ],
+      "evidenceSalvage": null,
+      "router": null,
+      "requirements": null,
+      "level": null,
+      "attempts": [
+        {
+          "operation": "combined_preparation",
+          "stage": null,
+          "outcome": "provider_error",
+          "chainIndex": 0,
+          "eligibility": "unapproved",
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "reasoningTokens": 0,
+          "latencyMs": 128,
+          "calculatedCost": null,
+          "costCurrency": "USD"
+        }
+      ],
+      "output": null
+    }
+  ],
+  "updatedAt": "2026-10-18T15:21:17.110Z",
+  "summary": [
+    {
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "operation": "source_understanding",
+      "fixtures": ["F4", "F5"],
+      "runs": 6,
+      "schemaPassRate": 0.8333,
+      "evidencePassRate": 1,
+      "evidencePassRateWithoutSalvage": 0.8,
+      "salvagedRuns": 1,
+      "repairCalls": 0,
+      "repairedRequirements": 0,
+      "criticalRecall": 0.5714,
+      "criticalFoundAnyCriticality": 0.6786,
+      "levelMatchRate": 1,
+      "availabilityFailureRate": 0,
+      "failuresByClass": {
+        "schema": 1
+      },
+      "latencyMs": {
+        "p50": 47227,
+        "p95": 59690
+      },
+      "cost": 0
+    },
+    {
+      "model": "aicredits-chat:openai/gpt-oss-120b",
+      "operation": "combined_preparation",
+      "fixtures": ["F6"],
+      "runs": 2,
+      "schemaPassRate": 1,
+      "evidencePassRate": 1,
+      "evidencePassRateWithoutSalvage": 1,
+      "salvagedRuns": 0,
+      "repairCalls": 0,
+      "repairedRequirements": 0,
+      "criticalRecall": 1,
+      "criticalFoundAnyCriticality": 1,
+      "levelMatchRate": 1,
+      "availabilityFailureRate": 0.5,
+      "failuresByClass": {
+        "availability": 1
+      },
+      "latencyMs": {
+        "p50": 114081,
+        "p95": 114081
+      },
+      "cost": 0
+    }
+  ]
+}

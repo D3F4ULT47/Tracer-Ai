@@ -159,7 +159,13 @@ Cost: about ₹0.46 for the recorded tokens; up to about ₹1.2 more if the 8 ti
   - Reviews missing.
   - A third of calls still time out, which the gate does not check for paid models.
 - **Cost:** about ₹0.65 recorded; up to about ₹0.9 more if the 6 timed-out calls were billed.
-- **Paid time limit raised to 150 s (D-8 change, Oct 18).** The default of `AI_PAID_FALLBACK_BUDGET_MS` is now 150000. Without a matching change, the 120 s per-call timeout would still have cut a single call at 120 s, so preparation calls now take their timeout from the budget. Worst-case preparation wait is now 60 s free plus 150 s paid, plus up to 20 s for evidence repair. Not yet measured: whether 150 s turns the p3 timeouts into valid outputs.
+- **Paid time limit raised to 150 s (D-8 change, Oct 18).** The default of `AI_PAID_FALLBACK_BUDGET_MS` is now 150000. Without a matching change, the 120 s per-call timeout would still have cut a single call at 120 s, so preparation calls now take their timeout from the budget. Worst-case preparation wait is now 60 s free plus 150 s paid, plus up to 20 s for evidence repair.
+- **p4 run at 150 s (`eval-2026-10-18-p4`, gpt-oss-120b, stopped early by `AI_CREDITS_EXHAUSTED` after 8 calls):**
+  - 0 timeouts (p3: 6 of 18). 6 of 8 valid; one call that would have timed out at 90 s succeeded at 114 s (F6).
+  - F4 run 1 wrote 10,000 output tokens (the cap) in 99 s and failed as invalid JSON: a runaway output, not a slow one.
+  - Recall fell on F5: 6 of 6, 0 of 6 and 3 of 6 critical requirements across the 3 runs (overall 57% for source understanding). F5 run 2 was salvaged (14 items dropped for missing evidence).
+  - Too few calls to approve anything; the remaining F6–F9 runs need more AICredits balance.
+  - Cost: about ₹0.6 recorded (about 14k input and 31k output tokens).
 
 ## 4. The legacy pipeline
 
